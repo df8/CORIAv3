@@ -7,6 +7,13 @@
     <groupId>com.bigbasti.coria</groupId>
     <artifactId>coria-interfaces</artifactId>
     <version>3.0.0</version>
+    <dependencies>
+        <dependency>
+            <groupId>com.bigbasti.coria</groupId>
+            <artifactId>coria-core</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+    </dependencies>
     <packaging>jar</packaging>
 
     <properties>
