@@ -55,6 +55,11 @@
 			<artifactId>coria-import-aslinks</artifactId>
 			<version>3.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>com.bigbasti.coria</groupId>
+			<artifactId>coria-data-mysql</artifactId>
+			<version>3.0.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

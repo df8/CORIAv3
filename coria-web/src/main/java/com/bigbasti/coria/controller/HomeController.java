@@ -1,5 +1,6 @@
 package com.bigbasti.coria.controller;
 
+import com.bigbasti.coria.db.DataStorage;
 import com.bigbasti.coria.parser.InputParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +22,17 @@ public class HomeController {
     @Autowired
     List<InputParser> availableInputParsers;
 
+    @Autowired
+    List<DataStorage> dataStorage;
+
     @GetMapping(path = "/")
     public @ResponseBody String getHome(){
         String res = "";
         for(InputParser p : availableInputParsers){
             res = res + "<br/>" + p.getName();
+        }
+        for(DataStorage s : dataStorage){
+            res = res + "<br/>" + s.getName();
         }
         return res;
     }

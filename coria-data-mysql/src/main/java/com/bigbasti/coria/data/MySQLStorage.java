@@ -4,8 +4,11 @@ import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.db.DataStorage;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
@@ -14,6 +17,15 @@ import java.util.List;
 @Component
 public class MySQLStorage implements DataStorage {
 
+    private Logger logger = LoggerFactory.getLogger(MySQLStorage.class);
+
+
+    @PostConstruct
+    public void checkDatabaseSetup(){
+        logger.debug("checking database schema");
+    }
+
+
     @Override
     public String getIdentification() {
         return "coria-data-mysql";
@@ -21,6 +33,7 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public String getName() {
+        logger.debug("getting name");
         return "MySQL Datenbank Adapter";
     }
 
