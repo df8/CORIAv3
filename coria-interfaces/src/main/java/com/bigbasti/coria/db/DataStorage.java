@@ -17,7 +17,7 @@ public interface DataStorage {
 
     String getName();
 
-    String getDeecription();
+    String getDescription();
 
     CoriaEdge getEdge(String id);
     List<CoriaEdge> getEdges();

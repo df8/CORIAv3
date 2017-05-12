@@ -5,9 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.bigbasti.coria</groupId>
-    <artifactId>coria-interfaces</artifactId>
+    <artifactId>coria-data-mysql</artifactId>
     <version>3.0.0</version>
     <packaging>jar</packaging>
+
+    <name>coria-data-mysql</name>
+    <description>Provides CORIA with MySQL functionality</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -17,8 +20,33 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>4.3.8.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>6.0.6</version>
+        </dependency>
+        <dependency>
             <groupId>com.bigbasti.coria</groupId>
-            <artifactId>coria-core</artifactId>
+            <artifactId>coria-interfaces</artifactId>
             <version>3.0.0</version>
         </dependency>
     </dependencies>
@@ -35,6 +63,5 @@
             </plugin>
         </plugins>
     </build>
-
 
 </project>
