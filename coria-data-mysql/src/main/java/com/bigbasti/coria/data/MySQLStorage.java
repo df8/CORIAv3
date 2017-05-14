@@ -2,6 +2,7 @@ package com.bigbasti.coria.data;
 
 import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.db.DataStorage;
+import com.bigbasti.coria.db.StorageStatus;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
 import org.slf4j.Logger;
@@ -135,5 +136,10 @@ public class MySQLStorage implements DataStorage {
     @Override
     public void deleteDataSet(String id) {
 
+    }
+
+    @Override
+    public StorageStatus getStorageStatus() {
+        return null;
     }
 }

@@ -41,4 +41,10 @@ public interface DataStorage {
     void deleteDataSet(DataSet dataSet);
     void deleteDataSet(String id);
 
+    /**
+     * returns current storage status (wether it is available) and provides an
+     * error message in case its not
+     * @return Status of storage
+     */
+    StorageStatus getStorageStatus();
 }
