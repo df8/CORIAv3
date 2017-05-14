@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Graph Risk Analysis Tool" />
+    <meta name="author" content="bigbasti.com" />
+
+    <title>CORIAv3</title>
+
+    <link rel="shortcut icon" href="/img/line-chart.png" />
+
+    <link rel="stylesheet" href="/webjars/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/webjars/datatables/1.10.13/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="/webjars/datatables/1.10.13/css/dataTables.bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/sticky-footer-navbar.css" />
+    <link rel="stylesheet" href="/css/app.css" />
+</head>
+
+<body>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">CORIAv3</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Import Data <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/import/gs/upload">Upload File</a></li>
+                    </ul>
+                </li>
+
+                <!--<li th:each="i: ${interfaces}" class="dropdown">-->
+                <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span th:text="${i.name}">Interface</span> <span class="caret"></span></a>-->
+                <!--<ul class="dropdown-menu">-->
+                <!--<li th:each="m : ${i.methods}"><a th:href="@{/interface/}+${i.name}+'/'+${m.name}" th:text="${m.displayName}">Method</a></li>-->
+                <!--</ul>-->
+                <!--</li>-->
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div>
+</nav>
+
+<footer>
+    <div class="container">
+        <p class="text-muted">&copy; Sebastian Gross 2017</p>
+        <noscript>
+            <div style="position: fixed; top: 0px; left: 0px; z-index: 30000; text-align:center; padding-top: 5px;
+                                    height: 30px; width: 100%; background-color: red; color: white;">
+                <p style="margin-left: auto; margin-right: auto;">JavaScript ist nicht aktiviert. Ohne JavaScript können einige Bereiche der Seite nicht genutzt werden!</p>
+            </div>
+        </noscript>
+    </div>
+</footer>
+
+
+    <script src="/webjars/jquery/1.12.4/jquery.min.js"></script>
+    <script src="/webjars/d3js/3.5.17/d3.min.js"></script>
+    <script src="/js/jsnetworkx.js"></script>
+    <script src="/webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="/webjars/datatables/1.10.13/js/jquery.dataTables.min.js"></script>
+    <script src="/webjars/datatables/1.10.13/js/dataTables.bootstrap.min.js"></script>
+
+</body>
+
+</html>
