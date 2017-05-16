@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html>
+<html ng-app="coria">
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -51,18 +51,31 @@
     </div>
 </nav>
 
+<div class="container">
+    {{2+2}}
+</div>
+
 <footer>
     <div class="container">
         <p class="text-muted">&copy; Sebastian Gross 2017</p>
         <noscript>
             <div style="position: fixed; top: 0px; left: 0px; z-index: 30000; text-align:center; padding-top: 5px;
                                     height: 30px; width: 100%; background-color: red; color: white;">
-                <p style="margin-left: auto; margin-right: auto;">JavaScript ist nicht aktiviert. Ohne JavaScript können einige Bereiche der Seite nicht genutzt werden!</p>
+                <p style="margin-left: auto; margin-right: auto;">JavaScript seems to be not activated! You cant use this app without JavaScript!</p>
             </div>
         </noscript>
     </div>
 </footer>
 
+    <script src="webjars/angularjs/1.6.4/angular.js"></script>
+    <script src="webjars/angularjs/1.6.4/angular-cookies.js"></script>
+    <script src="webjars/angularjs/1.6.4/angular-resource.js"></script>
+    <script src="webjars/angularjs/1.6.4/angular-route.js"></script>
+    <script src="webjars/angularjs/1.6.4/angular-sanitize.min.js"></script>
+    <script src="webjars/angularjs/1.6.4/angular-aria.js"></script>
+    <script src="webjars/angularjs/1.6.4/angular-messages.js"></script>
+    <script src="webjars/angular-ui-bootstrap/2.2.0/ui-bootstrap.js"></script>
+    <script src="webjars/angular-ui-bootstrap/2.2.0/ui-bootstrap-tpls.js"></script>
 
     <script src="/webjars/jquery/1.12.4/jquery.min.js"></script>
     <script src="/webjars/d3js/3.5.17/d3.min.js"></script>
@@ -71,6 +84,7 @@
     <script src="/webjars/datatables/1.10.13/js/jquery.dataTables.min.js"></script>
     <script src="/webjars/datatables/1.10.13/js/dataTables.bootstrap.min.js"></script>
 
+    <script src="app/app.js"></script>
 </body>
 
 </html>
