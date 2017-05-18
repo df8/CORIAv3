@@ -11,6 +11,7 @@ import java.util.*;
  */
 public class DataSet {
     private String id;
+    private String name;
     private Date created;
     private List<CoriaEdge> edges;
     private List<CoriaNode> nodes;
@@ -92,11 +93,19 @@ public class DataSet {
         this.attributes.put(key, value);
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @Override
     public String toString() {
         return "DataSet{" +
                 "id='" + id + '\'' +
+                ", name='" + name + '\'' +
                 ", created=" + created +
                 ", edges=" + edges +
                 ", nodes=" + nodes +

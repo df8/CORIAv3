@@ -34,7 +34,6 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public String getName() {
-        logger.debug("getting name");
         return "MySQL Datenbank Adapter";
     }
 
@@ -114,12 +113,22 @@ public class MySQLStorage implements DataStorage {
     }
 
     @Override
+    public void addDataSet(DataSet dataSet) {
+
+    }
+
+    @Override
     public DataSet getDataSet(String id) {
         return null;
     }
 
     @Override
     public List<DataSet> getDataSets() {
+        return null;
+    }
+
+    @Override
+    public List<DataSet> getDataSetsShort() {
         return null;
     }
 
@@ -141,5 +150,13 @@ public class MySQLStorage implements DataStorage {
     @Override
     public StorageStatus getStorageStatus() {
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return "MySQLStorage{" +
+                "id: " + getIdentification() +
+                ", name: " + getName() +
+                "}";
     }
 }

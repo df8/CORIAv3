@@ -87,4 +87,12 @@ public class ASLinksEdgeImporter implements InputParser {
 
         return importedEdges;
     }
+
+    @Override
+    public String toString() {
+        return "ASLinksEdgeImporter{" +
+                "id: " + getIdentification() +
+                ", name: " + getName() +
+                "}";
+    }
 }
