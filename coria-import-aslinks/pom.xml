@@ -19,11 +19,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.bigbasti.coria</groupId>
-			<artifactId>coria-interfaces</artifactId>
-			<version>3.0.0</version>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<version>4.3.8.RELEASE</version>

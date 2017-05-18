@@ -11,7 +11,6 @@
 
     <modules>
         <module>coria-web</module>
-        <module>coria-interfaces</module>
         <module>coria-import-aslinks</module>
         <module>coria-core</module>
         <module>coria-data-mysql</module>
