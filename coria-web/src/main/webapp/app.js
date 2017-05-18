@@ -3,8 +3,8 @@
 /*global angular */
 /*global alert */
 
-angular.module('app.services', []);
-angular.module('app.components', ['ngResource']);
+angular.module('coria.services', []);
+angular.module('coria.components', ['ngResource']);
 
 var app = angular.module('coria', [
     'ngSanitize'
@@ -13,7 +13,7 @@ var app = angular.module('coria', [
     , 'ngMessages'
     , 'ui.bootstrap'
     , 'ngResource'
-    , 'app.components'
+    , 'coria.components'
     // , 'app.directives'
     // , 'app.filters'
     // , 'app.services'
@@ -26,7 +26,8 @@ var mod = app
     .config ( ['$routeProvider', '$httpProvider',
         function ($routeProvider, $httpProvider) {
             $routeProvider
-                .when('/', { redirectTo: '/login' })
+                // .when('/', { redirectTo: '/login' })
+                .when('/', { template: "<home-index></home-index>" })
                 .when('/users', { templateUrl: 'views/users/users.html' })
                 .when('/locks', { templateUrl: 'views/locks/locks.html' })
                 .otherwise({ template: "<h2>Not yet implemented</h2>"});
