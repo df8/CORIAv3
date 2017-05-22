@@ -7,6 +7,8 @@ import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -20,10 +22,18 @@ public class MySQLStorage implements DataStorage {
 
     private Logger logger = LoggerFactory.getLogger(MySQLStorage.class);
 
+    @Autowired
+    Environment env;
 
     @PostConstruct
     public void checkDatabaseSetup(){
         logger.debug("checking database schema");
+
+        String dbUrl = env.getProperty("coria.db.mysql.jdbcurl");
+        String dbUser = env.getProperty("coria.db.mysql.username");
+        String dbPass = env.getProperty("coria.db.mysql.password");
+
+        logger.debug("trying to connect to database " + dbUrl + " using " + dbUser + "/" + dbPass.replaceAll(".*", "*"));
     }
 
 
