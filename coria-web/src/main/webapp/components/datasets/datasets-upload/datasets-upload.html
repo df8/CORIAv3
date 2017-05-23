@@ -1,0 +1,29 @@
+<div class="page-header">
+    <h1>Datasets <small>Upload new Dataset</small></h1>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <form name="import" id="import">
+            <div class="form-group">
+                <label for="import.providers">Select Import Parser</label>
+                <select class="form-control" ng-model="$ctrl.import.provider" id="import.providers" ng-change="$ctrl.importProviderSelected()">
+                    <option ng-repeat="provider in $ctrl.inputProviders" value="{{provider.identification}}">{{provider.name}}</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="import.name">Give the Dataset a name</label>
+                <input type="text" class="form-control" id="import.name" placeholder="ASLinks from May" ng-model="$ctrl.import.name">
+            </div>
+            <div class="form-group">
+                <label for="import.file">Select Datase File</label>
+                <input type="file" id="import.file" ng-model="$ctrl.import.file">
+                <p class="help-block">Please note the requirements on the right -></p>
+            </div>
+            <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> Upload Dataset</button>
+        </form>
+    </div>
+    <div class="col-md-8">
+        <h2>{{$ctrl.selectedProvider.name}}</h2>
+        <div ng-bind-html="$ctrl.selectedProvider.description"></div>
+    </div>
+</div>

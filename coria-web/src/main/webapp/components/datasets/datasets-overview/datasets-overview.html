@@ -2,10 +2,7 @@
     <h1>Datasets <small>Upload and manage datasets</small></h1>
 </div>
 <div class="row">
-    <div class="col-md-2">
-        <button class="btn btn-default btn-lg spacer"><span class="glyphicon glyphicon-floppy-open" aria-hidden="true" style="font-size:6em;"></span><br/>Upload Dataset</button>
-    </div>
-    <div class="col-md-10">
+    <div class="col-md-12">
         <h2>Data File Format</h2>
         <p>All uploaded files must match the format described below</p>
         <p>Each line represents one link, lines starting with <code>#</code> are ignored! Only lines are processed which begin with <code>I</code> or <code>D</code></p>
@@ -13,5 +10,10 @@
         <p>compatible files can be obtained from caida.org - for example here: <a href="http://data.caida.org/datasets/topology/ark/ipv4/as-links/team-1/2017/" target="blank">http://data.caida.org/datasets/topology/ark/ipv4/as-links/team-1/2017/</a></p>
         <p>The expected file format is <code>.txt</code> - so please extract the <code>.gz</code> file from caida.org before uploading</p>
         <p><strong>Note:</strong> because of performance reasons the interactive graph is limited to 3000 links</p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <a class="btn btn-default spacer" href="#!/upload"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Upload New Dataset</a>
     </div>
 </div>

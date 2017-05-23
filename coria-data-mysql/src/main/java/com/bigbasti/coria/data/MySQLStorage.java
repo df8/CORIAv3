@@ -5,6 +5,7 @@ import com.bigbasti.coria.db.DataStorage;
 import com.bigbasti.coria.db.StorageStatus;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
+import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -24,18 +28,44 @@ public class MySQLStorage implements DataStorage {
 
     @Autowired
     Environment env;
+    private String dbUrl;
+    private String dbUser;
+    private String dbPass;
+    private String dbSchema;
+    private String dbDriver;
 
     @PostConstruct
     public void checkDatabaseSetup(){
         logger.debug("checking database schema");
 
-        String dbUrl = env.getProperty("coria.db.mysql.jdbcurl");
-        String dbUser = env.getProperty("coria.db.mysql.username");
-        String dbPass = env.getProperty("coria.db.mysql.password");
+        dbUrl = env.getProperty("coria.db.mysql.jdbcurl");
+        dbUser = env.getProperty("coria.db.mysql.username");
+        dbPass = env.getProperty("coria.db.mysql.password");
+        dbSchema = env.getProperty("coria.db.mysql.schema");
+        dbDriver = env.getProperty("coria.db.mysql.driver");
 
-        logger.debug("trying to connect to database " + dbUrl + " using " + dbUser + "/" + dbPass.replaceAll(".*", "*"));
+        logger.debug("trying to connect to database " + dbUrl + " (" + dbSchema + ") using " + dbUser + "/" + dbPass.replaceAll(".*", "*") + " with driver {}", dbDriver);
+
+        if(getStorageStatus().isReadyToUse()){
+            migrateDatabaseIfNeeded(dbUrl, dbUser, dbPass, dbSchema);
+        }else{
+            logger.error("database seems not to be ready to use");
+        }
+        logger.debug("database check completed");
     }
 
+    private void migrateDatabaseIfNeeded(String url, String user, String pass, String schema){
+        logger.info("automatic db migration is active - checking for outstanding migration");
+        try {
+            Flyway migration = new Flyway();
+            migration.setDataSource(url, user, pass);
+            migration.setSchemas(schema);
+            migration.migrate();
+        } catch (Exception e) {
+            logger.error("automatic migration failed because {}", e.getMessage());
+        }
+        logger.info("automatic migration finished");
+    }
 
     @Override
     public String getIdentification() {
@@ -159,7 +189,20 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public StorageStatus getStorageStatus() {
-        return null;
+        StorageStatus status = new StorageStatus(true, null);
+        try {
+            Class.forName(dbDriver);
+            Connection con= DriverManager.getConnection(dbUrl, dbUser, dbPass);
+        } catch (ClassNotFoundException e) {
+            logger.error("error while connecting to database: {}", e.getMessage());
+            status.setReadyToUse(false);
+            status.setMessage(e.getMessage());
+        } catch (SQLException e) {
+            logger.error("error while checking storage status: {}", e.getMessage());
+            status.setReadyToUse(false);
+            status.setMessage(e.getMessage());
+        }
+        return status;
     }
 
     @Override

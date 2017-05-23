@@ -29,8 +29,8 @@ var mod = app
                 // .when('/', { redirectTo: '/login' })
                 .when('/', { template: "<home-index></home-index>" })
                 .when('/datasets', { template: "<datasets-overview></datasets-overview>" })
-                .when('/users', { templateUrl: 'views/users/users.html' })
-                .when('/locks', { templateUrl: 'views/locks/locks.html' })
+                .when('/upload', { template: "<datasets-upload></datasets-upload>" })
+                .when('/locks', { templateUrl: "views/locks/locks.html" })
                 .otherwise({ template: "<h2>Not yet implemented</h2>"});
         }]);
 

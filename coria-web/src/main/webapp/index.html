@@ -33,19 +33,8 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Import Data <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#!/datasets">Upload File</a></li>
-                    </ul>
-                </li>
-
-                <!--<li th:each="i: ${interfaces}" class="dropdown">-->
-                <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span th:text="${i.name}">Interface</span> <span class="caret"></span></a>-->
-                <!--<ul class="dropdown-menu">-->
-                <!--<li th:each="m : ${i.methods}"><a th:href="@{/interface/}+${i.name}+'/'+${m.name}" th:text="${m.displayName}">Method</a></li>-->
-                <!--</ul>-->
-                <!--</li>-->
+                <li class="active"><a href="#!/datasets">Data Sets</a></li>
+                <li><a href="#">Modules</a></li>
             </ul>
         </div><!--/.nav-collapse -->
     </div>
@@ -85,8 +74,11 @@
     <script src="/webjars/datatables/1.10.13/js/dataTables.bootstrap.min.js"></script>
 
     <script src="app.js"></script>
+    <script src="/services/services.js"></script>
+
     <script src="components/home-index/home-index.js"></script>
     <script src="components/datasets/datasets-overview/datasets-overview.js"></script>
+    <script src="components/datasets/datasets-upload/datasets-upload.js"></script>
 </body>
 
 </html>
