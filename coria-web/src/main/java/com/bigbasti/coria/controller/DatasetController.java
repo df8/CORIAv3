@@ -12,6 +12,7 @@ import com.sun.xml.internal.ws.encoding.DataHandlerDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +28,7 @@ import java.util.List;
  * Created by Sebastian Gross
  */
 @Controller
-@RequestMapping(path = "/datasets")
+@RequestMapping(path = "/api/datasets")
 public class DatasetController {
     private Logger logger = LoggerFactory.getLogger(DatasetController.class);
 
@@ -54,7 +55,8 @@ public class DatasetController {
     }
 
     @PostMapping("/upload")
-    public @ResponseBody DataSet handleDataSetUpload(DataSetUpload upload) {
+    public @ResponseBody
+    ResponseEntity handleDataSetUpload(DataSetUpload upload) {
         logger.debug("received dataset file for import");
 
         if(upload.isValid()){
@@ -65,7 +67,7 @@ public class DatasetController {
                 if(result == null){
                     //iser specified an unknown parser
                     logger.error("the parser " + upload.getParser() + " is unknown to coria");
-                    //TODO error response
+                    return ResponseEntity.status(500).body("{\"error\":\"The specified parser is not registered in CORIA\"}");
                 }
                 ArrayList<CoriaEdge> edges = null;
                 ArrayList<CoriaNode> nodes = null;
@@ -73,6 +75,10 @@ public class DatasetController {
                 try{
                     edges = (ArrayList<CoriaEdge>) result;
                     logger.debug("successfully parsed " + edges.size() + " edges from upload");
+                    if(edges.size() == 0){
+                        logger.debug("no edges was created by the import - there must be something wrong with the data file");
+                        return ResponseEntity.status(500).body("{\"error\":\"no data was created by the import - there must be something wrong with the data file\"}");
+                    }
 
                     DataSet dataSet = new DataSet();
                     dataSet.setCreated(new Date());
@@ -81,12 +87,18 @@ public class DatasetController {
                     getActiveStorage().addDataSet(dataSet);
 
                     logger.debug("new dataset successfully stored");
-                    return dataSet;
-                }catch (Exception ex){/*no edges created try nodes*/}
+                    return ResponseEntity.ok(dataSet);
+                }catch (Exception ex){
+                    logger.error("Saving Edges failed: {}", ex.getMessage());
+                }
 
                 try{
                     nodes = (ArrayList<CoriaNode>) result;
                     logger.debug("successfully parsed " + edges.size() + " nodes from upload");
+                    if(nodes.size() == 0){
+                        logger.debug("no edges was created by the import - there must be something wrong with the data file");
+                        return ResponseEntity.status(500).body("{\"error\":\"no data was created by the import - there must be something wrong with the data file\"}");
+                    }
 
                     DataSet dataSet = new DataSet();
                     dataSet.setCreated(new Date());
@@ -95,23 +107,23 @@ public class DatasetController {
                     getActiveStorage().addDataSet(dataSet);
 
                     logger.debug("new dataset successfully stored");
-                    return dataSet;
-                }catch (Exception ex){}
-
+                    return ResponseEntity.ok(dataSet);
+                }catch (Exception ex){
+                    logger.error("Saving Nodes failed: {}", ex.getMessage());
+                    return ResponseEntity.status(500).body("{\"error\":\"Please check if the file has the appropriate format (" + ex.getMessage() + "\"}");
+                }
                 //if we come this far there is something wring with the upload/parser
-                //TODO error response
+//                return ResponseEntity.status(500).body("{\"error\":\"Please check if the file has the appropriate format\"}");
 
             } catch (FormatNotSupportedException e) {
-                //TODO error response
+                return ResponseEntity.status(500).body("{\"error\":\"The uploaded file does not match the specified format\"}");
             } catch (IOException e) {
-                e.printStackTrace();
-                //TODO error response
+                return ResponseEntity.status(500).body("{\"error\":\"Error while processing the uploaded file: " + e.getMessage() + "\"}");
             }
         }else{
             logger.error("received an invalid upload");
-            //TODO error response
+            return ResponseEntity.status(500).body("{\"error\":\"Please make sure all required fields are provided\"}");
         }
-        return null;
     }
 
     private InputParser getInputParser(String id){

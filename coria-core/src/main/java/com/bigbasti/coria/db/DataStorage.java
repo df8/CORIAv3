@@ -35,7 +35,7 @@ public interface DataStorage {
     void deleteNode(CoriaNode node);
     void deleteNode(String id);
 
-    void addDataSet(DataSet dataSet);
+    String addDataSet(DataSet dataSet);
     DataSet getDataSet(String id);
     List<DataSet> getDataSets();
     /**

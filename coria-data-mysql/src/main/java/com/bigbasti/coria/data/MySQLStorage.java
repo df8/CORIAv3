@@ -13,9 +13,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 
 /**
@@ -153,8 +151,75 @@ public class MySQLStorage implements DataStorage {
     }
 
     @Override
-    public void addDataSet(DataSet dataSet) {
+    public String addDataSet(DataSet dataSet) {
+        final String INSERT_DATASET = "INSERT INTO " + dbSchema + ".`datasets` (`name`, `created`) VALUES (?, ?)";
+        final String INSERT_EDGE = "INSERT INTO " + dbSchema + ".`edges` (`dataset_id`, `name`, `source`, `destination`) VALUES (?, ?, ?, ?);";
+        final String INSERT_NODE = "INSERT INTO" + dbSchema + ".`nodes` (`dataset_id`, `name`) VALUES (?, ?);";
 
+        int dataSetKey = 0;
+        try {
+            Connection con = getConnection();
+            PreparedStatement stmt = con.prepareStatement(INSERT_DATASET, Statement.RETURN_GENERATED_KEYS);
+
+            stmt.setString(1, dataSet.getName());
+            stmt.setTimestamp(2, new Timestamp(dataSet.getCreated().getTime()));
+
+            dataSetKey = stmt.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("Inserting new DataSet failed: {}", e.getMessage());
+            return e.getMessage();
+        } catch (ClassNotFoundException e) {
+            logger.error("Inserting new DataSet failed: {}", e.getMessage());
+            return e.getMessage();
+        }
+
+        //TODO was wenn es doch nodes gibt?
+
+        if(dataSet.getEdges() != null && dataSet.getEdges().size() > 0) {
+            //first we must insert the nodes into the db
+            try {
+                Connection con = getConnection();
+                for(CoriaEdge edge : dataSet.getEdges()){
+                    PreparedStatement stmt = con.prepareStatement(INSERT_NODE, Statement.RETURN_GENERATED_KEYS);
+
+                    stmt.setInt(1, dataSetKey);
+                    stmt.setString(2, edge.getName());
+
+                    int nodeKey = stmt.executeUpdate();
+                    //TODO key in node speichern
+                }
+
+            } catch (SQLException e) {
+                logger.error("Inserting new DataSet failed: {}", e.getMessage());
+                return e.getMessage();
+            } catch (ClassNotFoundException e) {
+                logger.error("Inserting new DataSet failed: {}", e.getMessage());
+                return e.getMessage();
+            }
+
+            //then we add the edges
+            try {
+                Connection con = getConnection();
+                for(CoriaEdge edge : dataSet.getEdges())
+                //TODO an Edges anpassen
+                {
+                    PreparedStatement stmt = con.prepareStatement(INSERT_EDGE, Statement.RETURN_GENERATED_KEYS);
+
+                    stmt.setInt(1, dataSetKey);
+                    stmt.setString(2, edge.getName());
+
+                    stmt.executeUpdate();
+                }
+
+            } catch (SQLException e) {
+                logger.error("Inserting new DataSet failed: {}", e.getMessage());
+                return e.getMessage();
+            } catch (ClassNotFoundException e) {
+                logger.error("Inserting new DataSet failed: {}", e.getMessage());
+                return e.getMessage();
+            }
+        }
+        return null;
     }
 
     @Override
@@ -191,8 +256,7 @@ public class MySQLStorage implements DataStorage {
     public StorageStatus getStorageStatus() {
         StorageStatus status = new StorageStatus(true, null);
         try {
-            Class.forName(dbDriver);
-            Connection con= DriverManager.getConnection(dbUrl, dbUser, dbPass);
+            getConnection();
         } catch (ClassNotFoundException e) {
             logger.error("error while connecting to database: {}", e.getMessage());
             status.setReadyToUse(false);
@@ -203,6 +267,11 @@ public class MySQLStorage implements DataStorage {
             status.setMessage(e.getMessage());
         }
         return status;
+    }
+
+    private Connection getConnection() throws SQLException, ClassNotFoundException {
+        Class.forName(dbDriver);
+        return DriverManager.getConnection(dbUrl, dbUser, dbPass);
     }
 
     @Override
