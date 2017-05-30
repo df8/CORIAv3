@@ -3,13 +3,44 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <h2>Data File Format</h2>
-        <p>All uploaded files must match the format described below</p>
-        <p>Each line represents one link, lines starting with <code>#</code> are ignored! Only lines are processed which begin with <code>I</code> or <code>D</code></p>
-        <p>One example line could look like this: <code>I	10010	23775	2	9	12	15	28	29</code> where the parameters are separated by <code>tab</code> characters and represent the following information (in the same order) <code>I   from_AS   to_AS   gap_length   monitor_key1   monitor_key2 ...</code></p>
-        <p>compatible files can be obtained from caida.org - for example here: <a href="http://data.caida.org/datasets/topology/ark/ipv4/as-links/team-1/2017/" target="blank">http://data.caida.org/datasets/topology/ark/ipv4/as-links/team-1/2017/</a></p>
-        <p>The expected file format is <code>.txt</code> - so please extract the <code>.gz</code> file from caida.org before uploading</p>
-        <p><strong>Note:</strong> because of performance reasons the interactive graph is limited to 3000 links</p>
+        <table st-table="$ctrl.displayedCollection" st-safe-src="$ctrl.datasets" class="table table-striped">
+            <thead>
+            <tr>
+                <th>&nbsp;</th>
+                <th st-sort="name">Name</th>
+                <th st-sort="created">Created</th>
+                <th st-sort="notificationEmails">E-Mails</th>
+                <th st-sort="metrics">Metrics</th>
+                <th>Attributes</th>
+            </tr>
+            <tr>
+                <th>&nbsp;</th>
+                <th>
+                    <input st-search="name" placeholder="search for name" class="input-sm form-control" type="search"/>
+                </th>
+                <th colspan="4">
+                    <input st-search placeholder="global search" class="input-sm form-control" type="search"/>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="ds in $ctrl.displayedCollection">
+                <td><a class="btn btn-default" ng-click="openDataset(ds)"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a></td>
+                <td>{{ds.name}}</td>
+                <td>{{ds.created | date}}</td>
+                <td>{{ds.notificationEmails}}</td>
+                <td>{{ds.metrics}}</td>
+                <td>{{ds.attributes}}</a></td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr>
+                <td colspan="5" class="text-center">
+                    <div st-pagination="" st-items-by-page="$ctrl.datasetsPerPage" st-displayed-pages="10"></div>
+                </td>
+            </tr>
+            </tfoot>
+        </table>
     </div>
 </div>
 <div class="row">

@@ -5,16 +5,24 @@ import com.bigbasti.coria.db.DataStorage;
 import com.bigbasti.coria.db.StorageStatus;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
+import com.bigbasti.coria.metrics.Metric;
+import com.google.common.base.Strings;
 import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 
 import javax.annotation.PostConstruct;
 import java.sql.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Sebastian Gross
@@ -31,6 +39,8 @@ public class MySQLStorage implements DataStorage {
     private String dbPass;
     private String dbSchema;
     private String dbDriver;
+
+    private final int BATCH_SIZE = 5000;
 
     @PostConstruct
     public void checkDatabaseSetup(){
@@ -154,70 +164,87 @@ public class MySQLStorage implements DataStorage {
     public String addDataSet(DataSet dataSet) {
         final String INSERT_DATASET = "INSERT INTO " + dbSchema + ".`datasets` (`name`, `created`) VALUES (?, ?)";
         final String INSERT_EDGE = "INSERT INTO " + dbSchema + ".`edges` (`dataset_id`, `name`, `source`, `destination`) VALUES (?, ?, ?, ?);";
-        final String INSERT_NODE = "INSERT INTO" + dbSchema + ".`nodes` (`dataset_id`, `name`) VALUES (?, ?);";
+        final String INSERT_NODE = "INSERT INTO " + dbSchema + ".`nodes` (`dataset_id`, `name`) VALUES (?, ?);";
 
         int dataSetKey = 0;
-        try {
-            Connection con = getConnection();
-            PreparedStatement stmt = con.prepareStatement(INSERT_DATASET, Statement.RETURN_GENERATED_KEYS);
+        logger.debug("inserting dataset...");
+        Instant starts = Instant.now();
+        try (Connection con = getConnection()){
+            try(PreparedStatement stmt = con.prepareStatement(INSERT_DATASET, Statement.RETURN_GENERATED_KEYS)) {
+                stmt.setString(1, dataSet.getName());
+                stmt.setTimestamp(2, new Timestamp(dataSet.getCreated().getTime()));
 
-            stmt.setString(1, dataSet.getName());
-            stmt.setTimestamp(2, new Timestamp(dataSet.getCreated().getTime()));
-
-            dataSetKey = stmt.executeUpdate();
-        } catch (SQLException e) {
-            logger.error("Inserting new DataSet failed: {}", e.getMessage());
-            return e.getMessage();
-        } catch (ClassNotFoundException e) {
+                stmt.executeUpdate();
+                con.commit();
+                //get the autoincremented dataset id
+                ResultSet rs = stmt.getGeneratedKeys();
+                rs.next();
+                dataSetKey = rs.getInt(1);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
             logger.error("Inserting new DataSet failed: {}", e.getMessage());
             return e.getMessage();
         }
+        Instant ends = Instant.now();
+        logger.debug("inserting dataset finished ({})", Duration.between(starts, ends));
 
-        //TODO was wenn es doch nodes gibt?
-
+        starts = Instant.now();
         if(dataSet.getEdges() != null && dataSet.getEdges().size() > 0) {
+            logger.debug("inserting nodes...");
             //first we must insert the nodes into the db
-            try {
-                Connection con = getConnection();
-                for(CoriaEdge edge : dataSet.getEdges()){
-                    PreparedStatement stmt = con.prepareStatement(INSERT_NODE, Statement.RETURN_GENERATED_KEYS);
+            try (Connection con = getConnection()){
+                con.setAutoCommit(false);
+                try(PreparedStatement stmt = con.prepareStatement(INSERT_NODE, Statement.RETURN_GENERATED_KEYS)) {
+                    int batchCounter = 0;
+                    for (CoriaNode node : dataSet.getNodes()) {
+                        stmt.clearParameters();
+                        stmt.setInt(1, dataSetKey);
+                        stmt.setString(2, node.getName());
+                        stmt.addBatch();
 
-                    stmt.setInt(1, dataSetKey);
-                    stmt.setString(2, edge.getName());
-
-                    int nodeKey = stmt.executeUpdate();
-                    //TODO key in node speichern
+                        if (batchCounter++ > BATCH_SIZE) {
+                            stmt.executeBatch();
+                            batchCounter = 0;
+                        }
+                    }
+                    stmt.executeBatch();
+                    con.commit();
                 }
-
-            } catch (SQLException e) {
-                logger.error("Inserting new DataSet failed: {}", e.getMessage());
-                return e.getMessage();
-            } catch (ClassNotFoundException e) {
-                logger.error("Inserting new DataSet failed: {}", e.getMessage());
+            } catch (SQLException | ClassNotFoundException e) {
+                logger.error("Inserting Nodes failed: {}", e.getMessage());
                 return e.getMessage();
             }
+            ends = Instant.now();
+            logger.debug("inserting nodes finished ({})", Duration.between(starts, ends));
 
+            starts = Instant.now();
+            logger.debug("inserting edges...");
             //then we add the edges
-            try {
-                Connection con = getConnection();
-                for(CoriaEdge edge : dataSet.getEdges())
-                //TODO an Edges anpassen
-                {
-                    PreparedStatement stmt = con.prepareStatement(INSERT_EDGE, Statement.RETURN_GENERATED_KEYS);
-
-                    stmt.setInt(1, dataSetKey);
-                    stmt.setString(2, edge.getName());
-
-                    stmt.executeUpdate();
+            try (Connection con = getConnection()){
+                con.setAutoCommit(false);
+                try(PreparedStatement stmt = con.prepareStatement(INSERT_EDGE, Statement.RETURN_GENERATED_KEYS)) {
+                    int batchCounter = 0;
+                    for (CoriaEdge edge : dataSet.getEdges()) {
+                        stmt.clearParameters();
+                        stmt.setInt(1, dataSetKey);
+                        stmt.setString(2, edge.getName());
+                        stmt.setString(3, edge.getSourceNode().getName());
+                        stmt.setString(4, edge.getDestinationNode().getName());
+                        stmt.addBatch();
+                        if (batchCounter++ > BATCH_SIZE) {
+                            stmt.executeBatch();
+                            batchCounter = 0;
+                        }
+                    }
+                    stmt.executeBatch();
+                    con.commit();
                 }
-
-            } catch (SQLException e) {
-                logger.error("Inserting new DataSet failed: {}", e.getMessage());
-                return e.getMessage();
-            } catch (ClassNotFoundException e) {
-                logger.error("Inserting new DataSet failed: {}", e.getMessage());
+            } catch (SQLException | ClassNotFoundException e) {
+                logger.error("Inserting new Edges failed: {}", e.getMessage());
                 return e.getMessage();
             }
+            ends = Instant.now();
+            logger.debug("inserting edges finished ({})", Duration.between(starts, ends));
         }
         return null;
     }
@@ -234,7 +261,100 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public List<DataSet> getDataSetsShort() {
-        return null;
+        logger.debug("loading short datasets...");
+        final String SELECT_ALL_DATASETS_SHORT = "SELECT * FROM " + dbSchema + ".datasets";
+        final String SELECT_METRIC_FOR_DATASET = "SELECT * FROM " + dbSchema + ".metrics where dataset_id = ?";
+        final String SELECT_ATTRIBUTE_FOR_DATASET = "SELECT * FROM " + dbSchema + ".attributes where dataset_id = ?";
+
+        List<DataSet> datasets = new ArrayList<>();
+        Instant starts = Instant.now();
+        try {
+            try (Connection con = getConnection()) {
+                try (PreparedStatement stmt = con.prepareStatement(SELECT_ALL_DATASETS_SHORT)) {
+                    ResultSet rs = stmt.executeQuery();
+                    while (rs.next()){
+                        datasets.add(toDataSet(rs));
+                    }
+                }
+            }
+            Instant ends = Instant.now();
+            logger.debug("loaded {} datasets ({})", datasets.size(), Duration.between(starts, ends));
+        } catch (SQLException | ClassNotFoundException e) {
+            logger.error("could not load datasets: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        //use the dataset information to load the rest of the information
+        // ======== METRICS
+
+        logger.debug("loading metrics for datasets...");
+        starts = Instant.now();
+        try {
+            try (Connection con = getConnection()) {
+                for(DataSet ds : datasets){
+                    try (PreparedStatement stmt = con.prepareStatement(SELECT_METRIC_FOR_DATASET)) {
+                        stmt.setInt(1, Integer.parseInt(ds.getId()));
+                        ResultSet rs = stmt.executeQuery();
+                        while (rs.next()){
+                            ds.getMetrics().add(toMetric(rs));
+                        }
+                    }
+                }
+            }
+            Instant ends = Instant.now();
+            logger.debug("loaded metrics for all datasets ({})", Duration.between(starts, ends));
+        } catch (SQLException | ClassNotFoundException e) {
+            logger.error("could not load metrics: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        //======== ATTRIBUTES
+
+        logger.debug("loading attributes for datasets...");
+        starts = Instant.now();
+        try {
+            try (Connection con = getConnection()) {
+                for(DataSet ds : datasets){
+                    try (PreparedStatement stmt = con.prepareStatement(SELECT_ATTRIBUTE_FOR_DATASET)) {
+                        stmt.setInt(1, Integer.parseInt(ds.getId()));
+                        ResultSet rs = stmt.executeQuery();
+                        while (rs.next()){
+                            ds.setAttribute(rs.getString("key"), rs.getString("value"));
+                        }
+                    }
+                }
+            }
+            Instant ends = Instant.now();
+            logger.debug("loaded attributes for all datasets ({})", Duration.between(starts, ends));
+        } catch (SQLException | ClassNotFoundException e) {
+            logger.error("could not load attributes: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        return datasets;
+    }
+
+    private Metric toMetric(ResultSet rs) throws SQLException {
+        Metric m = new Metric();
+        m.setId(String.valueOf(rs.getInt("id")));
+        m.setName(rs.getString("name"));
+        m.setShortcut(rs.getString("shortcut"));
+        m.setProvider(rs.getString("provider"));
+        m.setTechnology(rs.getString("technology"));
+        m.setExecutionStarted(rs.getDate("started"));
+        m.setExecutionFinished(rs.getDate("finished"));
+        return m;
+    }
+
+    private DataSet toDataSet(ResultSet rs) throws SQLException {
+        DataSet ds = new DataSet();
+        ds.setId(String.valueOf(rs.getInt("id")));
+        ds.setName(rs.getString("name"));
+        ds.setCreated(rs.getDate("created"));
+        if(!Strings.isNullOrEmpty(rs.getString("emails"))) {
+            ds.setNotificationEmails(Arrays.stream(rs.getString("emails").split(",")).collect(Collectors.toList()));
+        }
+        return ds;
     }
 
     @Override

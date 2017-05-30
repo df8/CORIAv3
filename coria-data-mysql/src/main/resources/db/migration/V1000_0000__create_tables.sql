@@ -20,8 +20,8 @@ CREATE TABLE `metrics` (
   CREATE TABLE `edges` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(128) NULL,
-  `source` INT NOT NULL,
-  `destination` INT NOT NULL,
+  `source` VARCHAR(128) NULL,
+  `destination` VARCHAR(128) NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC));
 
@@ -56,20 +56,20 @@ ADD CONSTRAINT `edge_dataset_id`
   ON DELETE NO ACTION
   ON UPDATE NO ACTION;
 
-  ALTER TABLE `edges`
-ADD INDEX `source_node_id_idx` (`source` ASC),
-ADD INDEX `destination_node_id_idx` (`destination` ASC);
-ALTER TABLE `edges`
-ADD CONSTRAINT `source_node_id`
-  FOREIGN KEY (`source`)
-  REFERENCES `nodes` (`id`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION,
-ADD CONSTRAINT `destination_node_id`
-  FOREIGN KEY (`destination`)
-  REFERENCES `nodes` (`id`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION;
+--   ALTER TABLE `edges`
+-- ADD INDEX `source_node_id_idx` (`source` ASC),
+-- ADD INDEX `destination_node_id_idx` (`destination` ASC);
+-- ALTER TABLE `edges`
+-- ADD CONSTRAINT `source_node_id`
+--   FOREIGN KEY (`source`)
+--   REFERENCES `nodes` (`id`)
+--   ON DELETE NO ACTION
+--   ON UPDATE NO ACTION,
+-- ADD CONSTRAINT `destination_node_id`
+--   FOREIGN KEY (`destination`)
+--   REFERENCES `nodes` (`id`)
+--   ON DELETE NO ACTION
+--   ON UPDATE NO ACTION;
 
 
 

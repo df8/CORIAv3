@@ -45,9 +45,16 @@ angular.module('coria.components')
 
                 return deferred.promise;
             }
+            function getShortDataSets(){
+                return $http.get("/api/datasets/short")
+                    .then(function(response){
+                        return response.data;
+                    });
+            }
 
             return {
-                uploadNewDataSet: uploadImportForm
+                uploadNewDataSet: uploadImportForm,
+                shortDataSets: getShortDataSets
             }
         }])
 ;

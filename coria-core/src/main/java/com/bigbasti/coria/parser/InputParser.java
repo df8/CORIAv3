@@ -1,5 +1,7 @@
 package com.bigbasti.coria.parser;
 
+import com.bigbasti.coria.graph.CoriaEdge;
+
 import java.util.List;
 
 /**
@@ -37,10 +39,9 @@ public interface InputParser {
 
     /**
      * Parses the Objects provided by the parser from the given data<br/>
-     * The parser decides what objects are generated, usually {@link CoriaNode} or {@code CoriaEdge}
      * @param data the data in the format described in {@link #getExpectedFormat()}
-     * @return the parsed Objects
+     * @return List of {@code CoriaEdge}
      */
-    Object getParsedObjects(Object data) throws FormatNotSupportedException;
+    List<CoriaEdge> getParsedObjects(Object data) throws FormatNotSupportedException;
 
 }

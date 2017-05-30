@@ -14,6 +14,7 @@ var app = angular.module('coria', [
     , 'ui.bootstrap'
     , 'ngResource'
     , 'coria.components'
+    , 'smart-table'
     // , 'app.directives'
     // , 'app.filters'
     // , 'app.services'

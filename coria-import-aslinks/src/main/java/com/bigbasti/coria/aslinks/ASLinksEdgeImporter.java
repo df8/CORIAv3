@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Parser for ASLink Files provided by CAIDA
@@ -45,7 +46,7 @@ public class ASLinksEdgeImporter implements InputParser {
         return "Uncompressed Tab-Separated textfile";
     }
 
-    public Object getParsedObjects(Object data) throws FormatNotSupportedException {
+    public List<CoriaEdge> getParsedObjects(Object data) throws FormatNotSupportedException {
         ArrayList<CoriaEdge> importedEdges = new ArrayList<>();
 
         logger.debug("starting import of data");

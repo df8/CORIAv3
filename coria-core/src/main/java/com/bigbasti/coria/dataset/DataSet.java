@@ -35,12 +35,14 @@ public class DataSet {
         this.attributes = new HashMap<String, String>();
         this.edges = new ArrayList<>();
         this.nodes = new ArrayList<>();
+        this.metrics = new ArrayList<>();
     }
 
     public DataSet(List<CoriaEdge> edges, List<CoriaNode> nodes) {
         this.edges = edges;
         this.nodes = nodes;
         this.attributes = new HashMap<String, String>();
+        this.metrics = new ArrayList<>();
     }
 
     public String getId() {

@@ -79,4 +79,22 @@ public class CoriaNode {
                 ", attributes=" + attributes +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CoriaNode coriaNode = (CoriaNode) o;
+
+        if (id != null ? !id.equals(coriaNode.id) : coriaNode.id != null) return false;
+        return name.equals(coriaNode.name);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + name.hashCode();
+        return result;
+    }
 }

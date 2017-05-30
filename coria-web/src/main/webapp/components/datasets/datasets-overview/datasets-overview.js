@@ -5,9 +5,14 @@ angular.module('coria.components')
         bindings: {},
         transclude: true,
         templateUrl: 'components/datasets/datasets-overview/datasets-overview.html',
-        controller: function(){
+        controller: ["dataSetService", "$scope",
+            function( dataSetService,   $scope){
             var vm = this;
 
-
-        }
+            vm.datasets = [];
+            vm.datasetsPerPage = 15;
+            dataSetService.shortDataSets().then(function(data){
+                vm.datasets = data;
+            });
+        }]
     });
