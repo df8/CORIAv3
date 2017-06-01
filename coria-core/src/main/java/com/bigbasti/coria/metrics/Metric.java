@@ -14,6 +14,19 @@ public class Metric {
     private Date executionStarted;
     private Date executionFinished;
 
+    /**
+     * defines what this moetric is met for:<br/>
+     * DATASET: Metric Value concerns the whole dataset and should be diaplayed on the dataset details page<br/>
+     * NODE: Metric is only relevant for single nodes<br/>
+     * EDGE: Metric is only relevant for single edges<br/>
+     * dependent on type this metric could be shown or hidden in certain views
+     */
+    private MetricType type;
+    /**
+     * the value is not always present, only if the metric has a single outcome and concerns only a single entity eg. a dataset
+     */
+    private String value;
+
     public Metric() {
     }
 
@@ -83,14 +96,40 @@ public class Metric {
         this.executionFinished = executionFinished;
     }
 
+    public MetricType getType() {
+        return type;
+    }
+
+    public void setType(MetricType type) {
+        this.type = type;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
     @Override
     public String toString() {
         return "Metric{" +
                 "id='" + id + '\'' +
+                ", name='" + name + '\'' +
                 ", shortcut='" + shortcut + '\'' +
+                ", provider='" + provider + '\'' +
                 ", technology='" + technology + '\'' +
                 ", executionStarted=" + executionStarted +
                 ", executionFinished=" + executionFinished +
+                ", type=" + type +
+                ", value='" + value + '\'' +
                 '}';
+    }
+
+    public enum MetricType{
+        DATASET,
+        NODE,
+        EDGE
     }
 }

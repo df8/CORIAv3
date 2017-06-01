@@ -1,12 +1,12 @@
 'use strict';
 
 angular.module('coria.components')
-    .component('datasetsOverview', {
+    .component('datasetsDetails', {
         bindings: {},
         transclude: true,
-        templateUrl: 'components/datasets/datasets-overview/datasets-overview.html',
-        controller: ["dataSetService", "$scope", "$location",
-            function( dataSetService,   $scope,   $location){
+        templateUrl: 'components/datasets/datasets-details/datasets-details.html',
+        controller: ["dataSetService", "$scope", "$location", "$routeParams",
+            function( dataSetService,   $scope,   $location,   $routeParams){
             var vm = this;
 
             vm.datasets = [];

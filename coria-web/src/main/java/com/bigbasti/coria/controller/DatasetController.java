@@ -56,6 +56,16 @@ public class DatasetController {
         return ResponseEntity.ok(datasets);
     }
 
+    @GetMapping(path = "/{datasetid}")
+    public @ResponseBody ResponseEntity getDataSet(@PathVariable("datasetid") String datasetid){
+        logger.debug("retrieving short dataset list");
+        DataStorage storage = getActiveStorage();
+
+
+
+        return ResponseEntity.ok(null);
+    }
+
     /**
      * Handles the upload of a new dataset containing its name, the target parser and the raw data
      * @param upload form fields containing the data
