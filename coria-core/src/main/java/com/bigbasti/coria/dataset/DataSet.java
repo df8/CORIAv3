@@ -2,7 +2,7 @@ package com.bigbasti.coria.dataset;
 
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
-import com.bigbasti.coria.metrics.Metric;
+import com.bigbasti.coria.metrics.MetricInfo;
 
 import java.util.*;
 
@@ -27,22 +27,22 @@ public class DataSet {
     private Map<String, String> attributes;
 
     /**
-     * metrics that already had been executed for this dataset
+     * metricInfos that already had been executed for this dataset
      */
-    private List<Metric> metrics;
+    private List<MetricInfo> metricInfos;
 
     public DataSet() {
         this.attributes = new HashMap<String, String>();
         this.edges = new ArrayList<>();
         this.nodes = new ArrayList<>();
-        this.metrics = new ArrayList<>();
+        this.metricInfos = new ArrayList<>();
     }
 
     public DataSet(List<CoriaEdge> edges, List<CoriaNode> nodes) {
         this.edges = edges;
         this.nodes = nodes;
         this.attributes = new HashMap<String, String>();
-        this.metrics = new ArrayList<>();
+        this.metricInfos = new ArrayList<>();
     }
 
     public String getId() {
@@ -109,12 +109,12 @@ public class DataSet {
         this.name = name;
     }
 
-    public List<Metric> getMetrics() {
-        return metrics;
+    public List<MetricInfo> getMetricInfos() {
+        return metricInfos;
     }
 
-    public void setMetrics(List<Metric> metrics) {
-        this.metrics = metrics;
+    public void setMetricInfos(List<MetricInfo> metricInfos) {
+        this.metricInfos = metricInfos;
     }
 
     @Override

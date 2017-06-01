@@ -5,7 +5,7 @@ import com.bigbasti.coria.db.DataStorage;
 import com.bigbasti.coria.db.StorageStatus;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
-import com.bigbasti.coria.metrics.Metric;
+import com.bigbasti.coria.metrics.MetricInfo;
 import com.google.common.base.Strings;
 import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StopWatch;
 
 import javax.annotation.PostConstruct;
 import java.sql.*;
@@ -296,7 +295,7 @@ public class MySQLStorage implements DataStorage {
                         stmt.setInt(1, Integer.parseInt(ds.getId()));
                         ResultSet rs = stmt.executeQuery();
                         while (rs.next()){
-                            ds.getMetrics().add(toMetric(rs));
+                            ds.getMetricInfos().add(toMetric(rs));
                         }
                     }
                 }
@@ -334,8 +333,8 @@ public class MySQLStorage implements DataStorage {
         return datasets;
     }
 
-    private Metric toMetric(ResultSet rs) throws SQLException {
-        Metric m = new Metric();
+    private MetricInfo toMetric(ResultSet rs) throws SQLException {
+        MetricInfo m = new MetricInfo();
         m.setId(String.valueOf(rs.getInt("id")));
         m.setName(rs.getString("name"));
         m.setShortcut(rs.getString("shortcut"));
