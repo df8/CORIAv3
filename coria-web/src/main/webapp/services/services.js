@@ -18,6 +18,21 @@ angular.module('coria.components')
             })
         }])
 
+    .factory('metricsService', ['$resource',
+        function($resource){
+            return $resource('/api/metrics', {}, {
+                queryMetrics: {url: "/api/metrics", method:'GET', params:{}, isArray:true},
+                startMetric: {url: 'api/metrics/start', method:'POST', params:{}, isArray:false,
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    transformRequest: function (data, headersGetter) {
+                        var str = [];
+                        for (var d in data)
+                            str.push(encodeURIComponent(d) + "=" + encodeURIComponent(data[d]));
+                        return str.join("&");
+                    }}
+            })
+        }])
+
     .factory('dataSetService', ['$http', '$q',
         function($http, $q) {
 
@@ -51,10 +66,17 @@ angular.module('coria.components')
                         return response.data;
                     });
             }
+            function getShortDataSet(id){
+                return $http.get("/api/datasets/short/" + id)
+                    .then(function(response){
+                        return response.data;
+                    });
+            }
 
             return {
                 uploadNewDataSet: uploadImportForm,
-                shortDataSets: getShortDataSets
+                shortDataSets: getShortDataSets,
+                shortDataSet: getShortDataSet
             }
         }])
 ;

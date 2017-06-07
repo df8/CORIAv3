@@ -7,10 +7,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.util.concurrent.Executor;
+
+@EnableAsync
 @SpringBootApplication
 @ComponentScan(basePackages = "com.bigbasti.coria")
-public class CoriaWebApplication {
+public class CoriaWebApplication extends AsyncConfigurerSupport {
 
 	@Autowired
 	Environment env;
@@ -21,6 +27,17 @@ public class CoriaWebApplication {
 		String dbProvider = env.getProperty("coria.database");
 		context.setDatabaseProvider(dbProvider);
 		return context;
+	}
+
+	@Override
+	public Executor getAsyncExecutor() {
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(10);
+		executor.setMaxPoolSize(10);
+		executor.setQueueCapacity(500);
+		executor.setThreadNamePrefix("metric-");
+		executor.initialize();
+		return executor;
 	}
 
 	public static void main(String[] args) {

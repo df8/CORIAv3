@@ -2,6 +2,7 @@ package com.bigbasti.coria.controller;
 
 import com.bigbasti.coria.db.DataStorage;
 import com.bigbasti.coria.parser.InputParser;
+import com.fasterxml.jackson.databind.ser.Serializers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +18,8 @@ import java.util.List;
  */
 @Controller
 @RequestMapping(path = "/api/modules")
-public class ModulesController {
+public class ModulesController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(ModulesController.class);
-
-    @Autowired
-    List<InputParser> availableInputParsers;
-
-    @Autowired
-    List<DataStorage> dataStorages;
-
 
     /**
      * get all registered import providers

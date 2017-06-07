@@ -5,6 +5,7 @@ import com.bigbasti.coria.db.DataStorage;
 import com.bigbasti.coria.db.StorageStatus;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
+import com.bigbasti.coria.metrics.Metric;
 import com.bigbasti.coria.metrics.MetricInfo;
 import com.google.common.base.Strings;
 import org.flywaydb.core.Flyway;
@@ -160,6 +161,44 @@ public class MySQLStorage implements DataStorage {
     }
 
     @Override
+    public String addMetricInfo(MetricInfo metric, String datasetId) {
+        final String INSERT_METRIC = "INSERT INTO " + dbSchema + ".`metrics` (`dataset_id`, `name`, `shortcut`, `provider`, `technology`, `started`) VALUES (?, ?, ?, ?, ?, ?)";
+        int retVal = 0;
+
+        logger.debug("inserting metric for dataset {}", datasetId);
+        Instant starts = Instant.now();
+        try (Connection con = getConnection()){
+            try(PreparedStatement stmt = con.prepareStatement(INSERT_METRIC, Statement.RETURN_GENERATED_KEYS)) {
+                stmt.setString(1, datasetId);
+                stmt.setString(2, metric.getName());
+                stmt.setString(3, metric.getShortcut());
+                stmt.setString(4, metric.getProvider());
+                stmt.setString(5, metric.getTechnology());
+                stmt.setTimestamp(6, new Timestamp(metric.getExecutionStarted().getTime()));
+
+                stmt.executeUpdate();
+                con.commit();
+                //get the autoincremented dataset id
+                ResultSet rs = stmt.getGeneratedKeys();
+                rs.next();
+                retVal = rs.getInt(1);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            logger.error("Inserting metric failed: {}", e.getMessage());
+            return e.getMessage();
+        }
+        Instant ends = Instant.now();
+        logger.debug("inserting metric finished ({})", Duration.between(starts, ends));
+
+        return String.valueOf(retVal);
+    }
+
+    @Override
+    public String updateMetricInfo(MetricInfo metricInfo) {
+        return null;
+    }
+
+    @Override
     public String addDataSet(DataSet dataSet) {
         final String INSERT_DATASET = "INSERT INTO " + dbSchema + ".`datasets` (`name`, `created`) VALUES (?, ?)";
         final String INSERT_EDGE = "INSERT INTO " + dbSchema + ".`edges` (`dataset_id`, `name`, `source`, `destination`) VALUES (?, ?, ?, ?);";
@@ -250,7 +289,131 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public DataSet getDataSet(String id) {
-        return null;
+        return loadDataSet(id, true);
+    }
+
+    private DataSet loadDataSet(String id, boolean toShort) {
+        logger.debug("loading dataset {}", id);
+        final String SELECT_DATASET = "SELECT * FROM " + dbSchema + ".datasets where id = ?";
+        final String SELECT_METRIC_FOR_DATASET = "SELECT * FROM " + dbSchema + ".metrics where dataset_id = ?";
+        final String SELECT_ATTRIBUTE_FOR_DATASET = "SELECT * FROM " + dbSchema + ".attributes where dataset_id = ?";
+        final String SELECT_NODES_FOR_DATASET = "SELECT * FROM " + dbSchema + ".nodes where dataset_id = ?";
+        final String SELECT_EDGES_FOR_DATASET = "SELECT * FROM " + dbSchema + ".edges where dataset_id = ?";
+
+        Connection con = null;
+        try {
+            con = getConnection();
+            if(con == null){
+                logger.error("could not establish db connection!");
+                return null;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        DataSet dataset = null;
+        Instant starts = Instant.now();
+        try {
+            try (PreparedStatement stmt = con.prepareStatement(SELECT_DATASET)) {
+                stmt.setInt(1, Integer.parseInt(id));
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()){
+                    dataset = toDataSet(rs);
+                }
+            }
+            Instant ends = Instant.now();
+            logger.debug("loaded dataset ({})", Duration.between(starts, ends));
+        } catch (SQLException e) {
+            logger.error("could not load dataset: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        //use the dataset information to load the rest of the information
+        // ======== METRICS
+
+        logger.debug("loading metrics for dataset...");
+        starts = Instant.now();
+        try {
+            try (PreparedStatement stmt = con.prepareStatement(SELECT_METRIC_FOR_DATASET)) {
+                stmt.setInt(1, Integer.parseInt(id));
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()){
+                    dataset.getMetricInfos().add(toMetric(rs));
+                }
+            }
+            Instant ends = Instant.now();
+            logger.debug("loaded metrics for dataset ({})", Duration.between(starts, ends));
+        } catch (SQLException e) {
+            logger.error("could not load metrics: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        //======== ATTRIBUTES
+
+        logger.debug("loading attributes for dataset...");
+        starts = Instant.now();
+        try {
+            try (PreparedStatement stmt = con.prepareStatement(SELECT_ATTRIBUTE_FOR_DATASET)) {
+                stmt.setInt(1, Integer.parseInt(id));
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()){
+                    dataset.setAttribute(rs.getString("key"), rs.getString("value"));
+                }
+            }
+            Instant ends = Instant.now();
+            logger.debug("loaded attributes for dataset ({})", Duration.between(starts, ends));
+        } catch (SQLException e) {
+            logger.error("could not load attributes: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        //======== NODES
+
+        logger.debug("loading nodes for dataset...");
+        starts = Instant.now();
+        try {
+            try (PreparedStatement stmt = con.prepareStatement(SELECT_NODES_FOR_DATASET)) {
+                stmt.setInt(1, Integer.parseInt(id));
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()){
+                    dataset.getNodes().add(toNode(rs, con));
+                }
+            }
+            Instant ends = Instant.now();
+            logger.debug("loaded nodes for dataset ({})", Duration.between(starts, ends));
+        } catch (SQLException e) {
+            logger.error("could not load nodes: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        //======== EDGES
+
+        logger.debug("loading edges for dataset...");
+        starts = Instant.now();
+        try {
+            try (PreparedStatement stmt = con.prepareStatement(SELECT_EDGES_FOR_DATASET)) {
+                stmt.setInt(1, Integer.parseInt(id));
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()){
+                    dataset.getEdges().add(toEdge(rs, dataset.getNodes(), con, toShort));
+                }
+            }
+            Instant ends = Instant.now();
+            logger.debug("loaded edges for dataset ({})", Duration.between(starts, ends));
+        } catch (SQLException e) {
+            logger.error("could not load edges: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        logger.debug("dataset loaded successful");
+
+        return dataset;
+    }
+
+    @Override
+    public DataSet getDataSetShort(String id) {
+        return loadDataSet(id, false);
     }
 
     @Override
@@ -354,6 +517,79 @@ public class MySQLStorage implements DataStorage {
             ds.setNotificationEmails(Arrays.stream(rs.getString("emails").split(",")).collect(Collectors.toList()));
         }
         return ds;
+    }
+
+    private CoriaNode toNode(ResultSet rs, Connection con) throws SQLException {
+        CoriaNode node = new CoriaNode(rs.getString("name"));
+        node.setId(String.valueOf(rs.getInt("id")));
+
+        //TODO: Risc score lesen
+        //======== ATTRIBUTES
+
+        logger.trace("\tloading attributes for node {}...", node.getId());
+        final String SELECT_ATTRIBUTE_FOR_NODE = "SELECT * FROM " + dbSchema + ".attributes where node_id = ?";
+        Instant starts = Instant.now();
+        try {
+            try (PreparedStatement stmt = con.prepareStatement(SELECT_ATTRIBUTE_FOR_NODE)) {
+                stmt.setInt(1, Integer.parseInt(node.getId()));
+                ResultSet res = stmt.executeQuery();
+                while (res.next()){
+                    node.setAttribute(rs.getString("key"), res.getString("value"));
+                }
+            }
+            Instant ends = Instant.now();
+            logger.trace("\tloaded attributes for node ({})", Duration.between(starts, ends));
+        } catch (SQLException e) {
+            logger.error("\tcould not load attributes: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        return node;
+    }
+
+    private CoriaEdge toEdge(ResultSet rs, List<CoriaNode> nodes, Connection con, boolean connectedNodes) throws SQLException {
+        CoriaEdge edge = new CoriaEdge(String.valueOf(rs.getString("name")));
+        edge.setId(String.valueOf(rs.getInt("id")));
+
+        String sourceid = rs.getString("source");
+        String destid = rs.getString("destination");
+
+        //======== CONNECTED NODES
+
+        if(connectedNodes) {
+            CoriaNode source = nodes.stream()
+                    .filter(coriaNode -> coriaNode.getName().equals(sourceid))
+                    .findFirst()
+                    .get();
+            CoriaNode dest = nodes.stream()
+                    .filter(coriaNode -> coriaNode.getName().equals(destid))
+                    .findFirst()
+                    .get();
+            edge.setSourceNode(source);
+            edge.setDestinationNode(dest);
+        }
+
+        //======== ATTRIBUTES
+
+        logger.trace("\tloading attributes for edge {}...", edge.getId());
+        final String SELECT_ATTRIBUTE_FOR_NODE = "SELECT * FROM " + dbSchema + ".attributes where node_id = ?";
+        Instant starts = Instant.now();
+        try {
+            try (PreparedStatement stmt = con.prepareStatement(SELECT_ATTRIBUTE_FOR_NODE)) {
+                stmt.setInt(1, Integer.parseInt(edge.getId()));
+                ResultSet res = stmt.executeQuery();
+                while (res.next()){
+                    edge.setAttribute(rs.getString("key"), res.getString("value"));
+                }
+            }
+            Instant ends = Instant.now();
+            logger.trace("\tloaded attributes for edge ({})", Duration.between(starts, ends));
+        } catch (SQLException  e) {
+            logger.error("\tcould not load attributes: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        return edge;
     }
 
     @Override

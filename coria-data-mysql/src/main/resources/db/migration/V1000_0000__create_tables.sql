@@ -1,4 +1,4 @@
-CREATE TABLE `metricInfos` (
+CREATE TABLE `metrics` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(64) NOT NULL,
   `shortcut` VARCHAR(45) NOT NULL,
@@ -32,17 +32,17 @@ CREATE TABLE `metricInfos` (
   UNIQUE INDEX `id_UNIQUE` (`id` ASC));
 
 
-ALTER TABLE `metricInfos`
+ALTER TABLE `metrics`
 ADD COLUMN `dataset_id` INT NOT NULL AFTER `finished`,
 ADD INDEX `metric_dataset_id_idx` (`dataset_id` ASC);
-ALTER TABLE `metricInfos`
+ALTER TABLE `metrics`
 ADD CONSTRAINT `metric_dataset_id`
   FOREIGN KEY (`dataset_id`)
   REFERENCES `datasets` (`id`)
   ON DELETE NO ACTION
   ON UPDATE NO ACTION;
 
-  ALTER TABLE `metricInfos`
+  ALTER TABLE `metrics`
 CHANGE COLUMN `dataset_id` `dataset_id` INT(11) NOT NULL AFTER `id`;
 
 

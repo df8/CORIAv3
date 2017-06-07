@@ -1,58 +1,44 @@
 <div class="page-header">
     <h1>Dataset <small>{{$ctrl.dataset.name}}</small></h1>
 </div>
-<div class="row" ng-hide="$ctrl.datasets.length === 0">
-    <div class="col-md-12">
-        <table st-table="$ctrl.displayedCollection" st-safe-src="$ctrl.datasets" class="table table-striped">
-            <thead>
-            <tr>
-                <th>&nbsp;</th>
-                <th st-sort="name">Name</th>
-                <th st-sort="created">Created</th>
-                <th st-sort="notificationEmails">E-Mails</th>
-                <th st-sort="metrics">Metrics</th>
-                <th>Attributes</th>
-            </tr>
-            <tr>
-                <th>&nbsp;</th>
-                <th>
-                    <input st-search="name" placeholder="search for name" class="input-sm form-control" type="search"/>
-                </th>
-                <th colspan="4">
-                    <input st-search placeholder="global search" class="input-sm form-control" type="search"/>
-                </th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr ng-repeat="ds in $ctrl.displayedCollection">
-                <td><buton class="btn btn-default" ng-click="$ctrl.openDataset(ds)"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></buton></td>
-                <td>{{ds.name}}</td>
-                <td>{{ds.created | date}}</td>
-                <td>{{ds.notificationEmails}}</td>
-                <td>{{ds.metrics}}</td>
-                <td>{{ds.attributes}}</a></td>
-            </tr>
-            </tbody>
-            <tfoot>
-            <tr>
-                <td colspan="5" class="text-center">
-                    <div st-pagination="" st-items-by-page="$ctrl.datasetsPerPage" st-displayed-pages="10"></div>
-                </td>
-            </tr>
-            </tfoot>
-        </table>
-    </div>
-</div>
-<div class="row" ng-hide="$ctrl.datasets.length === 0">
-    <div class="col-md-12">
-        <a class="btn btn-default spacer" href="#!/upload"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Upload New Dataset</a>
-    </div>
-</div>
-<div class="row" ng-show="$ctrl.datasets.length === 0">
+<div class="row" ng-show="$ctrl.loading">
     <div class="col-md-4 col-md-offset-4">
-        <div class="alert alert-info text-center" role="alert">
-            Looks like there are no datasets available yet.</p>
-            <a class="btn btn-default spacer" href="#!/upload"><span style="font-size: 5em;" class="glyphicon glyphicon-plus" aria-hidden="true"></span><br/>&nbsp;<br/>Upload New Dataset</a>
+        <span class="glyphicon glyphicon-time" aria-hidden="true"></span> <span>Loading DataSet, please wait...</span>
+        <div class="progress">
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row" ng-hide="$ctrl.loading">
+    <div class="col-md-4">
+        <div class="row" ng-hide="$ctrl.displayAddMetric === true">
+            <div class="col-md-12">
+                <h3>Available Metrics</h3>
+                <p ng-repeat="metric in $ctrl.dataset.metricInfos">
+                    <span class="label label-primary">{{metric.shortcut}}</span> <span>{{metric.name}}</span> <span class="label label-danger" ng-if="metric.executionFinished===null">IN PROGRESS</span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn btn-default btn-xs"  ng-click="$ctrl.displayAddMetric = true" ng-hide="$ctrl.displayAddMetric === true"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Metric</button>
+            </div>
+        </div>
+        <div class="row" ng-show="$ctrl.displayAddMetric === true">
+            <div class="col-md-12">
+                <div class="alert alert-info" role="alert" ng-bind-html="$ctrl.metric.description"></div>
+                <form name="import" id="import" ng-submit="$ctrl.submitMetric()" >
+                    <div class="form-group">
+                        <label for="metric.providers">Select Metric</label>
+                        <select class="form-control" ng-model="$ctrl.selectedMetric" id="metric.providers" ng-change="$ctrl.metricProviderSelected()">
+                            <option ng-repeat="metric in $ctrl.metrics" value="{{metric.identification}}">{{metric.technology}} - {{metric.provider}} - {{metric.name}}</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-default" ng-hide="$ctrl.import.isActive" ng-disabled="$ctrl.metric.identification === undefined"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Start Metric Execution</button>
+                    <button class="btn btn-default" ng-hide="$ctrl.import.isActive" ng-click="$ctrl.cancelAddMetric()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

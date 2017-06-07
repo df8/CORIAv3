@@ -3,6 +3,8 @@ package com.bigbasti.coria.db;
 import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
+import com.bigbasti.coria.metrics.Metric;
+import com.bigbasti.coria.metrics.MetricInfo;
 
 import java.util.List;
 
@@ -35,8 +37,18 @@ public interface DataStorage {
     void deleteNode(CoriaNode node);
     void deleteNode(String id);
 
+    String addMetricInfo(MetricInfo metric, String datasetId);
+    String updateMetricInfo(MetricInfo metricInfo);
+
     String addDataSet(DataSet dataSet);
     DataSet getDataSet(String id);
+
+    /**
+     * returns the dataset without deep links like connected nodes of edges
+     * @param id
+     * @return
+     */
+    DataSet getDataSetShort(String id);
     List<DataSet> getDataSets();
     /**
      * returns all datasets without the nodes and edges

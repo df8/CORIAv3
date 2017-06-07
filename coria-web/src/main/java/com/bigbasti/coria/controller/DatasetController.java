@@ -29,14 +29,8 @@ import java.util.List;
  */
 @Controller
 @RequestMapping(path = "/api/datasets")
-public class DatasetController {
+public class DatasetController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(DatasetController.class);
-
-    @Autowired
-    List<InputParser> availableInputParsers;
-
-    @Autowired
-    List<DataStorage> dataStorages;
 
     @RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
     public String getFullDataSets(){
@@ -58,12 +52,22 @@ public class DatasetController {
 
     @GetMapping(path = "/{datasetid}")
     public @ResponseBody ResponseEntity getDataSet(@PathVariable("datasetid") String datasetid){
-        logger.debug("retrieving short dataset list");
+        logger.debug("retrieving dataset {}", datasetid);
         DataStorage storage = getActiveStorage();
 
+        DataSet ds = storage.getDataSetShort(datasetid);
 
+        return ResponseEntity.ok(ds);
+    }
 
-        return ResponseEntity.ok(null);
+    @GetMapping(path = "/short/{datasetid}")
+    public @ResponseBody ResponseEntity getDataSetShort(@PathVariable("datasetid") String datasetid){
+        logger.debug("retrieving dataset {}", datasetid);
+        DataStorage storage = getActiveStorage();
+
+        DataSet ds = storage.getDataSet(datasetid);
+
+        return ResponseEntity.ok(ds);
     }
 
     /**
@@ -172,24 +176,5 @@ public class DatasetController {
         }
     }
 
-    private InputParser getInputParser(String id){
-        InputParser parser = availableInputParsers
-                .stream()
-                .filter(inputParser -> inputParser.getIdentification().equals(id))
-                .findFirst()
-                .get();
-        logger.debug("using following inputParser: " + parser);
-        return parser;
-    }
 
-    private DataStorage getActiveStorage(){
-        String targetDb = AppContext.getInstance().getDatabaseProvider();
-        DataStorage storage = dataStorages
-                .stream()
-                .filter(dataStorage -> dataStorage.getIdentification().equals(targetDb))
-                .findFirst()
-                .get();
-        logger.debug("using dataStorage: " + storage);
-        return storage;
-    }
 }

@@ -15,6 +15,10 @@ public class CoriaEdge {
 
     private Map<String, String> attributes;
 
+    public CoriaEdge(String name) {
+        this.name = name;
+    }
+
     public CoriaEdge(String name, CoriaNode sourceNode, CoriaNode destinationNode) {
         this.name = name;
         this.sourceNode = sourceNode;
