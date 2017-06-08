@@ -13,6 +13,7 @@ public class CoriaNode {
 
     private String id;
     private String name;
+    private String riscScore;
 
     private List<CoriaNode> neighbours;
     private Map<String, String> attributes;
@@ -70,11 +71,20 @@ public class CoriaNode {
         this.attributes.put(key, value);
     }
 
+    public String getRiscScore() {
+        return riscScore;
+    }
+
+    public void setRiscScore(String riscScore) {
+        this.riscScore = riscScore;
+    }
+
     @Override
     public String toString() {
         return "CoriaNode{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
+                ", riscScore='" + riscScore + '\'' +
                 ", neighbours=" + neighbours +
                 ", attributes=" + attributes +
                 '}';

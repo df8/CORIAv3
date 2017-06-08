@@ -4,6 +4,7 @@ import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
 import com.bigbasti.coria.metrics.Metric;
+import com.bigbasti.coria.metrics.MetricInfo;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -55,39 +56,49 @@ public class GSNodeDegree implements Metric {
     }
 
     @Override
+    public MetricInfo.MetricType getType() {
+        return MetricInfo.MetricType.NODE;
+    }
+
+    @Override
     public DataSet performCalculations(DataSet dataset) {
         logger.debug("calculating node degree for dataset {}", dataset.getId());
+        try {
+            Graph g = new DefaultGraph("Temp Graph");
+            g.setStrict(false);
+            g.setAutoCreate(true); //automatically create nodes based on edges
+            logger.debug("trying to create a temp graph with provided data...");
 
-        Graph g = new DefaultGraph("Temp Graph");
-        g.setStrict(false);
-        g.setAutoCreate(true); //automatically create nodes based on edges
-        logger.debug("trying to create a temp graph with provided data...");
-
-        //create graph based on edges
-        for(CoriaEdge edge : dataset.getEdges()){
-            try {
-                logger.trace("Edge: " + edge);
-                Edge e = g.addEdge(edge.getSourceNode().getName() + "->" + edge.getDestinationNode().getName(), edge.getSourceNode().getName(), edge.getDestinationNode().getName());
-            }catch(Exception ex){
-                logger.error("failed creating edge for CoriaEdge {}", edge);
-                logger.error(ex.getMessage());
-                return null;
+            //create graph based on edges
+            for (CoriaEdge edge : dataset.getEdges()) {
+                try {
+                    logger.trace("Edge: " + edge);
+                    Edge e = g.addEdge(edge.getSourceNode().getName() + "->" + edge.getDestinationNode().getName(), edge.getSourceNode().getName(), edge.getDestinationNode().getName());
+                } catch (Exception ex) {
+                    logger.error("failed creating edge for CoriaEdge {}", edge);
+                    logger.error(ex.getMessage());
+                    return null;
+                }
             }
-        }
-        logger.debug("successful finished graph creation");
+            logger.debug("successful finished graph creation");
 
-        logger.debug("updating dataset...");
-        for(Node n : g){
-            CoriaNode currentNode = dataset.getNodes()
-                    .stream()
-                    .filter(coriaNode -> coriaNode.getName().equals(n.getId()))
-                    .findFirst()
-                    .get();
-            currentNode.setAttribute(getShortcut(), String.valueOf(n.getDegree()));
-        }
-        logger.debug("updating dataset finished");
+            logger.debug("updating dataset...");
+            for (Node n : g) {
+                CoriaNode currentNode = dataset.getNodes()
+                        .stream()
+                        .filter(coriaNode -> coriaNode.getName().equals(n.getId()))
+                        .findFirst()
+                        .get();
+                currentNode.setAttribute(getShortcut(), String.valueOf(n.getDegree()));
+            }
+            logger.debug("updating dataset finished");
 
-        return dataset;
+            return dataset;
+        }catch(Exception ex){
+            logger.error("Error while executing calculation: {}", ex.getMessage());
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     @Override

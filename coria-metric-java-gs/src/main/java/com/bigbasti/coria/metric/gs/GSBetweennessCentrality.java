@@ -54,6 +54,11 @@ public class GSBetweennessCentrality implements Metric {
     }
 
     @Override
+    public MetricInfo.MetricType getType() {
+        return MetricInfo.MetricType.NODE;
+    }
+
+    @Override
     public DataSet performCalculations(DataSet dataset) {
         logger.debug("beginning calculation of " + getName());
         logger.debug("creating graph");

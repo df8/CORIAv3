@@ -55,7 +55,7 @@ public interface DataStorage {
      * @return list of all datasets minus nodes & edges
      */
     List<DataSet> getDataSetsShort();
-    void updateDataSet(DataSet dataSet);
+    String updateDataSet(DataSet dataSet);
     void deleteDataSet(DataSet dataSet);
     void deleteDataSet(String id);
 

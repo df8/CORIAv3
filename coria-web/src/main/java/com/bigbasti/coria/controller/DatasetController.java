@@ -8,6 +8,7 @@ import com.bigbasti.coria.graph.CoriaNode;
 import com.bigbasti.coria.model.DataSetUpload;
 import com.bigbasti.coria.parser.FormatNotSupportedException;
 import com.bigbasti.coria.parser.InputParser;
+import com.google.common.base.Strings;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -154,7 +155,11 @@ public class DatasetController extends BaseController {
                     dataSet.setEdges(edges);
                     dataSet.setNodes(nodes);
                     dataSet.setName(upload.getName());
-                    getActiveStorage().addDataSet(dataSet);
+                    String result = getActiveStorage().addDataSet(dataSet);
+                    if(!Strings.isNullOrEmpty(result)){
+                        logger.error("new dataset was not stored stored");
+                        return ResponseEntity.status(500).body("{\"error\":\"DataSet could not be stored because of internal error\"}");
+                    }
 
                     logger.debug("new dataset successfully stored");
                     return ResponseEntity.ok(dataSet);

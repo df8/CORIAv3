@@ -12,6 +12,7 @@ public interface Metric {
     String getTechnology();
     String getShortcut();
     String getProvider();
+    MetricInfo.MetricType getType();
 
     DataSet performCalculations(DataSet dataset);
 }

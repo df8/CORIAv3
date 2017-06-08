@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -162,7 +163,7 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public String addMetricInfo(MetricInfo metric, String datasetId) {
-        final String INSERT_METRIC = "INSERT INTO " + dbSchema + ".`metrics` (`dataset_id`, `name`, `shortcut`, `provider`, `technology`, `started`, `status`) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        final String INSERT_METRIC = "INSERT INTO " + dbSchema + ".`metrics` (`dataset_id`, `name`, `shortcut`, `provider`, `technology`, `started`, `status`, `type`, `value`, `message`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         int retVal = 0;
 
         logger.debug("inserting metric for dataset {}", datasetId);
@@ -176,6 +177,9 @@ public class MySQLStorage implements DataStorage {
                 stmt.setString(5, metric.getTechnology());
                 stmt.setTimestamp(6, new Timestamp(metric.getExecutionStarted().getTime()));
                 stmt.setString(7, metric.getStatus().name());
+                stmt.setString(8, metric.getType().name());
+                stmt.setString(9, metric.getValue());
+                stmt.setString(10, metric.getMessage());
 
                 stmt.executeUpdate();
                 con.commit();
@@ -197,16 +201,13 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public String updateMetricInfo(MetricInfo metricInfo) {
-        final String UPDATE_METRIC = "UPDATE " + dbSchema + ".`metrics` SET `name`=?, `shortcut`=?, `provider`=?, `technology`=?, `started`=?, `finished`=?, `status`=? WHERE `id`=?;";
-        int retVal = 0;
+        final String UPDATE_METRIC = "UPDATE " + dbSchema + ".`metrics` SET `name`=?, `shortcut`=?, `provider`=?, `technology`=?, `started`=?, `finished`=?, `status`=?, `type`=?, `value`=?, `message`=? WHERE `id`=?;";
 
         logger.debug("updating {}", metricInfo);
         if(Strings.isNullOrEmpty(metricInfo.getId())){
             logger.warn("cannot update metricinfo without primary key present");
             return "error: no primary key present";
         }
-
-        //TODO: value und type auch in die datenbank legen
 
         Instant starts = Instant.now();
         try (Connection con = getConnection()){
@@ -218,7 +219,10 @@ public class MySQLStorage implements DataStorage {
                 stmt.setTimestamp(5, new Timestamp(metricInfo.getExecutionStarted().getTime()));
                 stmt.setTimestamp(6, new Timestamp(metricInfo.getExecutionFinished().getTime()));
                 stmt.setString(7, metricInfo.getStatus().name());
-                stmt.setInt(8, Integer.valueOf(metricInfo.getId()));
+                stmt.setString(8, metricInfo.getType().name());
+                stmt.setString(9, metricInfo.getValue());
+                stmt.setString(10, metricInfo.getMessage());
+                stmt.setInt(11, Integer.valueOf(metricInfo.getId()));
 
                 stmt.executeUpdate();
                 con.commit();
@@ -231,9 +235,10 @@ public class MySQLStorage implements DataStorage {
         Instant ends = Instant.now();
         logger.debug("updating metric finished ({})", Duration.between(starts, ends));
 
-        return String.valueOf(retVal);
+        return null;
     }
 
+    //TODO: also add attributes
     @Override
     public String addDataSet(DataSet dataSet) {
         final String INSERT_DATASET = "INSERT INTO " + dbSchema + ".`datasets` (`name`, `created`) VALUES (?, ?)";
@@ -630,8 +635,100 @@ public class MySQLStorage implements DataStorage {
     }
 
     @Override
-    public void updateDataSet(DataSet dataSet) {
+    public String updateDataSet(DataSet dataSet) {
+        final String UPDATE_DATASET = "UPDATE " + dbSchema + ".`datasets` SET `name`=?, `created`=?, `emails`=? WHERE `id`=?;";
 
+        logger.debug("updating dataset...");
+        Instant starts = Instant.now();
+        try (Connection con = getConnection()){
+            try(PreparedStatement stmt = con.prepareStatement(UPDATE_DATASET)) {
+                stmt.setString(1, dataSet.getName());
+                stmt.setTimestamp(2, new Timestamp(dataSet.getCreated().getTime()));
+                stmt.setString(3, String.join(",", dataSet.getNotificationEmails()));
+                stmt.setLong(4, Long.valueOf(dataSet.getId()));
+
+                stmt.executeUpdate();
+                con.commit();
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            logger.error("updating DataSet failed: {}", e.getMessage());
+            return e.getMessage();
+        }
+        Instant ends = Instant.now();
+        logger.debug("updating dataset finished ({})", Duration.between(starts, ends));
+
+        //======= NODES
+
+        starts = Instant.now();
+        logger.debug("updating nodes...");
+        try (Connection con = getConnection()){
+            updateNodeList(dataSet.getNodes(), con);
+        } catch (SQLException | ClassNotFoundException e) {
+            logger.error("updating nodes failed: {}", e.getMessage());
+            return e.getMessage();
+        }
+        ends = Instant.now();
+        logger.debug("updating nodes finished ({})", Duration.between(starts, ends));
+
+        //======= EDGES
+
+
+        return null;
+    }
+
+    /**
+     * updates a node in the database
+     * 1. update node data
+     * 2. update node attributes
+     * @param nodes
+     * @param con
+     * @return
+     * @throws SQLException
+     */
+    private String updateNodeList(List<CoriaNode> nodes, Connection con) throws SQLException {
+        final String UPDATE_NODE = "UPDATE " + dbSchema + ".`nodes` SET `name`=?, `risc_score`=? WHERE `id`=?";
+        final String UPDATE_ATTRIBUTE = "UPDATE " + dbSchema + ".`attributes` SET `key`=?, `value`=? WHERE `node_id`=? and `key`=?";
+        final String INSERT_ATTRIBUTE_NODE = "INSERT INTO " + dbSchema + ".`attributes` (`node_id`, `key`, `value`) VALUES (?, ?, ?)";
+
+        try(PreparedStatement stmtUpdateNode = con.prepareStatement(UPDATE_NODE)) {
+            int batchCounterNodes = 0;
+            for (CoriaNode node : nodes) {
+                stmtUpdateNode.clearParameters();
+                stmtUpdateNode.setString(1, node.getName());
+                stmtUpdateNode.setString(2, node.getRiscScore());
+                stmtUpdateNode.setLong(3, Long.valueOf(node.getId()));
+                stmtUpdateNode.addBatch();
+                if (batchCounterNodes++ > BATCH_SIZE) {
+                    stmtUpdateNode.executeBatch();
+                    batchCounterNodes = 0;
+                }
+
+                if(node.getAttributes() != null && node.getAttributes().size() > 0){
+                    for (Map.Entry<String, String> attr : node.getAttributes().entrySet()) {
+                        try (PreparedStatement stmtUpdateAttribute = con.prepareStatement(UPDATE_ATTRIBUTE)) {
+                            stmtUpdateAttribute.setString(1, attr.getKey());
+                            stmtUpdateAttribute.setString(2, attr.getValue());
+                            stmtUpdateAttribute.setLong(3, Long.valueOf(node.getId()));
+                            stmtUpdateAttribute.setString(4, attr.getKey());
+                            int restult = stmtUpdateAttribute.executeUpdate();
+                            if(restult == 0){
+                                //attribute must be created
+                                try (PreparedStatement stmtCreateAttribute = con.prepareStatement(INSERT_ATTRIBUTE_NODE)) {
+                                    stmtCreateAttribute.setLong(1, Long.valueOf(node.getId()));
+                                    stmtCreateAttribute.setString(2, attr.getKey());
+                                    stmtCreateAttribute.setString(3, attr.getValue());
+                                    stmtCreateAttribute.executeUpdate();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            stmtUpdateNode.executeBatch();
+            con.commit();
+        }
+
+        return null;
     }
 
     @Override

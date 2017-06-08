@@ -14,6 +14,7 @@ public class MetricInfo {
     private Date executionStarted;
     private Date executionFinished;
     private MetricStatus status;
+    private String message;
 
     /**
      * defines what this moetric is met for:<br/>
@@ -123,6 +124,14 @@ public class MetricInfo {
         this.status = status;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     @Override
     public String toString() {
         return "MetricInfo{" +
@@ -133,7 +142,8 @@ public class MetricInfo {
                 ", technology='" + technology + '\'' +
                 ", executionStarted=" + executionStarted +
                 ", executionFinished=" + executionFinished +
-                ", status='" + status + '\'' +
+                ", status=" + status +
+                ", message='" + message + '\'' +
                 ", type=" + type +
                 ", value='" + value + '\'' +
                 '}';
