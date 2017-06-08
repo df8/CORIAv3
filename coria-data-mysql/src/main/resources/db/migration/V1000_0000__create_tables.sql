@@ -44,6 +44,8 @@ ADD CONSTRAINT `metric_dataset_id`
 
   ALTER TABLE `metrics`
 CHANGE COLUMN `dataset_id` `dataset_id` INT(11) NOT NULL AFTER `id`;
+ALTER TABLE `metrics`
+ADD COLUMN `status` VARCHAR(45) NULL DEFAULT NULL AFTER `finished`;
 
 
 ALTER TABLE `edges`

@@ -13,6 +13,7 @@ public class MetricInfo {
     private String technology;
     private Date executionStarted;
     private Date executionFinished;
+    private MetricStatus status;
 
     /**
      * defines what this moetric is met for:<br/>
@@ -28,9 +29,11 @@ public class MetricInfo {
     private String value;
 
     public MetricInfo() {
+        this.status = MetricStatus.RUNNING;
     }
 
     public MetricInfo(String id, String name, String shortcut, String provider, String technology, Date executionStarted, Date executionFinished) {
+        this.status = MetricStatus.RUNNING;
         this.id = id;
         this.name = name;
         this.shortcut = shortcut;
@@ -112,6 +115,14 @@ public class MetricInfo {
         this.value = value;
     }
 
+    public MetricStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(MetricStatus status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "MetricInfo{" +
@@ -122,6 +133,7 @@ public class MetricInfo {
                 ", technology='" + technology + '\'' +
                 ", executionStarted=" + executionStarted +
                 ", executionFinished=" + executionFinished +
+                ", status='" + status + '\'' +
                 ", type=" + type +
                 ", value='" + value + '\'' +
                 '}';
@@ -131,6 +143,12 @@ public class MetricInfo {
         DATASET,
         NODE,
         EDGE
+    }
+
+    public enum MetricStatus{
+        FINISHED,
+        RUNNING,
+        FAILED
     }
 
 }

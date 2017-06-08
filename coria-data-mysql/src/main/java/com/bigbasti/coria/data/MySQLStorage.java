@@ -162,7 +162,7 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public String addMetricInfo(MetricInfo metric, String datasetId) {
-        final String INSERT_METRIC = "INSERT INTO " + dbSchema + ".`metrics` (`dataset_id`, `name`, `shortcut`, `provider`, `technology`, `started`) VALUES (?, ?, ?, ?, ?, ?)";
+        final String INSERT_METRIC = "INSERT INTO " + dbSchema + ".`metrics` (`dataset_id`, `name`, `shortcut`, `provider`, `technology`, `started`, `status`) VALUES (?, ?, ?, ?, ?, ?, ?)";
         int retVal = 0;
 
         logger.debug("inserting metric for dataset {}", datasetId);
@@ -175,6 +175,7 @@ public class MySQLStorage implements DataStorage {
                 stmt.setString(4, metric.getProvider());
                 stmt.setString(5, metric.getTechnology());
                 stmt.setTimestamp(6, new Timestamp(metric.getExecutionStarted().getTime()));
+                stmt.setString(7, metric.getStatus().name());
 
                 stmt.executeUpdate();
                 con.commit();
@@ -185,6 +186,7 @@ public class MySQLStorage implements DataStorage {
             }
         } catch (SQLException | ClassNotFoundException e) {
             logger.error("Inserting metric failed: {}", e.getMessage());
+            e.printStackTrace();
             return e.getMessage();
         }
         Instant ends = Instant.now();
@@ -195,7 +197,41 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public String updateMetricInfo(MetricInfo metricInfo) {
-        return null;
+        final String UPDATE_METRIC = "UPDATE " + dbSchema + ".`metrics` SET `name`=?, `shortcut`=?, `provider`=?, `technology`=?, `started`=?, `finished`=?, `status`=? WHERE `id`=?;";
+        int retVal = 0;
+
+        logger.debug("updating {}", metricInfo);
+        if(Strings.isNullOrEmpty(metricInfo.getId())){
+            logger.warn("cannot update metricinfo without primary key present");
+            return "error: no primary key present";
+        }
+
+        //TODO: value und type auch in die datenbank legen
+
+        Instant starts = Instant.now();
+        try (Connection con = getConnection()){
+            try(PreparedStatement stmt = con.prepareStatement(UPDATE_METRIC, Statement.RETURN_GENERATED_KEYS)) {
+                stmt.setString(1, metricInfo.getName());
+                stmt.setString(2, metricInfo.getShortcut());
+                stmt.setString(3, metricInfo.getProvider());
+                stmt.setString(4, metricInfo.getTechnology());
+                stmt.setTimestamp(5, new Timestamp(metricInfo.getExecutionStarted().getTime()));
+                stmt.setTimestamp(6, new Timestamp(metricInfo.getExecutionFinished().getTime()));
+                stmt.setString(7, metricInfo.getStatus().name());
+                stmt.setInt(8, Integer.valueOf(metricInfo.getId()));
+
+                stmt.executeUpdate();
+                con.commit();
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            logger.error("updating metric failed: {}", e.getMessage());
+            e.printStackTrace();
+            return e.getMessage();
+        }
+        Instant ends = Instant.now();
+        logger.debug("updating metric finished ({})", Duration.between(starts, ends));
+
+        return String.valueOf(retVal);
     }
 
     @Override
@@ -505,6 +541,7 @@ public class MySQLStorage implements DataStorage {
         m.setTechnology(rs.getString("technology"));
         m.setExecutionStarted(rs.getDate("started"));
         m.setExecutionFinished(rs.getDate("finished"));
+        m.setStatus(MetricInfo.MetricStatus.valueOf(rs.getString("status")));
         return m;
     }
 

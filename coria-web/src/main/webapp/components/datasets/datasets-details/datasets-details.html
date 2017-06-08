@@ -16,7 +16,7 @@
             <div class="col-md-12">
                 <h3>Available Metrics</h3>
                 <p ng-repeat="metric in $ctrl.dataset.metricInfos">
-                    <span class="label label-primary">{{metric.shortcut}}</span> <span>{{metric.name}}</span> <span class="label label-danger" ng-if="metric.executionFinished===null">IN PROGRESS</span>
+                    <span class="label label-primary">{{metric.shortcut}}</span> <span>{{metric.name}}</span> <span class="label label-danger" ng-if="metric.executionFinished===null" alt="Running for">IN PROGRESS</span>
                 </p>
             </div>
         </div>
@@ -42,3 +42,4 @@
         </div>
     </div>
 </div>
+{{$ctrl.dataset|json}}

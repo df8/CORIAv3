@@ -49,6 +49,8 @@ public class MetricsController extends BaseController {
     Future<ResponseEntity> handleDataSetUpload(@RequestParam("identification") String metricid, @RequestParam ("datasetid") String datasetid) {
         logger.debug("starting metric {} on dataset {}", metricid, datasetid);
 
+        //TODO: check if this metric is already present on the dataset -> delete it if so
+
         Thread.currentThread().setName(metricid);
         logger.debug("begin metric execution for {}", metricid);
 
@@ -77,6 +79,7 @@ public class MetricsController extends BaseController {
         storage.updateDataSet(updatedSet);
 
         mInfo.setExecutionFinished(new Date());
+        mInfo.setStatus(MetricInfo.MetricStatus.FINISHED);
         storage.updateMetricInfo(mInfo);
         logger.debug("metric execution {} finished for {}", metricid, datasetid);
 
