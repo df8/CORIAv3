@@ -36,6 +36,7 @@ public class DataSet {
         this.edges = new ArrayList<>();
         this.nodes = new ArrayList<>();
         this.metricInfos = new ArrayList<>();
+        this.notificationEmails = new ArrayList<>();
     }
 
     public DataSet(List<CoriaEdge> edges, List<CoriaNode> nodes) {
@@ -43,6 +44,7 @@ public class DataSet {
         this.nodes = nodes;
         this.attributes = new HashMap<String, String>();
         this.metricInfos = new ArrayList<>();
+        this.notificationEmails = new ArrayList<>();
     }
 
     public String getId() {

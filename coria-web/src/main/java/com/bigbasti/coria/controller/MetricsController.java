@@ -88,6 +88,7 @@ public class MetricsController extends BaseController {
             }
 
             logger.debug("finished metric calculation, updating dataset in db...");
+            dataset.getMetricInfos().add(mInfo);
             String result = storage.updateDataSet(updatedSet);
             if(!Strings.isNullOrEmpty(result)){
                 //error in db execution

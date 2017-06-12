@@ -175,9 +175,13 @@ public class MySQLStorage implements DataStorage {
                 stmt.setString(3, metric.getShortcut());
                 stmt.setString(4, metric.getProvider());
                 stmt.setString(5, metric.getTechnology());
-                stmt.setTimestamp(6, new Timestamp(metric.getExecutionStarted().getTime()));
-                stmt.setString(7, metric.getStatus().name());
-                stmt.setString(8, metric.getType().name());
+                if(metric.getExecutionStarted() != null) {
+                    stmt.setTimestamp(6, new Timestamp(metric.getExecutionStarted().getTime()));
+                }else{
+                    stmt.setTimestamp(6, null);
+                }
+                stmt.setString(7, metric.getStatus()==null?"":metric.getStatus().name());
+                stmt.setString(8, metric.getType()==null?"":metric.getType().name());
                 stmt.setString(9, metric.getValue());
                 stmt.setString(10, metric.getMessage());
 
@@ -216,10 +220,18 @@ public class MySQLStorage implements DataStorage {
                 stmt.setString(2, metricInfo.getShortcut());
                 stmt.setString(3, metricInfo.getProvider());
                 stmt.setString(4, metricInfo.getTechnology());
-                stmt.setTimestamp(5, new Timestamp(metricInfo.getExecutionStarted().getTime()));
-                stmt.setTimestamp(6, new Timestamp(metricInfo.getExecutionFinished().getTime()));
-                stmt.setString(7, metricInfo.getStatus().name());
-                stmt.setString(8, metricInfo.getType().name());
+                if(metricInfo.getExecutionStarted() != null) {
+                    stmt.setTimestamp(5, new Timestamp(metricInfo.getExecutionStarted().getTime()));
+                }else{
+                    stmt.setTimestamp(5,null);
+                }
+                if(metricInfo.getExecutionFinished() != null) {
+                    stmt.setTimestamp(6, new Timestamp(metricInfo.getExecutionFinished().getTime()));
+                }else{
+                    stmt.setTimestamp(6, null);
+                }
+                stmt.setString(7, metricInfo.getStatus()==null?"":metricInfo.getStatus().name());
+                stmt.setString(8, metricInfo.getType()==null?"":metricInfo.getType().name());
                 stmt.setString(9, metricInfo.getValue());
                 stmt.setString(10, metricInfo.getMessage());
                 stmt.setInt(11, Integer.valueOf(metricInfo.getId()));
@@ -251,7 +263,11 @@ public class MySQLStorage implements DataStorage {
         try (Connection con = getConnection()){
             try(PreparedStatement stmt = con.prepareStatement(INSERT_DATASET, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, dataSet.getName());
-                stmt.setTimestamp(2, new Timestamp(dataSet.getCreated().getTime()));
+                if(dataSet.getCreated() != null) {
+                    stmt.setTimestamp(2, new Timestamp(dataSet.getCreated().getTime()));
+                }else{
+                    stmt.setTimestamp(2, null);
+                }
 
                 stmt.executeUpdate();
                 con.commit();
@@ -266,6 +282,8 @@ public class MySQLStorage implements DataStorage {
         }
         Instant ends = Instant.now();
         logger.debug("inserting dataset finished ({})", Duration.between(starts, ends));
+
+        //=========== NODES
 
         starts = Instant.now();
         if(dataSet.getEdges() != null && dataSet.getEdges().size() > 0) {
@@ -295,6 +313,8 @@ public class MySQLStorage implements DataStorage {
             }
             ends = Instant.now();
             logger.debug("inserting nodes finished ({})", Duration.between(starts, ends));
+
+            //========== EDGES
 
             starts = Instant.now();
             logger.debug("inserting edges...");
@@ -576,7 +596,7 @@ public class MySQLStorage implements DataStorage {
                 stmt.setInt(1, Integer.parseInt(node.getId()));
                 ResultSet res = stmt.executeQuery();
                 while (res.next()){
-                    node.setAttribute(rs.getString("key"), res.getString("value"));
+                    node.setAttribute(res.getString("key"), res.getString("value"));
                 }
             }
             Instant ends = Instant.now();
@@ -643,7 +663,11 @@ public class MySQLStorage implements DataStorage {
         try (Connection con = getConnection()){
             try(PreparedStatement stmt = con.prepareStatement(UPDATE_DATASET)) {
                 stmt.setString(1, dataSet.getName());
-                stmt.setTimestamp(2, new Timestamp(dataSet.getCreated().getTime()));
+                if(dataSet.getCreated() != null) {
+                    stmt.setTimestamp(2, new Timestamp(dataSet.getCreated().getTime()));
+                }else{
+                    stmt.setTimestamp(2, null);
+                }
                 stmt.setString(3, String.join(",", dataSet.getNotificationEmails()));
                 stmt.setLong(4, Long.valueOf(dataSet.getId()));
 
@@ -662,7 +686,7 @@ public class MySQLStorage implements DataStorage {
         starts = Instant.now();
         logger.debug("updating nodes...");
         try (Connection con = getConnection()){
-            updateNodeList(dataSet.getNodes(), con);
+            updateNodeList(dataSet.getNodes(), con, dataSet.getId());
         } catch (SQLException | ClassNotFoundException e) {
             logger.error("updating nodes failed: {}", e.getMessage());
             return e.getMessage();
@@ -672,6 +696,31 @@ public class MySQLStorage implements DataStorage {
 
         //======= EDGES
 
+        starts = Instant.now();
+        logger.debug("updating edges...");
+        try (Connection con = getConnection()){
+            updateEdgeList(dataSet.getEdges(), con, dataSet.getId());
+        } catch (SQLException | ClassNotFoundException e) {
+            logger.error("updating edges failed: {}", e.getMessage());
+            return e.getMessage();
+        }
+        ends = Instant.now();
+        logger.debug("updating edges finished ({})", Duration.between(starts, ends));
+
+        //======= METRICS
+
+        starts = Instant.now();
+        logger.debug("updating metrics...");
+        try (Connection con = getConnection()){
+            updateMetricList(dataSet.getMetricInfos(), con, dataSet.getId());
+        } catch (SQLException | ClassNotFoundException e) {
+            logger.error("updating metrics failed: {}", e.getMessage());
+            return e.getMessage();
+        }
+        ends = Instant.now();
+        logger.debug("updating metrics finished ({})", Duration.between(starts, ends));
+
+        logger.debug("finished updating dataset");
 
         return null;
     }
@@ -685,48 +734,271 @@ public class MySQLStorage implements DataStorage {
      * @return
      * @throws SQLException
      */
-    private String updateNodeList(List<CoriaNode> nodes, Connection con) throws SQLException {
+    private String updateNodeList(List<CoriaNode> nodes, Connection con, String dsId) throws SQLException {
         final String UPDATE_NODE = "UPDATE " + dbSchema + ".`nodes` SET `name`=?, `risc_score`=? WHERE `id`=?";
         final String UPDATE_ATTRIBUTE = "UPDATE " + dbSchema + ".`attributes` SET `key`=?, `value`=? WHERE `node_id`=? and `key`=?";
         final String INSERT_ATTRIBUTE_NODE = "INSERT INTO " + dbSchema + ".`attributes` (`node_id`, `key`, `value`) VALUES (?, ?, ?)";
 
+        //read the current available nodes for a dataset so you can check if the new list has new items in it
+        List<String> currentNodes = new ArrayList<>();
+        final String SELECT_NODES_FOR_DATASET = "SELECT * FROM " + dbSchema + ".nodes where dataset_id = ?";
+        logger.debug("loading nodes for dataset...");
+        Instant starts = Instant.now();
+        starts = Instant.now();
+        try {
+            try (PreparedStatement stmt = con.prepareStatement(SELECT_NODES_FOR_DATASET)) {
+                stmt.setInt(1, Integer.parseInt(dsId));
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()){
+                    currentNodes.add(rs.getString("name"));
+                }
+            }
+            Instant ends = Instant.now();
+            logger.debug("loaded nodes for dataset ({})", Duration.between(starts, ends));
+        } catch (SQLException e) {
+            logger.error("could not load nodes: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+
+        logger.debug("updating nodes in dataset...");
+        starts = Instant.now();
         try(PreparedStatement stmtUpdateNode = con.prepareStatement(UPDATE_NODE)) {
             int batchCounterNodes = 0;
             for (CoriaNode node : nodes) {
-                stmtUpdateNode.clearParameters();
-                stmtUpdateNode.setString(1, node.getName());
-                stmtUpdateNode.setString(2, node.getRiscScore());
-                stmtUpdateNode.setLong(3, Long.valueOf(node.getId()));
-                stmtUpdateNode.addBatch();
-                if (batchCounterNodes++ > BATCH_SIZE) {
-                    stmtUpdateNode.executeBatch();
-                    batchCounterNodes = 0;
-                }
+                if(currentNodes.contains(node.getName())) {
+                    stmtUpdateNode.clearParameters();
+                    stmtUpdateNode.setString(1, node.getName());
+                    stmtUpdateNode.setString(2, node.getRiscScore());
+                    stmtUpdateNode.setLong(3, Long.valueOf(node.getId()));
+                    stmtUpdateNode.addBatch();
+                    if (batchCounterNodes++ > BATCH_SIZE) {
+                        stmtUpdateNode.executeBatch();
+                        batchCounterNodes = 0;
+                    }
 
-                if(node.getAttributes() != null && node.getAttributes().size() > 0){
-                    for (Map.Entry<String, String> attr : node.getAttributes().entrySet()) {
-                        try (PreparedStatement stmtUpdateAttribute = con.prepareStatement(UPDATE_ATTRIBUTE)) {
-                            stmtUpdateAttribute.setString(1, attr.getKey());
-                            stmtUpdateAttribute.setString(2, attr.getValue());
-                            stmtUpdateAttribute.setLong(3, Long.valueOf(node.getId()));
-                            stmtUpdateAttribute.setString(4, attr.getKey());
-                            int restult = stmtUpdateAttribute.executeUpdate();
-                            if(restult == 0){
-                                //attribute must be created
-                                try (PreparedStatement stmtCreateAttribute = con.prepareStatement(INSERT_ATTRIBUTE_NODE)) {
-                                    stmtCreateAttribute.setLong(1, Long.valueOf(node.getId()));
-                                    stmtCreateAttribute.setString(2, attr.getKey());
-                                    stmtCreateAttribute.setString(3, attr.getValue());
-                                    stmtCreateAttribute.executeUpdate();
+                    if (node.getAttributes() != null && node.getAttributes().size() > 0) {
+                        for (Map.Entry<String, String> attr : node.getAttributes().entrySet()) {
+                            try (PreparedStatement stmtUpdateAttribute = con.prepareStatement(UPDATE_ATTRIBUTE)) {
+                                stmtUpdateAttribute.setString(1, attr.getKey());
+                                stmtUpdateAttribute.setString(2, attr.getValue());
+                                stmtUpdateAttribute.setLong(3, Long.valueOf(node.getId()));
+                                stmtUpdateAttribute.setString(4, attr.getKey());
+                                int restult = stmtUpdateAttribute.executeUpdate();
+                                if (restult == 0) {
+                                    //attribute must be created
+                                    try (PreparedStatement stmtCreateAttribute = con.prepareStatement(INSERT_ATTRIBUTE_NODE)) {
+                                        stmtCreateAttribute.setLong(1, Long.valueOf(node.getId()));
+                                        stmtCreateAttribute.setString(2, attr.getKey());
+                                        stmtCreateAttribute.setString(3, attr.getValue());
+                                        stmtCreateAttribute.executeUpdate();
+                                    }
                                 }
                             }
                         }
+                    }
+                    //keep list short
+                    currentNodes.remove(node.getName());
+                }else{
+                    //this node is new to the dataset -> insert
+                    final String INSERT_NODE = "INSERT INTO " + dbSchema + ".`nodes` (`dataset_id`, `name`) VALUES (?, ?);";
+                    try(PreparedStatement stmt = con.prepareStatement(INSERT_NODE, Statement.RETURN_GENERATED_KEYS)) {
+                        stmt.setInt(1, Integer.parseInt(dsId));
+                        stmt.setString(2, node.getName());
+                        stmt.executeUpdate();
+                        con.commit();
                     }
                 }
             }
             stmtUpdateNode.executeBatch();
             con.commit();
         }
+        Instant ends = Instant.now();
+        logger.debug("updating nodes finished ({})", Duration.between(starts, ends));
+
+        return null;
+    }
+
+    private String updateEdgeList(List<CoriaEdge> edges, Connection con, String dsId) throws SQLException {
+        final String UPDATE_EDGE = "UPDATE " + dbSchema + ".`edges` SET `name`=?, `source`=?, `destination`=? WHERE `id`=?";
+        final String UPDATE_ATTRIBUTE = "UPDATE " + dbSchema + ".`attributes` SET `key`=?, `value`=? WHERE `edge_id`=? and `key`=?";
+        final String INSERT_ATTRIBUTE_EDGE = "INSERT INTO " + dbSchema + ".`attributes` (`edge_id`, `key`, `value`) VALUES (?, ?, ?)";
+
+        //read the current available edges for a dataset so you can check if the new list has new items in it
+        List<String> currentEdges = new ArrayList<>();
+        final String SELECT_EDGES_FOR_DATASET = "SELECT * FROM " + dbSchema + ".edges where dataset_id = ?";
+        logger.debug("loading edges for dataset...");
+        Instant starts = Instant.now();
+        starts = Instant.now();
+        try {
+            try (PreparedStatement stmt = con.prepareStatement(SELECT_EDGES_FOR_DATASET)) {
+                stmt.setInt(1, Integer.parseInt(dsId));
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()){
+                    currentEdges.add(rs.getString("name"));
+                }
+            }
+            Instant ends = Instant.now();
+            logger.debug("loaded edges for dataset ({})", Duration.between(starts, ends));
+        } catch (SQLException e) {
+            logger.error("could not load edges: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+
+        logger.debug("updating edges in dataset...");
+        starts = Instant.now();
+        try(PreparedStatement stmtUpdateEdge = con.prepareStatement(UPDATE_EDGE)) {
+            int batchCounterNodes = 0;
+            for (CoriaEdge edge : edges) {
+                if(currentEdges.contains(edge.getName())) {
+                    stmtUpdateEdge.clearParameters();
+                    stmtUpdateEdge.setString(1, edge.getName());
+                    stmtUpdateEdge.setString(2, edge.getSourceNode().getName());
+                    stmtUpdateEdge.setString(3, edge.getDestinationNode().getName());
+                    stmtUpdateEdge.setLong(4, Long.valueOf(edge.getId()));
+                    stmtUpdateEdge.addBatch();
+                    if (batchCounterNodes++ > BATCH_SIZE) {
+                        stmtUpdateEdge.executeBatch();
+                        batchCounterNodes = 0;
+                    }
+
+                    if (edge.getAttributes() != null && edge.getAttributes().size() > 0) {
+                        for (Map.Entry<String, String> attr : edge.getAttributes().entrySet()) {
+                            try (PreparedStatement stmtUpdateAttribute = con.prepareStatement(UPDATE_ATTRIBUTE)) {
+                                stmtUpdateAttribute.setString(1, attr.getKey());
+                                stmtUpdateAttribute.setString(2, attr.getValue());
+                                stmtUpdateAttribute.setLong(3, Long.valueOf(edge.getId()));
+                                stmtUpdateAttribute.setString(4, attr.getKey());
+                                int restult = stmtUpdateAttribute.executeUpdate();
+                                if (restult == 0) {
+                                    //attribute must be created
+                                    try (PreparedStatement stmtCreateAttribute = con.prepareStatement(INSERT_ATTRIBUTE_EDGE)) {
+                                        stmtCreateAttribute.setLong(1, Long.valueOf(edge.getId()));
+                                        stmtCreateAttribute.setString(2, attr.getKey());
+                                        stmtCreateAttribute.setString(3, attr.getValue());
+                                        stmtCreateAttribute.executeUpdate();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    //keep list short
+                    currentEdges.remove(edge.getName());
+                }else{
+                    //this node is new to the dataset -> insert
+                    final String INSERT_EDGE = "INSERT INTO " + dbSchema + ".`edges` (`dataset_id`, `name`, `source`, `destination`) VALUES (?, ?, ?, ?);";
+                    try(PreparedStatement stmt = con.prepareStatement(INSERT_EDGE)) {
+                        stmt.setInt(1, Integer.parseInt(dsId));
+                        stmt.setString(2, edge.getName());
+                        stmt.setString(3, edge.getSourceNode().getName());
+                        stmt.setString(4, edge.getDestinationNode().getName());
+                        stmt.executeUpdate();
+                        con.commit();
+                    }
+                }
+            }
+            stmtUpdateEdge.executeBatch();
+            con.commit();
+        }
+        Instant ends = Instant.now();
+        logger.debug("updating edges finished ({})", Duration.between(starts, ends));
+
+        return null;
+    }
+
+    private String updateMetricList(List<MetricInfo> metrics, Connection con, String dsId) throws SQLException {
+        final String INSERT_METRIC_INFO = "INSERT INTO " + dbSchema + ".`metrics` (`dataset_id`, `name`, `shortcut`, `provider`, `technology`, `started`, `finished`, `status`, `type`, `value`, `message`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        final String UPDATE_METRIC_INFO = "UPDATE " + dbSchema + ".`metrics` SET `name`=?, `shortcut`=?, `provider`=?, `technology`=?, `started`=?, `finished`=?, `status`=?, `type`=?, `value`=?, `message`=? WHERE `id`=?";
+
+
+        //read the current available metrics for a dataset so you can check if the new list has new items in it
+        List<String> currentMetrics = new ArrayList<>();
+        final String SELECT_METRICS_FOR_DATASET = "SELECT * FROM " + dbSchema + ".metrics where dataset_id = ?";
+        logger.debug("loading metrics for dataset...");
+        Instant starts = Instant.now();
+        starts = Instant.now();
+        try {
+            try (PreparedStatement stmt = con.prepareStatement(SELECT_METRICS_FOR_DATASET)) {
+                stmt.setInt(1, Integer.parseInt(dsId));
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()){
+                    currentMetrics.add(rs.getString("name"));
+                }
+            }
+            Instant ends = Instant.now();
+            logger.debug("loaded metrics for dataset ({})", Duration.between(starts, ends));
+        } catch (SQLException e) {
+            logger.error("could not load metrics: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        logger.debug("updating metrics in dataset...");
+        starts = Instant.now();
+        try(PreparedStatement stmtUpdateMetric = con.prepareStatement(UPDATE_METRIC_INFO)) {
+            int batchCounterNodes = 0;
+            for (MetricInfo info : metrics) {
+                if(currentMetrics.contains(info.getName())) {
+                    stmtUpdateMetric.clearParameters();
+                    stmtUpdateMetric.setString(1, info.getName());
+                    stmtUpdateMetric.setString(2, info.getShortcut());
+                    stmtUpdateMetric.setString(3, info.getProvider());
+                    stmtUpdateMetric.setString(4, info.getTechnology());
+                    if(info.getExecutionStarted() != null) {
+                        stmtUpdateMetric.setTimestamp(5, new Timestamp(info.getExecutionStarted().getTime()));
+                    }else{
+                        stmtUpdateMetric.setTimestamp(5,null);
+                    }
+                    if(info.getExecutionFinished() != null) {
+                        stmtUpdateMetric.setTimestamp(6, new Timestamp(info.getExecutionFinished().getTime()));
+                    }else{
+                        stmtUpdateMetric.setTimestamp(6, null);
+                    }
+                    stmtUpdateMetric.setString(7, info.getStatus() == null?"":info.getStatus().name());
+                    stmtUpdateMetric.setString(8, info.getType()==null?"":info.getType().name());
+                    stmtUpdateMetric.setString(9, info.getValue());
+                    stmtUpdateMetric.setString(10, info.getMessage());
+                    stmtUpdateMetric.setLong(11, Integer.valueOf(info.getId()));
+                    stmtUpdateMetric.addBatch();
+                    if (batchCounterNodes++ > BATCH_SIZE) {
+                        stmtUpdateMetric.executeBatch();
+                        batchCounterNodes = 0;
+                    }
+
+                    //keep list short
+                    currentMetrics.remove(info.getName());
+                }else{
+                    //this node is new to the dataset -> insert
+                    try(PreparedStatement stmt = con.prepareStatement(INSERT_METRIC_INFO)) {
+                        stmt.setInt(1, Integer.parseInt(dsId));
+                        stmt.setString(2, info.getName());
+                        stmt.setString(3, info.getShortcut());
+                        stmt.setString(4, info.getProvider());
+                        stmt.setString(5, info.getTechnology());
+                        if(info.getExecutionStarted() != null) {
+                            stmtUpdateMetric.setTimestamp(6, new Timestamp(info.getExecutionStarted().getTime()));
+                        }else{
+                            stmtUpdateMetric.setTimestamp(6,null);
+                        }
+                        if(info.getExecutionFinished() != null) {
+                            stmtUpdateMetric.setTimestamp(7, new Timestamp(info.getExecutionFinished().getTime()));
+                        }else{
+                            stmtUpdateMetric.setTimestamp(7, null);
+                        }
+                        stmt.setString(8, info.getStatus()==null?"":info.getStatus().name());
+                        stmt.setString(9, info.getType()==null?"":info.getType().name());
+                        stmt.setString(10, info.getValue());
+                        stmt.setString(11, info.getMessage());
+                        stmt.executeUpdate();
+                        con.commit();
+                    }
+                }
+            }
+            stmtUpdateMetric.executeBatch();
+            con.commit();
+        }
+        Instant ends = Instant.now();
+        logger.debug("updating metrics finished ({})", Duration.between(starts, ends));
 
         return null;
     }
