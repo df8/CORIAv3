@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class GSBetweennessCentrality implements Metric {
-    private Logger logger = LoggerFactory.getLogger(LoggerFactory.class);
+    private Logger logger = LoggerFactory.getLogger(GSBetweennessCentrality.class);
 
     @Override
     public String getIdentification() {
@@ -102,11 +102,17 @@ public class GSBetweennessCentrality implements Metric {
 
         for(CoriaNode n : dataset.getNodes()){
             Double relBc = (Double.valueOf(n.getAttribute(getShortcut())) / maxCb) * 100;
-            n.setAttribute(getShortcut()+"_relative", relBc.toString().split("\\.")[0]);
+            logger.trace("BC: {} / {} * 100 = {}", Double.valueOf(n.getAttribute(getShortcut())), maxCb, relBc);
+            n.setAttribute(getShortcut()+"_relative", relBc.toString());
         }
 
         logger.debug("calculation for {} finished successfully", getName());
 
         return dataset;
+    }
+
+    @Override
+    public String toString() {
+        return "GSBetweennessCentrality{id: " + getIdentification() + ", name: " + getName() +"}";
     }
 }

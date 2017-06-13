@@ -45,6 +45,19 @@ public class MetricsController extends BaseController {
         return ResponseEntity.ok(metrics);
     }
 
+    @GetMapping(path = "/dataset/{datasetid}")
+    public @ResponseBody ResponseEntity getMetricsForDataSet(@PathVariable("datasetid") String datasetid){
+        logger.debug("retrieving metrics for dataset {}", datasetid);
+        DataStorage storage = getActiveStorage();
+
+        List<MetricInfo> metrics = storage.getMetricInfos(datasetid);
+        if(metrics == null){
+            return ResponseEntity.status(500).build();
+        }
+
+        return ResponseEntity.ok(metrics);
+    }
+
     @Async
     @PostMapping("/start")
     public @ResponseBody
@@ -88,7 +101,6 @@ public class MetricsController extends BaseController {
             }
 
             logger.debug("finished metric calculation, updating dataset in db...");
-            dataset.getMetricInfos().add(mInfo);
             String result = storage.updateDataSet(updatedSet);
             if(!Strings.isNullOrEmpty(result)){
                 //error in db execution
@@ -118,6 +130,7 @@ public class MetricsController extends BaseController {
         if(mInfo != null){
             mInfo.setStatus(MetricInfo.MetricStatus.FAILED);
             mInfo.setMessage(message);
+            mInfo.setExecutionFinished(new Date());
             if(storage != null && storage.getStorageStatus().isReadyToUse()){
                 storage.updateMetricInfo(mInfo);
             }else{

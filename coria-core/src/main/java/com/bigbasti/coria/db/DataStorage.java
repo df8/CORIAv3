@@ -37,6 +37,9 @@ public interface DataStorage {
     void deleteNode(CoriaNode node);
     void deleteNode(String id);
 
+    MetricInfo getMetricInfo(String id);
+    List<MetricInfo> getMetricInfos();
+    List<MetricInfo> getMetricInfos(String datasetId);
     String addMetricInfo(MetricInfo metric, String datasetId);
     String updateMetricInfo(MetricInfo metricInfo);
 

@@ -162,6 +162,44 @@ public class MySQLStorage implements DataStorage {
     }
 
     @Override
+    public MetricInfo getMetricInfo(String id) {
+        return null;
+    }
+
+    @Override
+    public List<MetricInfo> getMetricInfos() {
+        return null;
+    }
+
+    @Override
+    public List<MetricInfo> getMetricInfos(String datasetId) {
+        logger.debug("loading metric infos for dataset {}", datasetId);
+        final String SELECT_METRIC_FOR_DATASET = "SELECT * FROM " + dbSchema + ".metrics where dataset_id = ?";
+
+        List<MetricInfo> readInfos = new ArrayList<>();
+
+        Instant starts = Instant.now();
+        try {
+            try (Connection con = getConnection()) {
+                try (PreparedStatement stmt = con.prepareStatement(SELECT_METRIC_FOR_DATASET)) {
+                    stmt.setInt(1, Integer.parseInt(datasetId));
+                    ResultSet rs = stmt.executeQuery();
+                    while (rs.next()){
+                        readInfos.add(toMetric(rs));
+                    }
+                }
+            }
+            Instant ends = Instant.now();
+            logger.debug("loaded metrics for dataset ({})", Duration.between(starts, ends));
+        } catch (SQLException | ClassNotFoundException e) {
+            logger.error("could not load metrics: {}", e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+        return readInfos;
+    }
+
+    @Override
     public String addMetricInfo(MetricInfo metric, String datasetId) {
         final String INSERT_METRIC = "INSERT INTO " + dbSchema + ".`metrics` (`dataset_id`, `name`, `shortcut`, `provider`, `technology`, `started`, `status`, `type`, `value`, `message`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         int retVal = 0;
@@ -176,7 +214,7 @@ public class MySQLStorage implements DataStorage {
                 stmt.setString(4, metric.getProvider());
                 stmt.setString(5, metric.getTechnology());
                 if(metric.getExecutionStarted() != null) {
-                    stmt.setTimestamp(6, new Timestamp(metric.getExecutionStarted().getTime()));
+                    stmt.setTimestamp(6, metric.getExecutionStarted()==null?null:new Timestamp(metric.getExecutionStarted().getTime()));
                 }else{
                     stmt.setTimestamp(6, null);
                 }
@@ -188,9 +226,13 @@ public class MySQLStorage implements DataStorage {
                 stmt.executeUpdate();
                 con.commit();
                 //get the autoincremented dataset id
-                ResultSet rs = stmt.getGeneratedKeys();
-                rs.next();
-                retVal = rs.getInt(1);
+                try {
+                    ResultSet rs = stmt.getGeneratedKeys();
+                    rs.next();
+                    retVal = rs.getInt(1);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         } catch (SQLException | ClassNotFoundException e) {
             logger.error("Inserting metric failed: {}", e.getMessage());
@@ -221,12 +263,12 @@ public class MySQLStorage implements DataStorage {
                 stmt.setString(3, metricInfo.getProvider());
                 stmt.setString(4, metricInfo.getTechnology());
                 if(metricInfo.getExecutionStarted() != null) {
-                    stmt.setTimestamp(5, new Timestamp(metricInfo.getExecutionStarted().getTime()));
+                    stmt.setTimestamp(5, metricInfo.getExecutionStarted()==null?null:new Timestamp(metricInfo.getExecutionStarted().getTime()));
                 }else{
                     stmt.setTimestamp(5,null);
                 }
                 if(metricInfo.getExecutionFinished() != null) {
-                    stmt.setTimestamp(6, new Timestamp(metricInfo.getExecutionFinished().getTime()));
+                    stmt.setTimestamp(6, metricInfo.getExecutionFinished()==null?null:new Timestamp(metricInfo.getExecutionFinished().getTime()));
                 }else{
                     stmt.setTimestamp(6, null);
                 }
@@ -264,7 +306,7 @@ public class MySQLStorage implements DataStorage {
             try(PreparedStatement stmt = con.prepareStatement(INSERT_DATASET, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, dataSet.getName());
                 if(dataSet.getCreated() != null) {
-                    stmt.setTimestamp(2, new Timestamp(dataSet.getCreated().getTime()));
+                    stmt.setTimestamp(2, dataSet.getCreated()==null?null:new Timestamp(dataSet.getCreated().getTime()));
                 }else{
                     stmt.setTimestamp(2, null);
                 }
@@ -327,8 +369,8 @@ public class MySQLStorage implements DataStorage {
                         stmt.clearParameters();
                         stmt.setInt(1, dataSetKey);
                         stmt.setString(2, edge.getName());
-                        stmt.setString(3, edge.getSourceNode().getName());
-                        stmt.setString(4, edge.getDestinationNode().getName());
+                        stmt.setString(3, edge.getSourceNode()==null?null:edge.getSourceNode().getName());
+                        stmt.setString(4, edge.getDestinationNode()==null?null:edge.getDestinationNode().getName());
                         stmt.addBatch();
                         if (batchCounter++ > BATCH_SIZE) {
                             stmt.executeBatch();
@@ -564,9 +606,12 @@ public class MySQLStorage implements DataStorage {
         m.setShortcut(rs.getString("shortcut"));
         m.setProvider(rs.getString("provider"));
         m.setTechnology(rs.getString("technology"));
-        m.setExecutionStarted(rs.getDate("started"));
-        m.setExecutionFinished(rs.getDate("finished"));
+        m.setExecutionStarted(rs.getTimestamp("started"));
+        m.setExecutionFinished(rs.getTimestamp("finished"));
         m.setStatus(MetricInfo.MetricStatus.valueOf(rs.getString("status")));
+        m.setType(MetricInfo.MetricType.valueOf(rs.getString("type")));
+        m.setValue(rs.getString("value"));
+        m.setMessage(rs.getString("message"));
         return m;
     }
 
@@ -584,8 +629,8 @@ public class MySQLStorage implements DataStorage {
     private CoriaNode toNode(ResultSet rs, Connection con) throws SQLException {
         CoriaNode node = new CoriaNode(rs.getString("name"));
         node.setId(String.valueOf(rs.getInt("id")));
+        node.setRiscScore(rs.getString("risc_score"));
 
-        //TODO: Risc score lesen
         //======== ATTRIBUTES
 
         logger.trace("\tloading attributes for node {}...", node.getId());
@@ -634,10 +679,10 @@ public class MySQLStorage implements DataStorage {
         //======== ATTRIBUTES
 
         logger.trace("\tloading attributes for edge {}...", edge.getId());
-        final String SELECT_ATTRIBUTE_FOR_NODE = "SELECT * FROM " + dbSchema + ".attributes where node_id = ?";
+        final String SELECT_ATTRIBUTE_FOR_EDGE = "SELECT * FROM " + dbSchema + ".attributes where edge_id = ?";
         Instant starts = Instant.now();
         try {
-            try (PreparedStatement stmt = con.prepareStatement(SELECT_ATTRIBUTE_FOR_NODE)) {
+            try (PreparedStatement stmt = con.prepareStatement(SELECT_ATTRIBUTE_FOR_EDGE)) {
                 stmt.setInt(1, Integer.parseInt(edge.getId()));
                 ResultSet res = stmt.executeQuery();
                 while (res.next()){
@@ -664,7 +709,7 @@ public class MySQLStorage implements DataStorage {
             try(PreparedStatement stmt = con.prepareStatement(UPDATE_DATASET)) {
                 stmt.setString(1, dataSet.getName());
                 if(dataSet.getCreated() != null) {
-                    stmt.setTimestamp(2, new Timestamp(dataSet.getCreated().getTime()));
+                    stmt.setTimestamp(2, dataSet.getCreated()==null?null:new Timestamp(dataSet.getCreated().getTime()));
                 }else{
                     stmt.setTimestamp(2, null);
                 }
@@ -854,8 +899,8 @@ public class MySQLStorage implements DataStorage {
                 if(currentEdges.contains(edge.getName())) {
                     stmtUpdateEdge.clearParameters();
                     stmtUpdateEdge.setString(1, edge.getName());
-                    stmtUpdateEdge.setString(2, edge.getSourceNode().getName());
-                    stmtUpdateEdge.setString(3, edge.getDestinationNode().getName());
+                    stmtUpdateEdge.setString(2, edge.getSourceNode()==null?null:edge.getSourceNode().getName());
+                    stmtUpdateEdge.setString(3, edge.getDestinationNode()==null?null:edge.getDestinationNode().getName());
                     stmtUpdateEdge.setLong(4, Long.valueOf(edge.getId()));
                     stmtUpdateEdge.addBatch();
                     if (batchCounterNodes++ > BATCH_SIZE) {
@@ -891,8 +936,8 @@ public class MySQLStorage implements DataStorage {
                     try(PreparedStatement stmt = con.prepareStatement(INSERT_EDGE)) {
                         stmt.setInt(1, Integer.parseInt(dsId));
                         stmt.setString(2, edge.getName());
-                        stmt.setString(3, edge.getSourceNode().getName());
-                        stmt.setString(4, edge.getDestinationNode().getName());
+                        stmt.setString(3, edge.getSourceNode()==null?null:edge.getSourceNode().getName());
+                        stmt.setString(4, edge.getDestinationNode()==null?null:edge.getDestinationNode().getName());
                         stmt.executeUpdate();
                         con.commit();
                     }
@@ -944,16 +989,8 @@ public class MySQLStorage implements DataStorage {
                     stmtUpdateMetric.setString(2, info.getShortcut());
                     stmtUpdateMetric.setString(3, info.getProvider());
                     stmtUpdateMetric.setString(4, info.getTechnology());
-                    if(info.getExecutionStarted() != null) {
-                        stmtUpdateMetric.setTimestamp(5, new Timestamp(info.getExecutionStarted().getTime()));
-                    }else{
-                        stmtUpdateMetric.setTimestamp(5,null);
-                    }
-                    if(info.getExecutionFinished() != null) {
-                        stmtUpdateMetric.setTimestamp(6, new Timestamp(info.getExecutionFinished().getTime()));
-                    }else{
-                        stmtUpdateMetric.setTimestamp(6, null);
-                    }
+                    stmtUpdateMetric.setTimestamp(5, info.getExecutionStarted()==null?null:new Timestamp(info.getExecutionStarted().getTime()));
+                    stmtUpdateMetric.setTimestamp(6, info.getExecutionFinished()==null?null:new Timestamp(info.getExecutionFinished().getTime()));
                     stmtUpdateMetric.setString(7, info.getStatus() == null?"":info.getStatus().name());
                     stmtUpdateMetric.setString(8, info.getType()==null?"":info.getType().name());
                     stmtUpdateMetric.setString(9, info.getValue());
@@ -975,16 +1012,8 @@ public class MySQLStorage implements DataStorage {
                         stmt.setString(3, info.getShortcut());
                         stmt.setString(4, info.getProvider());
                         stmt.setString(5, info.getTechnology());
-                        if(info.getExecutionStarted() != null) {
-                            stmtUpdateMetric.setTimestamp(6, new Timestamp(info.getExecutionStarted().getTime()));
-                        }else{
-                            stmtUpdateMetric.setTimestamp(6,null);
-                        }
-                        if(info.getExecutionFinished() != null) {
-                            stmtUpdateMetric.setTimestamp(7, new Timestamp(info.getExecutionFinished().getTime()));
-                        }else{
-                            stmtUpdateMetric.setTimestamp(7, null);
-                        }
+                        stmt.setTimestamp(6, info.getExecutionStarted()==null?null:new Timestamp(info.getExecutionStarted().getTime()));
+                        stmt.setTimestamp(7, info.getExecutionFinished()==null?null:new Timestamp(info.getExecutionFinished().getTime()));
                         stmt.setString(8, info.getStatus()==null?"":info.getStatus().name());
                         stmt.setString(9, info.getType()==null?"":info.getType().name());
                         stmt.setString(10, info.getValue());

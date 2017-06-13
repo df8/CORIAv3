@@ -17,6 +17,7 @@ public class CoriaEdge {
 
     public CoriaEdge(String name) {
         this.name = name;
+        this.attributes = new HashMap<String, String>();
     }
 
     public CoriaEdge(String name, CoriaNode sourceNode, CoriaNode destinationNode) {

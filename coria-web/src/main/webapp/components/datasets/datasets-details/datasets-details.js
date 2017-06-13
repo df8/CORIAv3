@@ -5,9 +5,25 @@ angular.module('coria.components')
         bindings: {},
         transclude: true,
         templateUrl: 'components/datasets/datasets-details/datasets-details.html',
-        controller: ["dataSetService", "$scope", "$location", "$routeParams", "metricsService",
-            function( dataSetService,   $scope,   $location,   $routeParams,  metricsService){
+        controller: ["dataSetService", "$scope", "$location", "$timeout", "$routeParams", "metricsService",
+            function( dataSetService,   $scope,   $location,   $timeout,   $routeParams,   metricsService){
             var vm = this;
+            vm.isRefreshing = false;
+            vm.currentTime = new Date().getTime();
+            var metricsRefreshTimer = function() {
+                var cancelRefresh = $timeout(function myFunction() {
+                    vm.isRefreshing = true;
+                    metricsService.metricsForDataset({datasetId: $routeParams.datasetid}, {}, function(success){
+                        console.dir(success);
+                        vm.dataset.metricInfos = success;
+                        vm.isRefreshing = false;
+                    });
+                    vm.currentTime = new Date().getTime();
+                    cancelRefresh = $timeout(metricsRefreshTimer, 10000);
+                },10000);
+            }; metricsRefreshTimer();
+
+            vm.datasetsPerPage = 10;
 
             vm.metrics = metricsService.queryMetrics();
             vm.metric = {
@@ -25,7 +41,6 @@ angular.module('coria.components')
             });
 
             vm.submitMetric = function submitMetric(){
-                vm.loading = true;
                 vm.metric.datasetid = $routeParams.datasetid;
                 vm.metric.description = undefined;
                 metricsService.startMetric({}, vm.metric, function(response){
@@ -33,6 +48,8 @@ angular.module('coria.components')
                 }, function(error){
                     vm.loading = false;
                 });
+                vm.isRefreshing = true;
+                vm.cancelAddMetric();
             };
 
             vm.cancelAddMetric = function cancelAddMetric(){
