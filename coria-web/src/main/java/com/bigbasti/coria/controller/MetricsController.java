@@ -92,12 +92,15 @@ public class MetricsController extends BaseController {
 
             logger.debug("loading dataset {} from db...", datasetid);
             DataSet dataset = storage.getDataSet(datasetid);
-            logger.debug("starting metric calculation for dataset {}", datasetid);
             DataSet updatedSet = metric.performCalculations(dataset);
             if(updatedSet == null){
                 //error in db execution
                 setMetricInfoToFailed(storage, mInfo, "Error while Metric calculation. Additional infos in the log file");
                 return new AsyncResult<>(ResponseEntity.status(500).build());
+            }
+            if(metric.getType() == MetricInfo.MetricType.DATASET){
+                //DataSet metrics often have a specific result, this result is saved in the metricInfo
+                mInfo.setValue(updatedSet.getAttribute(metric.getShortcut()));
             }
 
             logger.debug("finished metric calculation, updating dataset in db...");

@@ -754,16 +754,17 @@ public class MySQLStorage implements DataStorage {
 
         //======= METRICS
 
-        starts = Instant.now();
-        logger.debug("updating metrics...");
-        try (Connection con = getConnection()){
-            updateMetricList(dataSet.getMetricInfos(), con, dataSet.getId());
-        } catch (SQLException | ClassNotFoundException e) {
-            logger.error("updating metrics failed: {}", e.getMessage());
-            return e.getMessage();
-        }
-        ends = Instant.now();
-        logger.debug("updating metrics finished ({})", Duration.between(starts, ends));
+        logger.warn("updating metrics skipped");
+//        starts = Instant.now();
+//        logger.debug("updating metrics...");
+//        try (Connection con = getConnection()){
+//            updateMetricList(dataSet.getMetricInfos(), con, dataSet.getId());
+//        } catch (SQLException | ClassNotFoundException e) {
+//            logger.error("updating metrics failed: {}", e.getMessage());
+//            return e.getMessage();
+//        }
+//        ends = Instant.now();
+//        logger.debug("updating metrics finished ({})", Duration.between(starts, ends));
 
         logger.debug("finished updating dataset");
 

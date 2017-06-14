@@ -29,15 +29,20 @@ public class CoriaWebApplication extends AsyncConfigurerSupport {
 		return context;
 	}
 
-	@Override
-	public Executor getAsyncExecutor() {
+	@Bean
+	public ThreadPoolTaskExecutor getThreadPoolTaskExecutor(){
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 		executor.setCorePoolSize(10);
-		executor.setMaxPoolSize(10);
+		executor.setMaxPoolSize(20);
 		executor.setQueueCapacity(500);
 		executor.setThreadNamePrefix("metric-");
 		executor.initialize();
 		return executor;
+	}
+
+	@Override
+	public Executor getAsyncExecutor() {
+		return getThreadPoolTaskExecutor();
 	}
 
 	public static void main(String[] args) {
