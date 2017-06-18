@@ -98,14 +98,16 @@
                     <tr>
                         <th st-sort="name">Name</th>
                         <th st-sort="riscScore">Risc Score</th>
-                        <th ng-repeat="(key, value) in $ctrl.dataset.nodes[0].attributes">{{$ctrl.getMetricByShortcut(key)}}</th>
+                        <th ng-repeat="(key, value) in $ctrl.dataset.nodes[0].attributes" ng-if="key.indexOf('_')<0">{{$ctrl.getMetricByShortcut(key)}}</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr ng-repeat="node in $ctrl.displayedCollectionNodes">
                         <td>{{node.name}}</td>
                         <td>{{node.riscScore}}</td>
-                        <td ng-repeat="att in node.attributes">{{att}}</td>
+                        <td ng-repeat="(key, value) in node.attributes" ng-if="key.indexOf('_')<0">
+                            {{value}} <span class="label label-info" ng-repeat="sm in $ctrl.getSubMetrics(node, key)">{{sm}}</span>
+                        </td>
                     </tr>
                     </tbody>
                     <tfoot>
