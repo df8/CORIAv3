@@ -9,6 +9,7 @@ angular.module('coria.components')
             function( dataSetService,   $scope,   $location,   $timeout,   $routeParams,   metricsService){
             var vm = this;
             vm.dataset = {};
+            vm.allMetrics = metricsService.queryMetrics();
 
             //region METRICS
             vm.isMetricRefreshing = true;
@@ -91,6 +92,16 @@ angular.module('coria.components')
             }, function(error){
                 //TODO: errorhandling
             });
+
+            vm.getMetricByShortcut = function getMetricByShortcut(shortcut){
+                for(var i = 0; i < vm.allMetrics.length; i++){
+                    var currentMetric = vm.allMetrics[i];
+                    if(currentMetric.shortcut === shortcut){
+                        return currentMetric.name;
+                    }
+                }
+                return shortcut;
+            }
             //endregion
 
         }]
