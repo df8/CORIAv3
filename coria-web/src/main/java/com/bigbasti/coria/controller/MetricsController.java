@@ -64,7 +64,6 @@ public class MetricsController extends BaseController {
     Future<ResponseEntity> startMetricProcession(@RequestParam("identification") String metricid, @RequestParam("datasetid") String datasetid) {
         logger.debug("starting metric {} on dataset {}", metricid, datasetid);
 
-        //TODO: check if this metric is already present on the dataset -> delete it if so
         DataStorage storage = null;
         Metric metric = null;
         MetricInfo mInfo = null;
@@ -78,16 +77,35 @@ public class MetricsController extends BaseController {
             logger.debug("inserting new metric information to dataset {}", datasetid);
             mInfo = new MetricInfo("", metric.getName(), metric.getShortcut(), metric.getProvider(), metric.getTechnology(), new Date(), null);
             mInfo.setType(metric.getType());
-            String newIndex = storage.addMetricInfo(mInfo, datasetid);
-            try {
-                //check if index was returned
-                Integer index = Integer.getInteger(newIndex);
-                mInfo.setId(newIndex);
-            } catch (Exception ex) {
-                //there was an error while isnerting
-                logger.error("error while inserting metric, canceling execution");
-                setMetricInfoToFailed(storage, mInfo, "Metric could not be inserted into the database: " + ex.getMessage());
-                return new AsyncResult<>(ResponseEntity.status(500).build());
+
+            logger.debug("checking if dataset already contains this metric");
+            List<MetricInfo> infos = storage.getMetricInfos(datasetid);
+            boolean metricAlreadyPresent = false;
+            for(MetricInfo i : infos){
+                if(i.getShortcut().equals(mInfo.getShortcut())){
+                    metricAlreadyPresent = true;
+                    logger.debug("metric is being reexecuted");
+                    mInfo = i;
+                    mInfo.setExecutionFinished(null);
+                    mInfo.setExecutionStarted(new Date());
+                    mInfo.setProvider(metric.getProvider());
+                    mInfo.setTechnology(metric.getTechnology());
+                    mInfo.setStatus(MetricInfo.MetricStatus.RUNNING);
+                    storage.updateMetricInfo(mInfo);
+                }
+            }
+            if(!metricAlreadyPresent) {
+                String newIndex = storage.addMetricInfo(mInfo, datasetid);
+                try {
+                    //check if index was returned
+                    Integer index = Integer.getInteger(newIndex);
+                    mInfo.setId(newIndex);
+                } catch (Exception ex) {
+                    //there was an error while isnerting
+                    logger.error("error while inserting metric, canceling execution");
+                    setMetricInfoToFailed(storage, mInfo, "Metric could not be inserted into the database: " + ex.getMessage());
+                    return new AsyncResult<>(ResponseEntity.status(500).build());
+                }
             }
 
             logger.debug("loading dataset {} from db...", datasetid);
