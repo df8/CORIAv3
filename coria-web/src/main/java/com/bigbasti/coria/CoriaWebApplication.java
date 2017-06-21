@@ -25,7 +25,9 @@ public class CoriaWebApplication extends AsyncConfigurerSupport {
 	AppContext createAppContext(){
 		AppContext context = AppContext.getInstance();
 		String dbProvider = env.getProperty("coria.database");
+		String workingDir = env.getProperty("coria.workingdirectory");
 		context.setDatabaseProvider(dbProvider);
+		context.setWorkingDirectory(workingDir);
 		return context;
 	}
 

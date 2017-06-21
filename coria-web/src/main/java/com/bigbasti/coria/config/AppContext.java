@@ -14,6 +14,7 @@ public class AppContext {
     }
 
     private String databaseProvider;
+    private String workingDirectory;
 
     public static AppContext getOurInstance() {
         return ourInstance;
@@ -31,10 +32,19 @@ public class AppContext {
         this.databaseProvider = databaseProvider;
     }
 
+    public String getWorkingDirectory() {
+        return workingDirectory;
+    }
+
+    public void setWorkingDirectory(String workingDirectory) {
+        this.workingDirectory = workingDirectory;
+    }
+
     @Override
     public String toString() {
         return "AppContext{" +
                 "databaseProvider='" + databaseProvider + '\'' +
+                ", workingDirectory='" + workingDirectory + '\'' +
                 '}';
     }
 }
