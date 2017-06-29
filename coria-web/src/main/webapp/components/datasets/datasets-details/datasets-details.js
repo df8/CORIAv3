@@ -9,6 +9,7 @@ angular.module('coria.components')
             function( dataSetService,   $scope,   $location,   $timeout,   $routeParams,   metricsService){
             var vm = this;
             vm.dataset = {};
+            vm.allMetrics = metricsService.queryMetrics();
 
             //region METRICS
             vm.isMetricRefreshing = true;
@@ -91,7 +92,42 @@ angular.module('coria.components')
             }, function(error){
                 //TODO: errorhandling
             });
+
+            vm.getMetricByShortcut = function getMetricByShortcut(shortcut){
+                for(var i = 0; i < vm.allMetrics.length; i++){
+                    var currentMetric = vm.allMetrics[i];
+                    if(currentMetric.shortcut === shortcut){
+                        return currentMetric.name;
+                    }
+                }
+                return shortcut;
+            };
+            vm.getSubMetrics = function getSubMetrics(node, shortcut){
+                console.log("check ", shortcut);
+                if(shortcut.indexOf('_') > 0){
+                    return [];
+                }
+                var subMetrics = [];
+                for(var a in node.attributes){
+                    if(a===shortcut){continue;}
+                    if(a.lastIndexOf(shortcut, 0)===0){     //a startsWith shortcut
+                        if(a.indexOf('relative')>0){
+                            subMetrics.push(roundNumber(node.attributes[a], 2) + "%");
+                        }else{
+                            subMetrics.push(node.attributes[a]);
+                        }
+                    }
+                }
+                return subMetrics;
+            };
             //endregion
 
+            //region HELPERS
+            function roundNumber(number, digits) {
+                var multiple = Math.pow(10, digits);
+                var rndedNum = Math.round(number * multiple) / multiple;
+                return rndedNum;
+            }
+            //endregion
         }]
     });

@@ -73,7 +73,14 @@ public class ASLinksEdgeImporter implements InputParser {
                     if(parts.length >= 3){                              //ignore lines with not enough data
                         if(parts[0].length() == 1 && !parts[1].contains(" ") && !parts[2].contains(" ")){
                             //no whitespaces allowed in names
-                            importedEdges.add(new CoriaEdge("", new CoriaNode(parts[1]), new CoriaNode(parts[2])));
+                            String [] fromParts = parts[1].split(",");
+                            String [] toParts = parts[2].split(",");
+
+                            for(String fPart : fromParts){
+                                for(String tPart : toParts){
+                                    importedEdges.add(new CoriaEdge("", new CoriaNode(fPart), new CoriaNode(tPart)));
+                                }
+                            }
                         }else{
                             logger.trace("ignoring line because of invalid whitespace [in name|prefix]: " + line);
                         }

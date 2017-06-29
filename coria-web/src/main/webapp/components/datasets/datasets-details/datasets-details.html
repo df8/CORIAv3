@@ -93,27 +93,24 @@
                         </div>
                     </div>
                 </div>
-                <table st-table="$ctrl.displayedCollection" st-safe-src="$ctrl.dataset.nodes" class="table table-striped">
+                <table st-table="$ctrl.displayedCollectionNodes" st-safe-src="$ctrl.dataset.nodes" class="table table-striped">
                     <thead>
                     <tr>
-                        <th st-sort="name">Short</th>
-                        <th st-sort="created">Name</th>
-                        <th st-sort="notificationEmails">State</th>
-                        <th st-sort="metrics">Info</th>
-                        <th>Result</th>
+                        <th st-sort="name">Name</th>
+                        <th st-sort="riscScore">Risc Score</th>
+                        <th ng-repeat="(key, value) in $ctrl.dataset.nodes[0].attributes" ng-if="key.indexOf('_')<0">{{$ctrl.getMetricByShortcut(key)}}</th>
+                    </tr>
+                    <tr>
+                        <th><input st-search="" class="form-control" placeholder="name search ..." type="text"/></th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="metric in $ctrl.displayedCollection">
-                        <td><span class="label label-primary">{{metric.shortcut}}</span></td>
-                        <td>{{metric.name}}</td>
-                        <td ng-if="metric.status==='FINISHED'"><span class="label label-success">SUCCESSFUL</span></td>
-                        <td ng-if="metric.status==='RUNNING'"><span class="label label-warning">IN PROGRESS</span></td>
-                        <td ng-if="metric.status==='FAILED'"><span class="label label-danger">FAILED</span></td>
-                        <td ng-if="metric.executionFinished">{{(metric.executionFinished - metric.executionStarted) | duration}}</td>
-                        <td ng-if="!metric.executionFinished">{{($ctrl.currentTime - metric.executionStarted) | duration}}</td>
-                        <td ng-if="metric.type!=='DATASET'"><span >N/A</span></td>
-                        <td ng-if="metric.type==='DATASET'"><span >{{metric.value}}</span></td>
+                    <tr ng-repeat="node in $ctrl.displayedCollectionNodes">
+                        <td>{{node.name}}</td>
+                        <td>{{node.riscScore}}</td>
+                        <td ng-repeat="(key, value) in node.attributes" ng-if="key.indexOf('_')<0">
+                            {{value}} <span class="label label-info" ng-repeat="sm in $ctrl.getSubMetrics(node, key)">{{sm}}</span>
+                        </td>
                     </tr>
                     </tbody>
                     <tfoot>

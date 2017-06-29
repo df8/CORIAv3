@@ -66,6 +66,11 @@
 			<version>3.0.0</version>
 		</dependency>
 		<dependency>
+			<groupId>com.bigbasti.coria</groupId>
+			<artifactId>coria-metric-python-nx</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>angularjs</artifactId>
 			<version>1.6.4</version>
@@ -122,6 +127,30 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.2</version>
+				<executions>
+					<execution>
+						<id>unpack</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<configuration>
+							<includeGroupIds>${project.groupId}</includeGroupIds>
+							<!--<includeArtifactIds>coria-metric-python-nx</includeArtifactIds>-->
+							<excludeTransitive>true</excludeTransitive>
+							<!--<overWrite>true</overWrite>-->
+							<outputDirectory>${project.build.directory}/classes</outputDirectory>
+							<excludes>com/**,META-INF/**,rebel.xml</excludes>
+							<overWriteReleases>true</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

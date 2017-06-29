@@ -5,9 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.bigbasti.coria</groupId>
-    <artifactId>coria-core</artifactId>
+    <artifactId>coria-metric-python-nx</artifactId>
     <version>3.0.0</version>
     <packaging>jar</packaging>
+
+    <name>coria-metric-python-nx</name>
+    <description>Provides CORIA with Metrics computed by NetworkX Python liberary</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -16,6 +19,11 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>4.3.8.RELEASE</version>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -31,6 +39,16 @@
             <artifactId>logback-core</artifactId>
             <version>RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>com.bigbasti.coria</groupId>
+            <artifactId>coria-core</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -45,6 +63,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>

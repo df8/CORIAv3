@@ -15,6 +15,7 @@
         <module>coria-core</module>
         <module>coria-data-mysql</module>
         <module>coria-metric-java-gs</module>
+        <module>coria-metric-python-nx</module>
     </modules>
 
     <properties>

@@ -83,14 +83,27 @@ public class GSNodeDegree implements Metric {
             logger.debug("successful finished graph creation");
 
             logger.debug("updating dataset...");
+            int maxDegree = 0;
             for (Node n : g) {
+                int deg = n.getDegree();
                 CoriaNode currentNode = dataset.getNodes()
                         .stream()
                         .filter(coriaNode -> coriaNode.getName().equals(n.getId()))
                         .findFirst()
                         .get();
-                currentNode.setAttribute(getShortcut(), String.valueOf(n.getDegree()));
+                currentNode.setAttribute(getShortcut(), String.valueOf(deg));
+                if(deg > maxDegree){
+                    maxDegree = deg;
+                }
             }
+
+            logger.debug("updating relative node degree");
+
+            for(CoriaNode n : dataset.getNodes()){
+                Double relNdeg = (Double.valueOf(n.getAttribute(getShortcut())) / maxDegree) * 100;
+                n.setAttribute(getShortcut() + "_relative", relNdeg.toString());
+            }
+
             logger.debug("updating dataset finished");
 
             return dataset;

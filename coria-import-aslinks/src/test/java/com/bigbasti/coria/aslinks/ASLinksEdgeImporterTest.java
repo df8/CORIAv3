@@ -22,7 +22,7 @@ public class ASLinksEdgeImporterTest extends BaseTest {
 
         List<CoriaEdge> edges = (List<CoriaEdge>)result;
 
-        assertEquals(3000, edges.size());
+        assertEquals(3013, edges.size());
     }
 
     @Test
@@ -34,7 +34,7 @@ public class ASLinksEdgeImporterTest extends BaseTest {
 
         List<CoriaEdge> edges = (List<CoriaEdge>)result;
 
-        assertEquals(3000, edges.size());
+        assertEquals(3013, edges.size());
     }
 
     @Test
@@ -46,7 +46,7 @@ public class ASLinksEdgeImporterTest extends BaseTest {
 
         List<CoriaEdge> edges = (List<CoriaEdge>)result;
 
-        assertEquals(2996, edges.size());
+        assertEquals(3009, edges.size());
     }
 
     @Test(expected = FormatNotSupportedException.class)
