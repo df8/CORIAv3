@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ThreadedStreamHandler.java
@@ -47,6 +49,8 @@ public class ThreadedStreamHandler extends Thread
     PrintWriter printWriter;
     StringBuilder outputBuffer = new StringBuilder();
     private boolean sudoIsRequested = false;
+
+    List<String> messages = new ArrayList<>();
 
     /**
      * A simple constructor for when the sudo command is not necessary.
@@ -101,6 +105,7 @@ public class ThreadedStreamHandler extends Thread
             while ((line = bufferedReader.readLine()) != null)
             {
                 logger.debug("PROCESS: {}", line);
+                messages.add(line);
                 outputBuffer.append(line + "\n");
             }
         }
@@ -137,6 +142,10 @@ public class ThreadedStreamHandler extends Thread
         {
             // ignore
         }
+    }
+
+    public List<String> getMessages() {
+        return messages;
     }
 
     public StringBuilder getOutputBuffer()

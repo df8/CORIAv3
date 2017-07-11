@@ -25,24 +25,26 @@
                 <table st-table="$ctrl.displayedCollection" st-safe-src="$ctrl.dataset.metricInfos" class="table table-striped">
                     <thead>
                     <tr>
-                        <th st-sort="name">Short</th>
-                        <th st-sort="created">Name</th>
-                        <th st-sort="notificationEmails">State</th>
-                        <th st-sort="metrics">Info</th>
+                        <th st-sort="shortcut">Short</th>
+                        <th>Action</th>
+                        <th st-sort="name">Name</th>
+                        <th st-sort="status">State</th>
+                        <th>Info</th>
                         <th>Result</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr ng-repeat="metric in $ctrl.displayedCollection">
                         <td><span class="label label-primary">{{metric.shortcut}}</span></td>
+                        <td><button class="btn btn-default btn-xs" ng-click="$ctrl.displayMetric(metric)" ng-show="metric.status==='FINISHED' && metric.type==='NODE' && $ctrl.dataset.nodes"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
                         <td>{{metric.name}}</td>
                         <td ng-if="metric.status==='FINISHED'"><span class="label label-success">SUCCESSFUL</span></td>
                         <td ng-if="metric.status==='RUNNING'"><span class="label label-warning">IN PROGRESS</span></td>
-                        <td ng-if="metric.status==='FAILED'"><span class="label label-danger">FAILED</span></td>
+                        <td ng-if="metric.status==='FAILED'"><span class="label label-danger">FAILED</span> <button type="button" class="btn btn-xs btn-danger" uib-popover="{{metric.message}}" popover-title="Error Message" ng-if="metric.message"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span></button></td>
                         <td ng-if="metric.executionFinished">{{(metric.executionFinished - metric.executionStarted) | duration}}</td>
                         <td ng-if="!metric.executionFinished">{{($ctrl.currentTime - metric.executionStarted) | duration}}</td>
-                        <td ng-if="metric.type!=='DATASET'"><span >N/A</span></td>
-                        <td ng-if="metric.type==='DATASET'"><span >{{metric.value}}</span></td>
+                        <td ng-if="metric.type!=='DATASET'">&nbsp;</span></td>
+                        <td ng-if="metric.type==='DATASET'">{{metric.value}}</td>
                     </tr>
                     </tbody>
                     <tfoot>
@@ -61,6 +63,7 @@
         <div class="row">
             <div class="col-md-12">
                 <button class="btn btn-default btn-xs"  ng-click="$ctrl.displayAddMetric = true" ng-hide="$ctrl.displayAddMetric === true"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Metric</button>
+                <button class="btn btn-default btn-xs" ng-click="$ctrl.displayMetric({shortcut:'new'})" ng-show="$ctrl.dataset.nodes"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Display Graph</button>
             </div>
         </div>
         <div class="row" ng-show="$ctrl.displayAddMetric === true">
@@ -81,50 +84,93 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row spacer">
     <div class="col-md-12">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="row">
-                    <div class="col-md-10"><h3>Nodes</h3></div>
-                    <div class="col-md-2">
-                        <div class="progress" ng-show="$ctrl.isNodesRefreshing">
-                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+        <div>
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist" id="nav-tabs">
+                <li role="presentation" class="active"><a href="#nodes" aria-controls="nodes" role="tab" data-toggle="tab">Nodes</a></li>
+                <li role="presentation"><a href="#graph" aria-controls="graph" role="tab" data-toggle="tab">Graph</a></li>
+                <li role="presentation"><a href="#nodeinfo" aria-controls="nodeinfo" role="tab" data-toggle="tab">Node Information</a></li>
+                <li role="presentation"><a href="#metricinfo" aria-controls="metricinfo" role="tab" data-toggle="tab">Metric Information</a></li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="nodes">
+                    <div class="row spacer">
+                        <div class="col-md-2 col-lg-offset-5">
+                            <div class="progress" ng-show="$ctrl.isNodesRefreshing">
+                                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+                            </div>
                         </div>
                     </div>
+                    <table st-table="$ctrl.displayedCollectionNodes" st-safe-src="$ctrl.dataset.nodes" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th st-sort="name">Name</th>
+                            <th st-sort="riscScore">Risc Score</th>
+                            <th ng-repeat="(key, value) in $ctrl.dataset.nodes[0].attributes" ng-if="key.indexOf('_')<0 && $ctrl.allowDisplayShortcut(key)">{{$ctrl.getMetricByShortcut(key)}}</th>
+                        </tr>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th><input st-search="" class="form-control" placeholder="name search ..." type="text"/></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="node in $ctrl.displayedCollectionNodes">
+                            <td><button class="btn btn-default btn-xs" ng-click="$ctrl.showNode(node)"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button></td>
+                            <td>{{node.name}}</td>
+                            <td>{{node.riscScore}}</td>
+                            <td ng-repeat="(key, value) in node.attributes" ng-if="key.indexOf('_')<0 && $ctrl.allowDisplayShortcut(key)">
+                                {{$ctrl.roundNumber(value, 5)}} <span class="label label-info" ng-repeat="sm in $ctrl.getSubMetrics(node, key)">{{sm}}</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td colspan="5" class="text-center">
+                                <div st-pagination="" st-items-by-page="$ctrl.datasetsPerPage" st-displayed-pages="10"></div>
+                            </td>
+                        </tr>
+                        </tfoot>
+                    </table>
                 </div>
-                <table st-table="$ctrl.displayedCollectionNodes" st-safe-src="$ctrl.dataset.nodes" class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th st-sort="name">Name</th>
-                        <th st-sort="riscScore">Risc Score</th>
-                        <th ng-repeat="(key, value) in $ctrl.dataset.nodes[0].attributes" ng-if="key.indexOf('_')<0">{{$ctrl.getMetricByShortcut(key)}}</th>
-                    </tr>
-                    <tr>
-                        <th><input st-search="" class="form-control" placeholder="name search ..." type="text"/></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="node in $ctrl.displayedCollectionNodes">
-                        <td>{{node.name}}</td>
-                        <td>{{node.riscScore}}</td>
-                        <td ng-repeat="(key, value) in node.attributes" ng-if="key.indexOf('_')<0">
-                            {{value}} <span class="label label-info" ng-repeat="sm in $ctrl.getSubMetrics(node, key)">{{sm}}</span>
-                        </td>
-                    </tr>
-                    </tbody>
-                    <tfoot>
-                    <tr>
-                        <td colspan="5" class="text-center">
-                            <div st-pagination="" st-items-by-page="$ctrl.datasetsPerPage" st-displayed-pages="10"></div>
-                        </td>
-                    </tr>
-                    </tfoot>
-                </table>
-                <!--<p ng-repeat="metric in $ctrl.dataset.metricInfos">-->
-                <!--<span class="label label-primary">{{metric.shortcut}}</span> <span>{{metric.name}}</span> <span class="label label-danger" ng-if="metric.executionFinished===null" alt="Running for">IN PROGRESS</span>-->
-                <!--</p>-->
+                <div role="tabpanel" class="tab-pane" id="graph">
+                    <div id="metric-canvas" style="width: 100%; height: 800px;"></div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="nodeinfo">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>Metric for Node {{$ctrl.selectedNodeInfos.nodeName}}</th>
+                            <th>Absolute Value</th>
+                            <th>Normalized Value</th>
+                            <th>[%]</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="metric in $ctrl.selectedNodeInfos.metrics">
+                            <td>{{metric.name}}</td>
+                            <td>{{metric.value}}</td>
+                            <td>
+                                <div class="progress" style="margin-bottom: 0 !important;">
+                                    <div class="progress-bar" role="progressbar" aria-valuenow="{{metric.relative}}" aria-valuemin="0" aria-valuemax="100" style="width: {{metric.relative}}%;">
+                                        <span class="sr-only">{{metric.relative}}%</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{metric.relative}}%</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div id="node-canvas" style="width: 100%; height: 500px;"></div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="metricinfo">...</div>
             </div>
         </div>
     </div>
 </div>
+
+

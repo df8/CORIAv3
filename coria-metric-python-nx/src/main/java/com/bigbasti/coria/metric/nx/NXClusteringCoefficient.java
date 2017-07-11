@@ -172,7 +172,7 @@ public class NXClusteringCoefficient implements Metric {
             fsTools.cleanupResponseFile(responseFileName, response);
         }else{
             logger.error("the expected python output file ({}) was not found, canceling metric execution", responseFileName);
-            throw new RuntimeException("the expected python output file ({}) was not found, canceling metric execution");
+            throw new RuntimeException("the expected python output file was not found (" + fsTools.getLastError() + ")");
         }
 
         return dataset;

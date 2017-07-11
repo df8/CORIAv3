@@ -25,25 +25,25 @@ import java.util.Optional;
  * Created by Sebastian Gross
  */
 @Component
-public class NXEccentricity implements Metric {
-    private Logger logger = LoggerFactory.getLogger(NXAverageNeighbourDegree.class);
+public class NXSpectralLayout implements Metric {
+    private Logger logger = LoggerFactory.getLogger(NXSpectralLayout.class);
 
     @Autowired
     FSTools fsTools;
 
     @Override
     public String getIdentification() {
-        return "python-networkx-eccentricity";
+        return "python-networkx-spectral-layout";
     }
 
     @Override
     public String getDescription() {
-        return "The eccentricity of a node v is the maximum distance from v to all other nodes in G.";
+        return "Position nodes using the eigenvectors of the graph Laplacian";
     }
 
     @Override
     public String getName() {
-        return "Eccentricity";
+        return "Spectral Layout (Graph Visualization)";
     }
 
     @Override
@@ -53,7 +53,7 @@ public class NXEccentricity implements Metric {
 
     @Override
     public String getShortcut() {
-        return "ecc";
+        return "pos";
     }
 
     @Override
@@ -100,7 +100,7 @@ public class NXEccentricity implements Metric {
         starts = Instant.now();
         logger.debug("starting python...");
         try {
-            String BC_SCRIPT = "/metric/ecc/eccentricity.py";
+            String BC_SCRIPT = "/metric/pos/spectral_layout.py";
             URL dir_url = getClass().getResource(BC_SCRIPT);
             String fullPathToScript = Paths.get(dir_url.toURI()).toFile().getAbsolutePath();
             logger.debug("Script URL: {}", fullPathToScript);
@@ -125,7 +125,6 @@ public class NXEccentricity implements Metric {
             starts = Instant.now();
 
             BufferedReader br = null;
-            double maxBc = 0.0;
             List<CoriaNode> nodes = new ArrayList<>();
             try {
                 br = new BufferedReader(new FileReader(response));
@@ -136,14 +135,13 @@ public class NXEccentricity implements Metric {
                         logger.warn("could not update node {} (value:{}) - node not found in dataset", parts[0], parts[1]);
                     }else{
                         CoriaNode cn = ocn.get();
-                        cn.setAttribute(getShortcut(), parts[1]);
+                        String coordinates = parts[1];
+                        coordinates = coordinates.replaceAll("0\\. ", "0.0");
+                        coordinates = coordinates.replaceAll("1\\. ", "1.0");
+                        coordinates = coordinates.replace("[","").replace("]","").trim().replaceAll("[ ]+", ":");
+                        if(coordinates.equals("1.:0.")){coordinates = "1.0:0.0";}
+                        cn.setAttribute(getShortcut(), coordinates);
                         nodes.add(cn);
-                        try{
-                            Double bc = Double.valueOf(parts[1]);
-                            if(bc > maxBc){
-                                maxBc = bc;
-                            }
-                        }catch(Exception ex){logger.warn("could not parse bc value {} from node {}", parts[1], parts[0]);}
                     }
                 }
                 br.close();
@@ -151,14 +149,6 @@ public class NXEccentricity implements Metric {
                 logger.error("failed reading response file: {}", e.getMessage());
                 e.printStackTrace();
                 throw new RuntimeException("failed reading response file: " + e.getMessage());
-            }
-
-            logger.debug("updating relative average neighbour degree");
-
-            for(CoriaNode n : nodes){
-                Double relBc = (Double.valueOf(n.getAttribute(getShortcut())) / maxBc) * 100;
-                logger.trace("BC: {} / {} * 100 = {}", Double.valueOf(n.getAttribute(getShortcut())), maxBc, relBc);
-                n.setAttribute(getShortcut()+"_relative", relBc.toString());
             }
 
             Instant ends = Instant.now();
@@ -175,6 +165,6 @@ public class NXEccentricity implements Metric {
 
     @Override
     public String toString() {
-        return "NXEccentricity{id: " + getIdentification() + ", name: " + getName() +"}";
+        return "NXSpectralLayout{id: " + getIdentification() + ", name: " + getName() +"}";
     }
 }

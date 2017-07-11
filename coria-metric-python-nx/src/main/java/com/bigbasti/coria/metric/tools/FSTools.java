@@ -25,6 +25,8 @@ public class FSTools {
     @Autowired
     Environment env;
 
+    String lastError = "";
+
     public String getWorkingDirectory() throws Exception {
         logger.debug("determining coria working directory...");
         String workingDir = env.getProperty("coria.workingdirectory");
@@ -41,12 +43,14 @@ public class FSTools {
     }
 
     public int startProcessAndWait(String params){
+        ThreadedStreamHandler stdOut;
+        ThreadedStreamHandler errOut;
         try {
             Runtime rt = Runtime.getRuntime();
             Process pr = rt.exec(params);
 
-            ThreadedStreamHandler stdOut = new ThreadedStreamHandler(pr.getInputStream());
-            ThreadedStreamHandler errOut = new ThreadedStreamHandler(pr.getErrorStream());
+            stdOut = new ThreadedStreamHandler(pr.getInputStream());
+            errOut = new ThreadedStreamHandler(pr.getErrorStream());
 
             stdOut.start();
             errOut.start();
@@ -57,6 +61,8 @@ public class FSTools {
             errOut.interrupt();
             stdOut.join();
             errOut.join();
+
+            lastError = errOut.getMessages().get(errOut.getMessages().size()-1);
 
             return exitValue;
         } catch (IOException e) {
@@ -82,5 +88,9 @@ public class FSTools {
                 logger.error("could not delete response file.\nNOTE: if the response file stays in coria working directory it will be reprocessed at restart of the application");
             }
         }
+    }
+
+    public String getLastError() {
+        return lastError;
     }
 }

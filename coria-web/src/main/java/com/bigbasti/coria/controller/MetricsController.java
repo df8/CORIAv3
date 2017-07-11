@@ -91,6 +91,7 @@ public class MetricsController extends BaseController {
                     mInfo.setProvider(metric.getProvider());
                     mInfo.setTechnology(metric.getTechnology());
                     mInfo.setStatus(MetricInfo.MetricStatus.RUNNING);
+                    mInfo.setName(metric.getName());
                     storage.updateMetricInfo(mInfo);
                 }
             }
