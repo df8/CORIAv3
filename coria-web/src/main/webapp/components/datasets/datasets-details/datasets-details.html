@@ -36,7 +36,10 @@
                     <tbody>
                     <tr ng-repeat="metric in $ctrl.displayedCollection">
                         <td><span class="label label-primary">{{metric.shortcut}}</span></td>
-                        <td><button class="btn btn-default btn-xs" ng-click="$ctrl.displayMetric(metric)" ng-show="metric.status==='FINISHED' && metric.type==='NODE' && $ctrl.dataset.nodes"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+                        <td>
+                            <button class="btn btn-default btn-xs" ng-click="$ctrl.displayMetric(metric)" ng-show="metric.status==='FINISHED' && metric.type==='NODE' && $ctrl.dataset.nodes"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+                            <button class="btn btn-default btn-xs" ng-click="$ctrl.displayMetricStats(metric)" ng-show="metric.status==='FINISHED' && metric.type==='NODE' && $ctrl.dataset.nodes && metric.shortcut !== 'pos'" alt="sdsfd"><span class="glyphicon glyphicon-signal" aria-hidden="true"></span></button>
+                        </td>
                         <td>{{metric.name}}</td>
                         <td ng-if="metric.status==='FINISHED'"><span class="label label-success">SUCCESSFUL</span></td>
                         <td ng-if="metric.status==='RUNNING'"><span class="label label-warning">IN PROGRESS</span></td>
@@ -167,7 +170,33 @@
                     </table>
                     <div id="node-canvas" style="width: 100%; height: 500px;"></div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="metricinfo">...</div>
+                <div role="tabpanel" class="tab-pane" id="metricinfo">
+                    <h3>{{$ctrl.selectedMetric.name}}</h3>
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>Node</th>
+                            <th>Absolute Value</th>
+                            <th>Normalized Value</th>
+                            <th>[%]</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="node in $ctrl.selectedMetric.nodes">
+                            <td>{{node.name}}</td>
+                            <td>{{node.attributes[$ctrl.selectedMetric.shortcut]}}</td>
+                            <td>
+                                <div class="progress" style="margin-bottom: 0 !important;">
+                                    <div class="progress-bar" role="progressbar" aria-valuenow="{{node.attributes[$ctrl.selectedMetric.shortcut + '_relative']}}" aria-valuemin="0" aria-valuemax="100" style="width: {{node.attributes[$ctrl.selectedMetric.shortcut + '_relative']}}%;">
+                                        <span class="sr-only">{{node.attributes[$ctrl.selectedMetric.shortcut]}}%</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{node.attributes[$ctrl.selectedMetric.shortcut + "_relative"]}}%</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

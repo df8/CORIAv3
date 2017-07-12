@@ -118,6 +118,20 @@ angular.module('coria.components')
                     }
                 }
             };
+
+            vm.displayMetricStats = function displayMetricStats(metric){
+                $('.nav-tabs a[href="#metricinfo"]').tab('show');   //activate metricinfo tab
+                vm.selectedMetric = {
+                    name: metric.name,
+                    shortcut: metric.shortcut
+                };
+                vm.selectedMetric.nodes = vm.dataset.nodes;
+                vm.selectedMetric.nodes.sort(function(a, b) {
+                    return parseFloat(b.attributes[metric.shortcut]) - parseFloat(a.attributes[metric.shortcut]);
+                });
+                console.dir(metric.shortcut);
+                console.dir(vm.selectedMetric.nodes);
+            };
             //endregion
 
             //region DATASET
@@ -256,7 +270,6 @@ angular.module('coria.components')
                     cy.on('tap', 'node', function (event) {
                         var node = event.target;
                         var contentString = "";
-                        console.dir(node._private.data.attributes);
                         Object.keys(node._private.data.attributes).forEach(function(key,index) {
                             if(""+key.indexOf('_')<0 && (""+key) !== "pos") {
                                 contentString = contentString + "<strong>" + vm.getMetricByShortcut(key) + ":</strong> " + node._private.data.attributes[key] + "<br />";
@@ -279,17 +292,14 @@ angular.module('coria.components')
                     var positions = {};
                     for(var n = 0; n < vm.dataset.nodes.length; n++){
                         var node = vm.dataset.nodes[n];
-                        if(node.attributes[metric.shortcut] > maxMetricValue){
-                            maxMetricValue = node.attributes[metric.shortcut];
-                        }
                         cy.add({
                             data: {
                                 id: node.name,
                                 attributes: node.attributes
-                                // position: {
-                                //     x: Math.random()*1000,
-                                //     y: Math.random()*1000
-                                // }
+                            },
+                            style:{
+                                width: 25 + parseInt((node.attributes["ndeg_relative"]?node.attributes["ndeg_relative"]:0)) + "px",
+                                height: 25 + parseInt((node.attributes["ndeg_relative"]?node.attributes["ndeg_relative"]:0)) + "px"
                             }});
                         // console.log(node.name + ": " + node.attributes.pos.split(":")[0] + " * " + 100000000 + " = " + parseInt(node.attributes.pos.split(":")[0]*100000000));
                         // console.log(node.name + ": " + node.attributes.pos.split(":")[1] + " * " + 100000000 + " = " + parseInt(node.attributes.pos.split(":")[1]*100000000));
@@ -313,29 +323,6 @@ angular.module('coria.components')
                             selectable: false
                         });
                     }
-                    //on click display information on the node
-                    // cy.on('tap', 'node', function (event) {
-                    //     var node = event.target;
-                    //     var contentString = "";
-                    //     console.dir(node._private.data.attributes);
-                    //     Object.keys(node._private.data.attributes).forEach(function(key,index) {
-                    //         if(""+key.indexOf('_')<0 && (""+key) !== "pos") {
-                    //             contentString = contentString + "<strong>" + vm.getMetricByShortcut(key) + ":</strong> " + node._private.data.attributes[key] + "<br />";
-                    //         }
-                    //     });
-                    //     // var nodeAttributes = node.attributes;
-                    //     node.qtip({
-                    //         content: contentString,
-                    //         show: {
-                    //             event: event.type,
-                    //             ready: true
-                    //         },
-                    //         hide: {
-                    //             event: 'mouseout unfocus'
-                    //         }
-                    //     }, event);
-                    //     // console.log(evt.target.id())
-                    // });
                     var options = {
                         name: 'preset',
                         positions: positions, // map of (node id) => (position obj); or function(node){ return somPos; }
@@ -415,7 +402,7 @@ angular.module('coria.components')
                         }
                     }
                 }
-                console.dir(neighbourhoodNodes);
+                // console.dir(neighbourhoodNodes);
                 // console.dir(neighbourhoodEdges);
                 createCircleGraph('node-canvas', neighbourhoodNodes, neighbourhoodEdges, {shortcut: "tmp"}, function (event) {
                     var node = event.target;
@@ -429,7 +416,22 @@ angular.module('coria.components')
             };
             //endregion
 
-            //region GRAPH HELPER
+            //region HELPER
+            var sort_by = function(field, reverse, primer){
+
+                var key = primer ?
+                    function(x) {return primer(x[field])} :
+                    function(x) {return x[field]};
+
+                reverse = !reverse ? 1 : -1;
+
+                return function (A, B) {
+                    // return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+                    return (A < B ? -1 : (A > B ? 1 : 0)) * [1,-1][+!!reverse];
+                }
+
+            };
+
             function createCircleGraph(canvasId, nodes, edges, metric, onClick){
                 var cy = window.cy = cytoscape({
                     container: document.getElementById(canvasId),
@@ -466,7 +468,7 @@ angular.module('coria.components')
                                 shape: "rectangle",
                                 "background-color": "#aaa",
                                 "text-outline-color": "#aaa",
-                                width: "16px",
+                                width: "20px",
                                 height: "16px",
                                 "font-size": "6px",
                                 "z-index": "1"
@@ -509,11 +511,12 @@ angular.module('coria.components')
                         data: {
                             id: node.name,
                             attributes: node.attributes
-                            // position: {
-                            //     x: Math.random()*1000,
-                            //     y: Math.random()*1000
-                            // }
-                        }});
+                        },
+                    style:{
+                            width: 25 + parseInt((node.attributes["ndeg_relative"]?node.attributes["ndeg_relative"]:0)) + "px",
+                            height: 25 + parseInt((node.attributes["ndeg_relative"]?node.attributes["ndeg_relative"]:0)) + "px"
+                    }});
+                    // console.log(node.attributes["ndeg_relative"]?node.attributes["ndeg_relative"]:0 , " -> " , parseInt((node.attributes["ndeg_relative"]?node.attributes["ndeg_relative"]:0)));
                     // console.log(node.name + ": " + node.attributes.pos.split(":")[0] + " * " + 100000000 + " = " + parseInt(node.attributes.pos.split(":")[0]*100000000));
                     // console.log(node.name + ": " + node.attributes.pos.split(":")[1] + " * " + 100000000 + " = " + parseInt(node.attributes.pos.split(":")[1]*100000000));
                     positions[node.name] = {
