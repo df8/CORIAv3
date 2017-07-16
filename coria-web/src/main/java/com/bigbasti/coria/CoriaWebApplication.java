@@ -13,9 +13,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 
-@EnableAsync
-@SpringBootApplication
-@ComponentScan(basePackages = "com.bigbasti.coria")
+//@EnableAsync
+//@SpringBootApplication
+//@ComponentScan(basePackages = "com.bigbasti.coria")
 public class CoriaWebApplication extends AsyncConfigurerSupport {
 
 	@Autowired
