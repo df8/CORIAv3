@@ -63,18 +63,7 @@ public class GSBetweennessCentrality implements Metric {
         logger.debug("beginning calculation of " + getName());
         logger.debug("creating graph");
 
-        Graph g = new DefaultGraph("BC Graph");
-
-        g.setStrict(false);
-        g.setAutoCreate(true);
-
-        for(CoriaEdge e : dataset.getEdges()){
-            try {
-                g.addEdge(e.getName(), e.getSourceNode().getName(), e.getDestinationNode().getName());
-            }catch(Exception ex){
-                logger.error("Error creating edge: {} because {}", e, ex.getMessage());
-            }
-        }
+        Graph g = GSHelper.createGraphFromDataSet(dataset);
         logger.debug("graph created, starting calculation");
 
         BetweennessCentrality bc = new BetweennessCentrality();

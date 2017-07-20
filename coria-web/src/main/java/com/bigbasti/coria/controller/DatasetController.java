@@ -56,7 +56,7 @@ public class DatasetController extends BaseController {
         logger.debug("retrieving dataset {}", datasetid);
         DataStorage storage = getActiveStorage();
 
-        DataSet ds = storage.getDataSetShort(datasetid);
+        DataSet ds = storage.getDataSet(datasetid);
 
         return ResponseEntity.ok(ds);
     }
@@ -109,13 +109,11 @@ public class DatasetController extends BaseController {
                     //create graph based on edges
                     for(CoriaEdge edge : edges){
                         logger.trace("Edge: " + edge);
-                        Edge e = g.addEdge(edge.getSourceNode().getName()+"->"+edge.getDestinationNode().getName(), edge.getSourceNode().getName(), edge.getDestinationNode().getName());
-                        //retrieve created nodes to name them properly
-                        Node fn = g.getNode(edge.getSourceNode().getName());
-                        Node tn = g.getNode(edge.getDestinationNode().getName());
-                        //optional: add attributes
-                        fn.addAttribute("label", edge.getSourceNode().getName());
-                        tn.addAttribute("label", edge.getDestinationNode().getName());
+                        Edge e = g.addEdge(edge.getSourceNode()+"->"+edge.getDestinationNode(), edge.getSourceNode(), edge.getDestinationNode());
+                        if(e == null){
+                            logger.trace("problem with edge {} (possibly this connection exists already in the other direction)", edge.getSourceNode()+"->"+edge.getDestinationNode());
+                        }
+
                     }
 
                     logger.debug("successfully created temp graph containing {} nodes and {} edges", g.getNodeCount(), g.getEdgeCount());
@@ -141,7 +139,7 @@ public class DatasetController extends BaseController {
                         }
                         CoriaEdge ce = null;
                         if(fn != null && dn != null) {
-                            ce = new CoriaEdge(e.getId(), e.getId(), fn, dn);
+                            ce = new CoriaEdge(e.getId(), e.getId(), fn.getId(), dn.getId());
                             // check id there is already a node with this id in the database
                             if (!nodeDict.contains(fn.getId())) { nodes.add(fn); nodeDict.add(fn.getId());}
                             if (!nodeDict.contains(dn.getId())) { nodes.add(dn); nodeDict.add(dn.getId());}
@@ -154,6 +152,8 @@ public class DatasetController extends BaseController {
 
                     dataSet.setEdges(edges);
                     dataSet.setNodes(nodes);
+                    dataSet.setNodesCount(nodes.size());
+                    dataSet.setEdgesCount(edges.size());
                     dataSet.setName(upload.getName());
                     String result = getActiveStorage().addDataSet(dataSet);
                     if(!Strings.isNullOrEmpty(result)){
@@ -181,5 +181,14 @@ public class DatasetController extends BaseController {
         }
     }
 
+    @PostMapping("/delete/{datasetid}")
+    public @ResponseBody
+    ResponseEntity handleDataSetDelete(@PathVariable("datasetid") String datasetid) {
+        logger.debug("deleting dataset {}", datasetid);
+
+        getActiveStorage().deleteDataSet(datasetid);
+
+        return ResponseEntity.ok().build();
+    }
 
 }

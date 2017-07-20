@@ -1,11 +1,12 @@
 package com.bigbasti.coria.metrics;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by Sebastian Gross
  */
-public class MetricInfo {
+public class MetricInfo  implements Serializable {
     private String id;
     private String name;
     private String shortcut;

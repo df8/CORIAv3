@@ -64,26 +64,12 @@ public class GSNodeDegree implements Metric {
     public DataSet performCalculations(DataSet dataset) {
         logger.debug("calculating node degree for dataset {}", dataset.getId());
         try {
-            Graph g = new DefaultGraph("Temp Graph");
-            g.setStrict(false);
-            g.setAutoCreate(true); //automatically create nodes based on edges
-            logger.debug("trying to create a temp graph with provided data...");
-
-            //create graph based on edges
-            for (CoriaEdge edge : dataset.getEdges()) {
-                try {
-                    logger.trace("Edge: " + edge);
-                    Edge e = g.addEdge(edge.getSourceNode().getName() + "->" + edge.getDestinationNode().getName(), edge.getSourceNode().getName(), edge.getDestinationNode().getName());
-                } catch (Exception ex) {
-                    logger.error("failed creating edge for CoriaEdge {}", edge);
-                    logger.error(ex.getMessage());
-                    return null;
-                }
-            }
+            Graph g = GSHelper.createGraphFromDataSet(dataset);
             logger.debug("successful finished graph creation");
 
             logger.debug("updating dataset...");
             int maxDegree = 0;
+            float counter = 0;
             for (Node n : g) {
                 int deg = n.getDegree();
                 CoriaNode currentNode = dataset.getNodes()
@@ -94,6 +80,10 @@ public class GSNodeDegree implements Metric {
                 currentNode.setAttribute(getShortcut(), String.valueOf(deg));
                 if(deg > maxDegree){
                     maxDegree = deg;
+                }
+                counter++;
+                if(counter % 1000 == 0){
+                    logger.debug("{} Progress: {}/{}", getName(), counter, dataset.getNodesCount());
                 }
             }
 

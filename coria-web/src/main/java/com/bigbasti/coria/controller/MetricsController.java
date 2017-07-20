@@ -47,7 +47,7 @@ public class MetricsController extends BaseController {
 
     @GetMapping(path = "/dataset/{datasetid}")
     public @ResponseBody ResponseEntity getMetricsForDataSet(@PathVariable("datasetid") String datasetid){
-        logger.debug("retrieving metrics for dataset {}", datasetid);
+        logger.trace("retrieving metrics for dataset {}", datasetid);
         DataStorage storage = getActiveStorage();
 
         List<MetricInfo> metrics = storage.getMetricInfos(datasetid);
@@ -110,7 +110,7 @@ public class MetricsController extends BaseController {
             }
 
             logger.debug("loading dataset {} from db...", datasetid);
-            DataSet dataset = storage.getDataSet(datasetid);
+            DataSet dataset = storage.getDataSet(datasetid);                //System.gc();
             DataSet updatedSet = metric.performCalculations(dataset);
             if(updatedSet == null){
                 //error in db execution
@@ -123,7 +123,7 @@ public class MetricsController extends BaseController {
             }
 
             logger.debug("finished metric calculation, updating dataset in db...");
-            String result = storage.updateDataSet(updatedSet);
+            String result = storage.updateDataSet(updatedSet);              //System.gc();
             if(!Strings.isNullOrEmpty(result)){
                 //error in db execution
                 setMetricInfoToFailed(storage, mInfo, "Error while updating the DataSet in the database. Additional infos in the log file");

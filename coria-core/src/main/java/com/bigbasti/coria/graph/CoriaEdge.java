@@ -1,5 +1,6 @@
 package com.bigbasti.coria.graph;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,27 +8,31 @@ import java.util.Map;
  * Internal representation of an Edge
  * Created by Sebastian Gross
  */
-public class CoriaEdge {
+public class CoriaEdge  implements Serializable {
     private String id;
     private String name;
-    private CoriaNode sourceNode;
-    private CoriaNode destinationNode;
+    private String sourceNode;
+    private String destinationNode;
 
     private Map<String, String> attributes;
+
+    public CoriaEdge(){
+        this.attributes = new HashMap<String, String>();
+    }
 
     public CoriaEdge(String name) {
         this.name = name;
         this.attributes = new HashMap<String, String>();
     }
 
-    public CoriaEdge(String name, CoriaNode sourceNode, CoriaNode destinationNode) {
+    public CoriaEdge(String name, String sourceNode, String destinationNode) {
         this.name = name;
         this.sourceNode = sourceNode;
         this.destinationNode = destinationNode;
         this.attributes = new HashMap<String, String>();
     }
 
-    public CoriaEdge(String id, String name, CoriaNode sourceNode, CoriaNode destinationNode) {
+    public CoriaEdge(String id, String name, String sourceNode, String destinationNode) {
         this.id = id;
         this.name = name;
         this.sourceNode = sourceNode;
@@ -51,19 +56,19 @@ public class CoriaEdge {
         this.name = name;
     }
 
-    public CoriaNode getSourceNode() {
+    public String getSourceNode() {
         return sourceNode;
     }
 
-    public void setSourceNode(CoriaNode sourceNode) {
+    public void setSourceNode(String sourceNode) {
         this.sourceNode = sourceNode;
     }
 
-    public CoriaNode getDestinationNode() {
+    public String getDestinationNode() {
         return destinationNode;
     }
 
-    public void setDestinationNode(CoriaNode destinationNode) {
+    public void setDestinationNode(String destinationNode) {
         this.destinationNode = destinationNode;
     }
 

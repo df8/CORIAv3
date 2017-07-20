@@ -17,6 +17,10 @@ CREATE TABLE `metrics` (
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC));
 
+ALTER TABLE `datasets`
+ADD COLUMN `nodesCount` INT NULL AFTER `emails`,
+ADD COLUMN `edgesCount` INT NULL AFTER `nodesCount`;
+
   CREATE TABLE `edges` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(128) NULL,
@@ -39,7 +43,7 @@ ALTER TABLE `metrics`
 ADD CONSTRAINT `metric_dataset_id`
   FOREIGN KEY (`dataset_id`)
   REFERENCES `datasets` (`id`)
-  ON DELETE NO ACTION
+  ON DELETE CASCADE
   ON UPDATE NO ACTION;
 
   ALTER TABLE `metrics`
@@ -59,7 +63,7 @@ ALTER TABLE `edges`
 ADD CONSTRAINT `edge_dataset_id`
   FOREIGN KEY (`dataset_id`)
   REFERENCES `datasets` (`id`)
-  ON DELETE NO ACTION
+  ON DELETE CASCADE
   ON UPDATE NO ACTION;
 
 --   ALTER TABLE `edges`
@@ -87,7 +91,7 @@ ALTER TABLE `nodes`
 ADD CONSTRAINT `node_dataset_id`
   FOREIGN KEY (`dataset_id`)
   REFERENCES `datasets` (`id`)
-  ON DELETE NO ACTION
+  ON DELETE CASCADE
   ON UPDATE NO ACTION;
 
 
@@ -106,15 +110,15 @@ CREATE TABLE `attributes` (
   CONSTRAINT `edge_attribute_id`
     FOREIGN KEY (`edge_id`)
     REFERENCES `edges` (`id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `node_attribute_id`
     FOREIGN KEY (`node_id`)
     REFERENCES `nodes` (`id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `dataset_attribute_id`
     FOREIGN KEY (`dataset_id`)
     REFERENCES `datasets` (`id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION);

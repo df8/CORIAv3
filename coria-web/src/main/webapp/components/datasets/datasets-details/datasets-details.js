@@ -33,13 +33,14 @@ angular.module('coria.components')
 
             vm.isMetricRefreshing = true;
             loadMetricsUpdate();
+            var refreshSeconds = 0;
             vm.currentTime = new Date().getTime();
             var metricsRefreshTimer = function() {
                 var cancelRefresh = $timeout(function myFunction() {
                     vm.isMetricRefreshing = true;
                     loadMetricsUpdate();
                     vm.currentTime = new Date().getTime();
-                    cancelRefresh = $timeout(metricsRefreshTimer, 2500);
+                    cancelRefresh = $timeout(metricsRefreshTimer, refreshSeconds += 2500);
                 },2500);
             }; metricsRefreshTimer();
             function loadMetricsUpdate(){
@@ -129,8 +130,6 @@ angular.module('coria.components')
                 vm.selectedMetric.nodes.sort(function(a, b) {
                     return parseFloat(b.attributes[metric.shortcut]) - parseFloat(a.attributes[metric.shortcut]);
                 });
-                console.dir(metric.shortcut);
-                console.dir(vm.selectedMetric.nodes);
             };
             //endregion
 
@@ -205,7 +204,7 @@ angular.module('coria.components')
                     var graphics = Viva.Graph.View.webglGraphics();
                     for(var e = 0; e < vm.dataset.edges.length; e++){
                         var edge = vm.dataset.edges[e];
-                        graph.addLink(edge.sourceNode.id, edge.destinationNode.id);
+                        graph.addLink(edge.sourceNode, edge.destinationNode);
                     }
                     var layout = Viva.Graph.Layout.forceDirected(graph, {
                         springLength : 50,
@@ -316,8 +315,8 @@ angular.module('coria.components')
                         cy.add({
                             data: {
                                 id: edge.name,
-                                source: edge.sourceNode.name,
-                                target: edge.destinationNode.name,
+                                source: edge.sourceNode,
+                                target: edge.destinationNode,
                                 attributes: edge.attributes
                             },
                             selectable: false
@@ -390,15 +389,15 @@ angular.module('coria.components')
                 var neighbourhoodNodes = [];
                 var neighbourhoodEdges = [];
                 for(var i = 0; i < vm.dataset.edges.length; i++){
-                    if(vm.dataset.edges[i].sourceNode.name === node.name || vm.dataset.edges[i].destinationNode.name === node.name){
+                    if(vm.dataset.edges[i].sourceNode === node.name || vm.dataset.edges[i].destinationNode === node.name){
                         neighbourhoodEdges.push(vm.dataset.edges[i]);
-                        if(usedNames.indexOf(vm.dataset.edges[i].sourceNode.name) === -1){
-                            neighbourhoodNodes.push(vm.dataset.edges[i].sourceNode);
-                            usedNames.push(vm.dataset.edges[i].sourceNode.name);
+                        if(usedNames.indexOf(vm.dataset.edges[i].sourceNode) === -1){
+                            neighbourhoodNodes.push(getNodeByName(vm.dataset.edges[i].sourceNode));
+                            usedNames.push(vm.dataset.edges[i].sourceNode);
                         }
-                        if(usedNames.indexOf(vm.dataset.edges[i].destinationNode.name) === -1){
-                            neighbourhoodNodes.push(vm.dataset.edges[i].destinationNode);
-                            usedNames.push(vm.dataset.edges[i].destinationNode.name);
+                        if(usedNames.indexOf(vm.dataset.edges[i].destinationNode) === -1){
+                            neighbourhoodNodes.push(getNodeByName(vm.dataset.edges[i].destinationNode));
+                            usedNames.push(vm.dataset.edges[i].destinationNode);
                         }
                     }
                 }
@@ -408,6 +407,7 @@ angular.module('coria.components')
                     var node = event.target;
                     for(var i = 0; i < vm.dataset.nodes.length; i++){
                         if(vm.dataset.nodes[i].name === node._private.data.id){
+                            console.dir(vm.dataset.nodes[i]);
                             vm.showNode(vm.dataset.nodes[i]);
                             return;
                         }
@@ -417,6 +417,16 @@ angular.module('coria.components')
             //endregion
 
             //region HELPER
+            var getNodeByName = function getNodeByName(name){
+                for(var i = 0; i < vm.dataset.nodes.length; i++){
+                    var n = vm.dataset.nodes[i];
+                    if(n.name == name){
+                        return n;
+                    }
+                }
+                return null;
+            };
+
             var sort_by = function(field, reverse, primer){
 
                 var key = primer ?
@@ -532,8 +542,8 @@ angular.module('coria.components')
                     cy.add({
                         data: {
                             id: edge.name,
-                            source: edge.sourceNode.name,
-                            target: edge.destinationNode.name,
+                            source: edge.sourceNode,
+                            target: edge.destinationNode,
                             attributes: edge.attributes
                         },
                         selectable: false

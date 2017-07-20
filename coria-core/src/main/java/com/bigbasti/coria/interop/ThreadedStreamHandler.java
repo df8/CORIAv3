@@ -39,7 +39,7 @@ import java.util.List;
  * http://www.gnu.org/licenses/lgpl.txt
  *
  */
-public class ThreadedStreamHandler extends Thread
+public class ThreadedStreamHandler extends Thread implements Serializable
 {
     private Logger logger = LoggerFactory.getLogger(ThreadedStreamHandler.class);
 

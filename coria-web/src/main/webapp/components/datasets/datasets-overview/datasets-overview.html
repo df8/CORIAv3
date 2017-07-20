@@ -1,7 +1,7 @@
 <div class="page-header">
     <h1>Datasets <small>Upload and manage datasets</small></h1>
 </div>
-<div class="row" ng-hide="$ctrl.datasets.length === 0">
+<div class="row" ng-hide="$ctrl.datasets.length === 0" >
     <div class="col-md-12">
         <table st-table="$ctrl.displayedCollection" st-safe-src="$ctrl.datasets" class="table table-striped">
             <thead>
@@ -9,28 +9,29 @@
                 <th>&nbsp;</th>
                 <th st-sort="name">Name</th>
                 <th st-sort="created">Created</th>
-                <th st-sort="notificationEmails">E-Mails</th>
-                <th st-sort="metrics">Metrics</th>
-                <th>Attributes</th>
+                <th st-sort="nodesCount">Nodes</th>
+                <th st-sort="edgesCount">Edges</th>
             </tr>
             <tr>
                 <th>&nbsp;</th>
                 <th>
                     <input st-search="name" placeholder="search for name" class="input-sm form-control" type="search"/>
                 </th>
-                <th colspan="4">
+                <th colspan="3">
                     <input st-search placeholder="global search" class="input-sm form-control" type="search"/>
                 </th>
             </tr>
             </thead>
             <tbody>
             <tr ng-repeat="ds in $ctrl.displayedCollection">
-                <td><buton class="btn btn-default" ng-click="$ctrl.openDataset(ds)"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></buton></td>
+                <td>
+                    <buton class="btn btn-default" ng-click="$ctrl.openDataset(ds)"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></buton>
+                    <buton class="btn btn-default" ng-click="$ctrl.deleteDataset(ds)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></buton>
+                </td>
                 <td>{{ds.name}}</td>
                 <td>{{ds.created | date}}</td>
-                <td>{{ds.notificationEmails}}</td>
-                <td>{{ds.metrics}}</td>
-                <td>{{ds.attributes}}</a></td>
+                <td>{{ds.nodesCount}}</td>
+                <td>{{ds.edgesCount}}</td>
             </tr>
             </tbody>
             <tfoot>

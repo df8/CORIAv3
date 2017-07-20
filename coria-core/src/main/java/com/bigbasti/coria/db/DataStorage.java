@@ -45,13 +45,6 @@ public interface DataStorage {
 
     String addDataSet(DataSet dataSet);
     DataSet getDataSet(String id);
-
-    /**
-     * returns the dataset without deep links like connected nodes of edges
-     * @param id
-     * @return
-     */
-    DataSet getDataSetShort(String id);
     List<DataSet> getDataSets();
     /**
      * returns all datasets without the nodes and edges

@@ -67,6 +67,7 @@ public class ASLinksEdgeImporter implements InputParser {
         logger.debug("data format accepted - begin parsing");
 
         for(String line : strData.split("\n")){
+            if(line.contains("\r")){line = line.replaceAll("\r","");}
             if(!line.startsWith("#")){                                  //ignore lines which comments
                 if(line.startsWith("I") || line.startsWith("D")){       //only use direct and indirect links
                     String [] parts = line.split("\t");
@@ -78,7 +79,7 @@ public class ASLinksEdgeImporter implements InputParser {
 
                             for(String fPart : fromParts){
                                 for(String tPart : toParts){
-                                    importedEdges.add(new CoriaEdge("", new CoriaNode(fPart), new CoriaNode(tPart)));
+                                    importedEdges.add(new CoriaEdge("", fPart, tPart));
                                 }
                             }
                         }else{

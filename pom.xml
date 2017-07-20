@@ -11,9 +11,11 @@
 
     <modules>
         <module>coria-web</module>
-        <module>coria-import-aslinks</module>
+        <module>coria-import-caida</module>
+        <module>coria-import-misc</module>
         <module>coria-core</module>
         <module>coria-data-mysql</module>
+        <module>coria-data-redis</module>
         <module>coria-metric-java-gs</module>
         <module>coria-metric-python-nx</module>
     </modules>

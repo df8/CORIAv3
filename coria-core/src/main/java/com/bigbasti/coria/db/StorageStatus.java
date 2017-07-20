@@ -1,9 +1,11 @@
 package com.bigbasti.coria.db;
 
+import java.io.Serializable;
+
 /**
  * Created by Sebastian Gross
  */
-public class StorageStatus {
+public class StorageStatus implements Serializable {
     /**
      * Indicates if the Storage is ready to use for the application
      * -> Database is setup and ready to connect

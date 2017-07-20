@@ -83,7 +83,7 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public String getName() {
-        return "MySQL Datenbank Adapter";
+        return "MySQL Database Adapter";
     }
 
     @Override
@@ -173,7 +173,7 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public List<MetricInfo> getMetricInfos(String datasetId) {
-        logger.debug("loading metric infos for dataset {}", datasetId);
+        logger.trace("loading metric infos for dataset {}", datasetId);
         final String SELECT_METRIC_FOR_DATASET = "SELECT * FROM " + dbSchema + ".metrics where dataset_id = ?";
 
         List<MetricInfo> readInfos = new ArrayList<>();
@@ -190,7 +190,7 @@ public class MySQLStorage implements DataStorage {
                 }
             }
             Instant ends = Instant.now();
-            logger.debug("loaded metrics for dataset ({})", Duration.between(starts, ends));
+            logger.trace("loaded metrics for dataset ({})", Duration.between(starts, ends));
         } catch (SQLException | ClassNotFoundException e) {
             logger.error("could not load metrics: {}", e.getMessage());
             e.printStackTrace();
@@ -295,7 +295,7 @@ public class MySQLStorage implements DataStorage {
     //TODO: also add attributes
     @Override
     public String addDataSet(DataSet dataSet) {
-        final String INSERT_DATASET = "INSERT INTO " + dbSchema + ".`datasets` (`name`, `created`) VALUES (?, ?)";
+        final String INSERT_DATASET = "INSERT INTO " + dbSchema + ".`datasets` (`name`, `created`, `nodesCount`, `edgesCount`) VALUES (?, ?, ?, ?)";
         final String INSERT_EDGE = "INSERT INTO " + dbSchema + ".`edges` (`dataset_id`, `name`, `source`, `destination`) VALUES (?, ?, ?, ?);";
         final String INSERT_NODE = "INSERT INTO " + dbSchema + ".`nodes` (`dataset_id`, `name`) VALUES (?, ?);";
 
@@ -310,6 +310,8 @@ public class MySQLStorage implements DataStorage {
                 }else{
                     stmt.setTimestamp(2, null);
                 }
+                stmt.setInt(3, dataSet.getNodesCount());
+                stmt.setInt(4, dataSet.getEdgesCount());
 
                 stmt.executeUpdate();
                 con.commit();
@@ -369,8 +371,8 @@ public class MySQLStorage implements DataStorage {
                         stmt.clearParameters();
                         stmt.setInt(1, dataSetKey);
                         stmt.setString(2, edge.getName());
-                        stmt.setString(3, edge.getSourceNode()==null?null:edge.getSourceNode().getName());
-                        stmt.setString(4, edge.getDestinationNode()==null?null:edge.getDestinationNode().getName());
+                        stmt.setString(3, edge.getSourceNode()==null?null:edge.getSourceNode());
+                        stmt.setString(4, edge.getDestinationNode()==null?null:edge.getDestinationNode());
                         stmt.addBatch();
                         if (batchCounter++ > BATCH_SIZE) {
                             stmt.executeBatch();
@@ -392,10 +394,6 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public DataSet getDataSet(String id) {
-        return loadDataSet(id, true);
-    }
-
-    private DataSet loadDataSet(String id, boolean toShort) {
         logger.debug("loading dataset {}", id);
         final String SELECT_DATASET = "SELECT * FROM " + dbSchema + ".datasets where id = ?";
         final String SELECT_METRIC_FOR_DATASET = "SELECT * FROM " + dbSchema + ".metrics where dataset_id = ?";
@@ -499,7 +497,7 @@ public class MySQLStorage implements DataStorage {
                 stmt.setInt(1, Integer.parseInt(id));
                 ResultSet rs = stmt.executeQuery();
                 while (rs.next()){
-                    dataset.getEdges().add(toEdge(rs, dataset.getNodes(), con, toShort));
+                    dataset.getEdges().add(toEdge(rs, dataset.getNodes(), con));
                 }
             }
             Instant ends = Instant.now();
@@ -512,11 +510,6 @@ public class MySQLStorage implements DataStorage {
         logger.debug("dataset loaded successful");
 
         return dataset;
-    }
-
-    @Override
-    public DataSet getDataSetShort(String id) {
-        return loadDataSet(id, false);
     }
 
     @Override
@@ -620,6 +613,8 @@ public class MySQLStorage implements DataStorage {
         ds.setId(String.valueOf(rs.getInt("id")));
         ds.setName(rs.getString("name"));
         ds.setCreated(rs.getDate("created"));
+        ds.setNodesCount(rs.getInt("nodesCount"));
+        ds.setEdgesCount(rs.getInt("edgesCount"));
         if(!Strings.isNullOrEmpty(rs.getString("emails"))) {
             ds.setNotificationEmails(Arrays.stream(rs.getString("emails").split(",")).collect(Collectors.toList()));
         }
@@ -654,27 +649,18 @@ public class MySQLStorage implements DataStorage {
         return node;
     }
 
-    private CoriaEdge toEdge(ResultSet rs, List<CoriaNode> nodes, Connection con, boolean connectedNodes) throws SQLException {
+    private CoriaEdge toEdge(ResultSet rs, List<CoriaNode> nodes, Connection con) throws SQLException {
         CoriaEdge edge = new CoriaEdge(String.valueOf(rs.getString("name")));
         edge.setId(String.valueOf(rs.getInt("id")));
 
         String sourceid = rs.getString("source");
         String destid = rs.getString("destination");
+        String datasetid = rs.getString("dataset_id");
 
         //======== CONNECTED NODES
 
-        if(connectedNodes) {
-            CoriaNode source = nodes.stream()
-                    .filter(coriaNode -> coriaNode.getName().equals(sourceid))
-                    .findFirst()
-                    .get();
-            CoriaNode dest = nodes.stream()
-                    .filter(coriaNode -> coriaNode.getName().equals(destid))
-                    .findFirst()
-                    .get();
-            edge.setSourceNode(source);
-            edge.setDestinationNode(dest);
-        }
+        edge.setSourceNode(sourceid);
+        edge.setDestinationNode(destid);
 
         //======== ATTRIBUTES
 
@@ -701,7 +687,7 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public String updateDataSet(DataSet dataSet) {
-        final String UPDATE_DATASET = "UPDATE " + dbSchema + ".`datasets` SET `name`=?, `created`=?, `emails`=? WHERE `id`=?;";
+        final String UPDATE_DATASET = "UPDATE " + dbSchema + ".`datasets` SET `name`=?, `created`=?, `emails`=?, `nodesCount`=?, `edgesCount`=? WHERE `id`=?;";
 
         logger.debug("updating dataset...");
         Instant starts = Instant.now();
@@ -714,7 +700,9 @@ public class MySQLStorage implements DataStorage {
                     stmt.setTimestamp(2, null);
                 }
                 stmt.setString(3, String.join(",", dataSet.getNotificationEmails()));
-                stmt.setLong(4, Long.valueOf(dataSet.getId()));
+                stmt.setInt(4, dataSet.getNodes().size());
+                stmt.setInt(5, dataSet.getEdges().size());
+                stmt.setLong(6, Long.valueOf(dataSet.getId()));
 
                 stmt.executeUpdate();
                 con.commit();
@@ -900,8 +888,8 @@ public class MySQLStorage implements DataStorage {
                 if(currentEdges.contains(edge.getName())) {
                     stmtUpdateEdge.clearParameters();
                     stmtUpdateEdge.setString(1, edge.getName());
-                    stmtUpdateEdge.setString(2, edge.getSourceNode()==null?null:edge.getSourceNode().getName());
-                    stmtUpdateEdge.setString(3, edge.getDestinationNode()==null?null:edge.getDestinationNode().getName());
+                    stmtUpdateEdge.setString(2, edge.getSourceNode()==null?null:edge.getSourceNode());
+                    stmtUpdateEdge.setString(3, edge.getDestinationNode()==null?null:edge.getDestinationNode());
                     stmtUpdateEdge.setLong(4, Long.valueOf(edge.getId()));
                     stmtUpdateEdge.addBatch();
                     if (batchCounterNodes++ > BATCH_SIZE) {
@@ -937,8 +925,8 @@ public class MySQLStorage implements DataStorage {
                     try(PreparedStatement stmt = con.prepareStatement(INSERT_EDGE)) {
                         stmt.setInt(1, Integer.parseInt(dsId));
                         stmt.setString(2, edge.getName());
-                        stmt.setString(3, edge.getSourceNode()==null?null:edge.getSourceNode().getName());
-                        stmt.setString(4, edge.getDestinationNode()==null?null:edge.getDestinationNode().getName());
+                        stmt.setString(3, edge.getSourceNode()==null?null:edge.getSourceNode());
+                        stmt.setString(4, edge.getDestinationNode()==null?null:edge.getDestinationNode());
                         stmt.executeUpdate();
                         con.commit();
                     }
@@ -1035,12 +1023,26 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public void deleteDataSet(DataSet dataSet) {
-
+        this.deleteDataSet(dataSet.getId());
     }
 
     @Override
     public void deleteDataSet(String id) {
+        final String DELETE_DATASET = "DELETE FROM " + dbSchema + ".`datasets` where `id`=?";
 
+        //read the current available edges for a dataset so you can check if the new list has new items in it
+        Instant starts = Instant.now();
+        try (Connection con = getConnection()){
+            try (PreparedStatement stmt = con.prepareStatement(DELETE_DATASET)) {
+                stmt.setInt(1, Integer.parseInt(id));
+                int rs = stmt.executeUpdate();
+            }
+            Instant ends = Instant.now();
+            logger.debug("deleted dataset ({})", Duration.between(starts, ends));
+        } catch (SQLException | ClassNotFoundException e) {
+            logger.error("could not delete dataset: {}", e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Override

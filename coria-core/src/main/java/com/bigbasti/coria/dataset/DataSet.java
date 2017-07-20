@@ -4,16 +4,19 @@ import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
 import com.bigbasti.coria.metrics.MetricInfo;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * Represents an imported DataSet resulting from an import of data
  * Created by Sebastian Gross
  */
-public class DataSet {
+public class DataSet implements Serializable {
     private String id;
     private String name;
     private Date created;
+    private int nodesCount;
+    private int edgesCount;
     private List<CoriaEdge> edges;
     private List<CoriaNode> nodes;
     /**
@@ -117,6 +120,22 @@ public class DataSet {
 
     public void setMetricInfos(List<MetricInfo> metricInfos) {
         this.metricInfos = metricInfos;
+    }
+
+    public int getNodesCount() {
+        return nodesCount;
+    }
+
+    public void setNodesCount(int nodesCount) {
+        this.nodesCount = nodesCount;
+    }
+
+    public int getEdgesCount() {
+        return edgesCount;
+    }
+
+    public void setEdgesCount(int edgesCount) {
+        this.edgesCount = edgesCount;
     }
 
     @Override

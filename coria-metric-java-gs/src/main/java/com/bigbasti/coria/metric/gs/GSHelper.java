@@ -23,7 +23,7 @@ public class GSHelper {
         for (CoriaEdge edge : dataset.getEdges()) {
             try {
                 logger.trace("Edge: " + edge);
-                Edge e = g.addEdge(edge.getSourceNode().getName() + "->" + edge.getDestinationNode().getName(), edge.getSourceNode().getName(), edge.getDestinationNode().getName());
+                Edge e = g.addEdge(edge.getSourceNode() + "->" + edge.getDestinationNode(), edge.getSourceNode(), edge.getDestinationNode());
                 for(Map.Entry<String, String> att : edge.getAttributes().entrySet()){
                     e.addAttribute(att.getKey(), att.getValue());
                 }

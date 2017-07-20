@@ -8,8 +8,8 @@
 angular.module('coria.components')
     .factory('modulesService', ['$resource',
         function($resource){
-            return $resource('/api/modules/import', {}, {
-                queryImportModules: {url: "/api/modules/import", method:'GET', params:{}, isArray:true},
+            return $resource('api/modules/import', {}, {
+                queryImportModules: {url: "api/modules/import", method:'GET', params:{}, isArray:true},
 
                 read: {url: 'service/pbs/input/order/:uuid', method:'GET', params:{}, isArray:false },
                 queryCompleted: {url: 'service/pbs/input/orders/completed', method:'GET', params:{}, isArray:true },
@@ -21,9 +21,9 @@ angular.module('coria.components')
 
     .factory('metricsService', ['$resource',
         function($resource){
-            return $resource('/api/metrics', {}, {
-                queryMetrics: {url: "/api/metrics", method:'GET', params:{}, isArray:true},
-                metricsForDataset: {url: "/api/metrics/dataset/:datasetId", method:'GET', params:{}, isArray:true},
+            return $resource('api/metrics', {}, {
+                queryMetrics: {url: "api/metrics", method:'GET', params:{}, isArray:true},
+                metricsForDataset: {url: "api/metrics/dataset/:datasetId", method:'GET', params:{}, isArray:true},
                 startMetric: {url: 'api/metrics/start', method:'POST', params:{}, isArray:false,
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     transformRequest: function (data, headersGetter) {
@@ -49,7 +49,7 @@ angular.module('coria.components')
 
                 $http({
                     method: 'POST',
-                    url: '/api/datasets/upload',
+                    url: 'api/datasets/upload',
                     data: fd,
                     withCredentials: false,
                     headers: {'Content-Type': undefined },
@@ -63,13 +63,19 @@ angular.module('coria.components')
                 return deferred.promise;
             }
             function getShortDataSets(){
-                return $http.get("/api/datasets/short")
+                return $http.get("api/datasets/short")
                     .then(function(response){
                         return response.data;
                     });
             }
             function getShortDataSet(id){
-                return $http.get("/api/datasets/short/" + id)
+                return $http.get("api/datasets/short/" + id)
+                    .then(function(response){
+                        return response.data;
+                    });
+            }
+            function postDeleteDataset(id){
+                return $http.post("api/datasets/delete/" + id)
                     .then(function(response){
                         return response.data;
                     });
@@ -78,7 +84,8 @@ angular.module('coria.components')
             return {
                 uploadNewDataSet: uploadImportForm,
                 shortDataSets: getShortDataSets,
-                shortDataSet: getShortDataSet
+                shortDataSet: getShortDataSet,
+                deleteDataset: postDeleteDataset
             }
         }])
 ;

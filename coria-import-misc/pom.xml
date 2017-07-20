@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.bigbasti.coria</groupId>
-	<artifactId>coria-import-aslinks</artifactId>
+	<artifactId>coria-import-misc</artifactId>
 	<version>3.0.0</version>
 	<packaging>jar</packaging>
 
-	<name>coria-import-aslinks</name>
-	<description>Parser for importing ASLink Files from CAIDA</description>
+	<name>coria-import-misc</name>
+	<description>Contains parsers for different non specific filetypes</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

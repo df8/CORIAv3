@@ -90,7 +90,7 @@ public class NXAverageNeighbourDegree implements Metric {
         try {
             PrintWriter pw = new PrintWriter(new FileWriter(fullPath));
             for(CoriaEdge e : dataset.getEdges()){
-                pw.println("XX\t" + e.getSourceNode().getName() + "\t" + e.getDestinationNode().getName());
+                pw.println("XX\t" + e.getSourceNode() + "\t" + e.getDestinationNode());
             }
             pw.close();
 
@@ -109,7 +109,7 @@ public class NXAverageNeighbourDegree implements Metric {
             String fullPathToScript = Paths.get(dir_url.toURI()).toFile().getAbsolutePath();
             logger.debug("Script URL: {}", fullPathToScript);
 
-            int exitValue = fsTools.startProcessAndWait("python " + fullPathToScript + " -f " + fullPath + " -s " + responseFileName);
+            int exitValue = fsTools.startProcessAndWait("python \"" + fullPathToScript + "\" -f " + fullPath + " -s " + responseFileName);
 
             Instant ends = Instant.now();
             logger.debug("python execution finished ({})", Duration.between(starts, ends));

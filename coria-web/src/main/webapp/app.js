@@ -15,6 +15,7 @@ var app = angular.module('coria', [
     , 'ngResource'
     , 'coria.components'
     , 'smart-table'
+    , 'cp.ngConfirm'
     // , 'app.directives'
     // , 'app.filters'
     // , 'app.services'

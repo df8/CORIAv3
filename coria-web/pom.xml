@@ -22,6 +22,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+		<start-class>com.bigbasti.coria.ServletInitializer</start-class>
 	</properties>
 
 	<dependencies>
@@ -52,12 +53,22 @@
 		</dependency>
 		<dependency>
 			<groupId>com.bigbasti.coria</groupId>
-			<artifactId>coria-import-aslinks</artifactId>
+			<artifactId>coria-import-caida</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.bigbasti.coria</groupId>
+			<artifactId>coria-import-misc</artifactId>
 			<version>3.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.bigbasti.coria</groupId>
 			<artifactId>coria-data-mysql</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.bigbasti.coria</groupId>
+			<artifactId>coria-data-redis</artifactId>
 			<version>3.0.0</version>
 		</dependency>
 		<dependency>

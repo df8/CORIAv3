@@ -1,5 +1,6 @@
 package com.bigbasti.coria.graph;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,25 +10,30 @@ import java.util.Map;
  * Internal representation of a node
  * Created by Sebastian Gross
  */
-public class CoriaNode {
+public class CoriaNode implements Serializable {
 
     private String id;
     private String name;
     private String riscScore;
 
-    private List<CoriaNode> neighbours;
+    private List<String> neighbours;
     private Map<String, String> attributes;
+
+    public CoriaNode(){
+        this.neighbours = new ArrayList<String>();
+        this.attributes = new HashMap<String, String>();
+    }
 
     public CoriaNode(String name) {
         this.name = name;
-        this.neighbours = new ArrayList<CoriaNode>();
+        this.neighbours = new ArrayList<String>();
         this.attributes = new HashMap<String, String>();
     }
 
     public CoriaNode(String id, String name) {
         this.id = id;
         this.name = name;
-        this.neighbours = new ArrayList<CoriaNode>();
+        this.neighbours = new ArrayList<String>();
         this.attributes = new HashMap<String, String>();
     }
 
@@ -47,11 +53,11 @@ public class CoriaNode {
         this.name = name;
     }
 
-    public List<CoriaNode> getNeighbours() {
+    public List<String> getNeighbours() {
         return neighbours;
     }
 
-    public void setNeighbours(List<CoriaNode> neighbours) {
+    public void setNeighbours(List<String> neighbours) {
         this.neighbours = neighbours;
     }
 
