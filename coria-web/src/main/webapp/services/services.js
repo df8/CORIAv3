@@ -38,11 +38,16 @@ angular.module('coria.components')
     .factory('dataSetService', ['$http', '$q',
         function($http, $q) {
 
-            function uploadImportForm(file, parser, name){
+            function uploadImportForm(files, parser, name){
                 var deferred = $q.defer();
 
                 var fd = new FormData();
-                fd.append("file", file);
+
+                Object.keys(files).forEach(function(key,index) {
+                    fd.append(key, files[key]);
+                });
+
+                // fd.append("file", file);    //ist nun ein object
                 fd.append("parser", parser);
                 fd.append("name", name);
                 // fd.append("data", JSON.stringify({parser:parser, name:name}))

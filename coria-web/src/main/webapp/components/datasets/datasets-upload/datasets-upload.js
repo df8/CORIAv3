@@ -13,23 +13,33 @@ angular.module('coria.components')
             vm.import = {
                 provider: "",
                 name: "",
-                file: undefined,
+                files: {},
                 isActive: false,
                 message: "",
                 errorMessage: ""
             };
+            vm.addFields = {};
 
             vm.importProviderSelected = function importProviderSelected(){
+                vm.addFields = {};
+                vm.import.files = {};
                 for(var i = 0; i < vm.inputProviders.length; i++){
                     if(vm.inputProviders[i].identification === vm.import.provider){
                         vm.selectedProvider = vm.inputProviders[i];
+                        checkForAdditionalParamater(vm.inputProviders[i]);
                     }
                 }
             };
 
+            function checkForAdditionalParamater(inputProvider){
+                Object.keys(inputProvider.additionalFields).forEach(function(key,index) {
+                    vm.addFields[key] = inputProvider.additionalFields[key];
+                });
+            }
+
             $scope.$on("fileSelected", function (event, args){
                 $scope.$apply(function(){
-                    vm.import.file = args.file;
+                    vm.import.files[args.field] = args.file;
                 });
             });
 
@@ -37,7 +47,7 @@ angular.module('coria.components')
                 vm.import.isActive = true;
                 vm.import.errorMessage = "";
                 vm.import.message = "";
-                dataSetService.uploadNewDataSet(vm.import.file, vm.import.provider, vm.import.name)
+                dataSetService.uploadNewDataSet(vm.import.files, vm.import.provider, vm.import.name)
                     .then(function success(response){
                         console.dir(response);
                         vm.import.message = "Upload was successful! You can see the new Data Set in the Dataset section.";

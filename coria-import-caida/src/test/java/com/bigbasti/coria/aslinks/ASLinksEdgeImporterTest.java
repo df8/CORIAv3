@@ -18,7 +18,7 @@ public class ASLinksEdgeImporterTest extends BaseTest {
         ASLinksEdgeImporter sut = new ASLinksEdgeImporter();
 
         String fileContent = readResource("caida_aslinks.txt");
-        Object result = sut.getParsedObjects(fileContent);
+        Object result = sut.getParsedObjects(fileContent, null);
 
         List<CoriaEdge> edges = (List<CoriaEdge>)result;
 
@@ -30,7 +30,7 @@ public class ASLinksEdgeImporterTest extends BaseTest {
         ASLinksEdgeImporter sut = new ASLinksEdgeImporter();
 
         String fileContent = readResource("caida_aslinks_no_header.txt");
-        Object result = sut.getParsedObjects(fileContent);
+        Object result = sut.getParsedObjects(fileContent, null);
 
         List<CoriaEdge> edges = (List<CoriaEdge>)result;
 
@@ -42,7 +42,7 @@ public class ASLinksEdgeImporterTest extends BaseTest {
         ASLinksEdgeImporter sut = new ASLinksEdgeImporter();
 
         String fileContent = readResource("caida_aslinks_invalid_lines.txt");
-        Object result = sut.getParsedObjects(fileContent);
+        Object result = sut.getParsedObjects(fileContent, null);
 
         List<CoriaEdge> edges = (List<CoriaEdge>)result;
 
@@ -54,7 +54,7 @@ public class ASLinksEdgeImporterTest extends BaseTest {
         ASLinksEdgeImporter sut = new ASLinksEdgeImporter();
 
         Double fileContent = 0.2;
-        sut.getParsedObjects(fileContent);
+        sut.getParsedObjects(fileContent, null);
     }
 
 }

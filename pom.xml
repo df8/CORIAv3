@@ -18,6 +18,7 @@
         <module>coria-data-redis</module>
         <module>coria-metric-java-gs</module>
         <module>coria-metric-python-nx</module>
+        <module>coria-metric-internal</module>
     </modules>
 
     <properties>

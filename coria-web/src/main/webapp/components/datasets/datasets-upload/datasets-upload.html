@@ -17,9 +17,16 @@
                 <input type="text" class="form-control" id="import.name" placeholder="ASLinks from May" ng-model="$ctrl.import.name">
             </div>
             <div class="form-group">
-                <label for="import.file">Select Datase File</label>
-                <input type="file" id="import.file" file-upload>
+                <label for="file">Select Datase File</label>
+                <input type="file" id="file" name="file" file-upload>
                 <p class="help-block">Please note the requirements on the right -></p>
+            </div>
+            <div class="form-group" ng-repeat="(key, value) in $ctrl.addFields">
+                <div ng-if="value==='file'">
+                    <label for="{{key}}">{{key}} File</label>
+                    <input type="file" id="{{key}}" name="{{key}}" file-upload>
+                    <p class="help-block">Please note the requirements on the right -></p>
+                </div>
             </div>
             <button type="submit" class="btn btn-default" ng-hide="$ctrl.import.isActive"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> Upload Dataset</button>
         </form>

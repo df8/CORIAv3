@@ -353,7 +353,7 @@ angular.module('coria.components')
                 vm.selectedNodeInfos.nodeName = node.name;
                 var subAttributes = [];
                 vm.selectedNodeInfos.metrics.push({
-                    name: "Risc Score",
+                    name: "Risk Score",
                     value: node.riscScore,
                     shortcut: "rs"
                 });

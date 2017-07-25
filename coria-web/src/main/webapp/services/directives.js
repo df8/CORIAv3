@@ -10,7 +10,7 @@ angular.module('coria.components')
                 el.bind('change', function (event){
                     var files = event.target.files;
                     for(var i= 0; i<files.length;i++){
-                        scope.$emit("fileSelected", {file: files[i]});
+                        scope.$emit("fileSelected", {file: files[i], field: el[0].name});
                     }
                 })
             }

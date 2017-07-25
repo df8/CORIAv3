@@ -16,14 +16,19 @@ import org.graphstream.graph.implementations.DefaultGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.io.InputStream;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Sebastian Gross
@@ -78,14 +83,40 @@ public class DatasetController extends BaseController {
      */
     @PostMapping("/upload")
     public @ResponseBody
-    ResponseEntity handleDataSetUpload(DataSetUpload upload) {
+    ResponseEntity handleDataSetUpload(DataSetUpload upload, HttpServletRequest request) {
         logger.debug("received dataset file for import");
 
         if(upload.isValid()){
             InputParser parser = getInputParser(upload.getParser());
 
             try {
-                List<CoriaEdge> edges = parser.getParsedObjects(upload.getFile().getBytes());
+                //try reading additional parameters
+                Map<String, Object> params = null;
+                try {
+                    List<Part> fileParts = request.getParts()
+                            .stream()
+                            .filter(part -> part.getSubmittedFileName() != null && !part.getName().equals("file"))
+                            .collect(Collectors.toList());
+                    if(fileParts.size() > 0){
+                        params = new HashMap<>();
+                        for(Part p : fileParts){
+                            int read = 0;
+                            final byte[] bytes = new byte[1024];
+                            InputStream filecontent = p.getInputStream();
+                            ByteArrayOutputStream out = new ByteArrayOutputStream();
+                            while ((read = filecontent.read(bytes)) != -1) {
+                                out.write(bytes, 0, read);
+                            }
+                            params.put(p.getName(), out.toByteArray());
+                        }
+                    }
+                } catch (ServletException e) {
+                    logger.error("could not read additional parameters");
+                    e.printStackTrace();
+                    return ResponseEntity.status(500).body("{\"error\":\"DataSet could not be stored because could not read additional parameters\"}");
+                }
+
+                List<CoriaEdge> edges = parser.getParsedObjects(upload.getFile().getBytes(), params);
                 List<CoriaNode> nodes = null;
                 if(edges == null){
                     //user specified an unknown parser
@@ -189,6 +220,18 @@ public class DatasetController extends BaseController {
         getActiveStorage().deleteDataSet(datasetid);
 
         return ResponseEntity.ok().build();
+    }
+
+    private String getFileName(final Part part) {
+        final String partHeader = part.getHeader("content-disposition");
+        logger.debug("Part Header = {0}", partHeader);
+        for (String content : part.getHeader("content-disposition").split(";")) {
+            if (content.trim().startsWith("filename")) {
+                return content.substring(
+                        content.indexOf('=') + 1).trim().replace("\"", "");
+            }
+        }
+        return null;
     }
 
 }

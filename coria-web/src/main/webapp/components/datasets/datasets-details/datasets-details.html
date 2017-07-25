@@ -114,7 +114,7 @@
                         <tr>
                             <th>Action</th>
                             <th st-sort="name">Name</th>
-                            <th st-sort="riscScore">Risc Score</th>
+                            <th st-sort="riscScore">Risk Score</th>
                             <th ng-repeat="(key, value) in $ctrl.dataset.nodes[0].attributes" ng-if="key.indexOf('_')<0 && $ctrl.allowDisplayShortcut(key)" st-sort="attributes[key]">{{$ctrl.getMetricByShortcut(key)}}</th>
                         </tr>
                         <tr>
