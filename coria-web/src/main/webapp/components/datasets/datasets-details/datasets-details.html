@@ -70,7 +70,7 @@
                 <button class="btn btn-default btn-xs" ng-click="$ctrl.displayMetric({shortcut:'new'})" ng-show="$ctrl.dataset.nodes"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Display Graph</button>
             </div>
         </div>
-        <div class="row" ng-show="$ctrl.displayAddMetric === true">
+        <div class="row spacer" ng-show="$ctrl.displayAddMetric === true">
             <div class="col-md-12">
                 <div class="alert alert-info" role="alert" ng-bind-html="$ctrl.metric.description"></div>
                 <form name="import" id="import" ng-submit="$ctrl.submitMetric()" >
@@ -85,6 +85,12 @@
                 </form>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="row spacer" ng-if="$ctrl.datasetCorrupted">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="alert alert-danger" role="alert"><strong>There seems to be something wrong with this dataset</strong><br/>It looks like this dataset is either missing edges or nodes. Please try refreshing this view (F5), if this message persists there might have been a collision on the database.<br/>Some functions of CORIA might not be working correctly on this dataset because of this. Metric executions could fail on this dataset.</div>
     </div>
 </div>
 

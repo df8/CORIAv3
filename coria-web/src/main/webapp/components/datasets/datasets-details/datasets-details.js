@@ -139,6 +139,10 @@ angular.module('coria.components')
                 vm.dataset = data;
                 vm.isNodesRefreshing = false;
                 vm.isDatasetRefreshing = false;
+
+                if(data.nodes.length === 0 || data.edges.length === 0){
+                    vm.datasetCorrupted = true;
+                }
             }, function(error){
                 //TODO: errorhandling
             });

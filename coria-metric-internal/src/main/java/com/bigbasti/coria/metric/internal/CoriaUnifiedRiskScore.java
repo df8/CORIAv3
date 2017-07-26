@@ -3,6 +3,8 @@ package com.bigbasti.coria.metric.internal;
 import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.graph.CoriaNode;
 import com.bigbasti.coria.metric.gs.GSHelper;
+import com.bigbasti.coria.metric.tools.MetricCorrections;
+import com.bigbasti.coria.metric.tools.MetricNormalizations;
 import com.bigbasti.coria.metrics.Metric;
 import com.bigbasti.coria.metrics.MetricInfo;
 import org.graphstream.graph.Graph;
@@ -11,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * Created by Sebastian Gross
@@ -67,53 +69,51 @@ public class CoriaUnifiedRiskScore implements Metric{
     @Override
     public DataSet performCalculations(DataSet dataset) {
         logger.debug("calculating {} for dataset {}", getName(), dataset.getId());
+        Map<String, Double> requiredMetrics = new HashMap<>();
+        requiredMetrics.put("ndeg", 0.25);
+        requiredMetrics.put("and", 0.15);
+        requiredMetrics.put("iand", 0.1);
+        requiredMetrics.put("bc", 0.25);
+        requiredMetrics.put("aspl", 0.25);
         try {
-
-            logger.debug("trying to create a temp graph with provided data...");
-            Graph g = GSHelper.createGraphFromDataSet(dataset);
-            logger.debug("successful finished graph creation");
-
-            logger.debug("starting metric computation...");
-            double maxIand = 0;
-            float counter = 0;
-            for (Node n : g) {
-                long degreeSum = 0;
-                int nodesCount = 0;
-                Iterator<Node> neighborNodes = g.getNode(n.getId()).getNeighborNodeIterator();
-                while(neighborNodes.hasNext()){
-                    Node firstLevelNode = neighborNodes.next();
-                    Iterator<Node> secodLevelNodes = firstLevelNode.getNeighborNodeIterator();
-                    while(secodLevelNodes.hasNext()){
-                        Node secondLevelNode = secodLevelNodes.next();
-                        degreeSum += secondLevelNode.getDegree();
-                        nodesCount++;
-                    }
-                }
-                double iand = 0d;
-                if(nodesCount > 0){
-                    iand = degreeSum / nodesCount;
-                }
-                CoriaNode currentNode = dataset.getNodes()
-                        .stream()
-                        .filter(coriaNode -> coriaNode.getName().equals(n.getId()))
-                        .findFirst()
-                        .get();
-                currentNode.setAttribute(getShortcut(), String.valueOf(iand));
-                if(iand > maxIand){
-                    maxIand = iand;
-                }
-                counter++;
-                if(counter % 1000 == 0){
-                    logger.debug("{} Progress: {}/{}", getName(), counter, dataset.getNodesCount());
+            logger.debug("checking if all preconditions are met");
+            //select first node to check if it has all the needed metrics
+            //it's safe to say that if the first node has them, they all have them
+            CoriaNode testNode = dataset.getNodes().get(0);
+            boolean fail = false;
+            for(String metric : requiredMetrics.keySet()) {
+                if (testNode.getAttribute(metric) == null) {
+                    fail = true;
                 }
             }
-
-            logger.debug("updating relative node degree");
-
-            for(CoriaNode n : dataset.getNodes()){
-                Double relIand = (Double.valueOf(n.getAttribute(getShortcut())) / maxIand) * 100;
-                n.setAttribute(getShortcut() + "_relative", relIand.toString());
+            if(fail){
+                logger.error("not all preconditions for risk calculation are met!");
+                throw new RuntimeException("Not all required metrics were executed. Please execute the metrics described in the Unified Risk Score description first.");
             }
+
+            logger.debug("executing correction of values");
+            dataset = MetricCorrections.correctAverageNeighbourDegree(dataset);
+            dataset = MetricCorrections.correctClusteringCoefficients(dataset);
+            dataset = MetricCorrections.correctIteratedAverageNeighbourDegree(dataset);
+
+            logger.debug("executing normalization of metrics");
+            for(String metric : requiredMetrics.keySet()){
+                dataset = MetricNormalizations.normalizeMinMax(dataset, metric);
+            }
+
+            logger.debug("calculating score for each node");
+
+            for(CoriaNode node : dataset.getNodes()){
+                double urc = 0;
+                for(String metric : requiredMetrics.keySet()){
+                    urc += Double.parseDouble(node.getAttribute(metric + "_normalized")) * requiredMetrics.get(metric);
+                }
+                node.setRiscScore(String.valueOf(urc));
+                node.setAttribute(getShortcut(), String.valueOf(urc));
+            }
+
+            logger.debug("calculating relative metric values");
+
 
             logger.debug("finished metric computation");
 
@@ -121,7 +121,7 @@ public class CoriaUnifiedRiskScore implements Metric{
         }catch(Exception ex){
             logger.error("Error while executing calculation: {}", ex.getMessage());
             ex.printStackTrace();
-            return null;
+            throw ex;
         }
     }
 
