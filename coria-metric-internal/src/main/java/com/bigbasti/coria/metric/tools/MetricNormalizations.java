@@ -35,7 +35,7 @@ public class MetricNormalizations {
                 normalized = (metricVal - xMin) / (xMax - xMin);
             }
             node.setAttribute(metric + "_normalized", String.valueOf(normalized));
-            logger.debug("Normalized {}->{}", node.getAttribute(metric), normalized);
+            logger.trace("Normalized {} {}->{}", metric, node.getAttribute(metric), normalized);
         }
 
         Instant ends = Instant.now();

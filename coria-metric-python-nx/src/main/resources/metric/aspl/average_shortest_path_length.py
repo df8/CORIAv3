@@ -20,11 +20,22 @@ def read():
     log('Network X graph has the following number of edges',graph.number_of_edges())
 
     log("computing average shortest path length")
-    cnetr = nx.average_shortest_path_length(graph)
+    #this will blow up your computers memory
+    #cnetr = nx.shortest_path_length(graph)
+    calculated_values = ""
+    for node in graph.nodes():
+        all_shortest_paths_for_node = nx.shortest_path_length(graph, source=node)
+        sum_of_lengths = 0
+        for target in all_shortest_paths_for_node:
+            sum_of_lengths += all_shortest_paths_for_node[target]
+
+        calculated_values = calculated_values + node + "," + str(float(sum_of_lengths)/len(all_shortest_paths_for_node)) + "\n"
+
     log("finished computing")
 
+
     outFile = open(stamp, "w")
-    outFile.write(cnetr)
+    outFile.write(calculated_values)
 
     log("finished writing to file")
     log("finished average shortest path length execution")

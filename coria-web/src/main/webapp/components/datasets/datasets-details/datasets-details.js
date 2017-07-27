@@ -164,14 +164,22 @@ angular.module('coria.components')
                 for(var a in node.attributes){
                     if(a===shortcut){continue;}
                     if(a.lastIndexOf(shortcut, 0)===0){     //a startsWith shortcut
-                        if(a.indexOf('relative')>0){
-                            subMetrics.push(vm.roundNumber(node.attributes[a], 2) + "%");
-                        }else{
-                            subMetrics.push(node.attributes[a]);
+                        //let different sub attributes have different colors
+                        var color = "info";
+                        if(a.indexOf('corrected')>0){
+                            color = "primary"
                         }
+                        if(a.indexOf('normalized')>0){
+                            color = "default"
+                        }
+                        //workaround because we're not allowed to return object instances in here
+                        subMetrics.push(color + ";" + vm.roundNumber(node.attributes[a], 2));
                     }
                 }
                 return subMetrics;
+            };
+            vm.getStringPart = function getStringPart(str, part, splitby){
+                return str.split(splitby)[part];
             };
             /**
              * It does not make sense to display all available metrics.
@@ -182,7 +190,8 @@ angular.module('coria.components')
              */
             vm.allowDisplayShortcut = function allowDisplayShortcut(shortcut){
                 var blacklist = [
-                    "pos"
+                    "pos",
+                    "urs"
                 ];
                 for(var i = 0; i < blacklist.length; i++){
                     if(blacklist[i] === shortcut){return false;}

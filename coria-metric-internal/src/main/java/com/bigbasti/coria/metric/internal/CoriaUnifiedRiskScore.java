@@ -93,7 +93,7 @@ public class CoriaUnifiedRiskScore implements Metric{
 
             logger.debug("executing correction of values");
             dataset = MetricCorrections.correctAverageNeighbourDegree(dataset);
-            dataset = MetricCorrections.correctClusteringCoefficients(dataset);
+//            dataset = MetricCorrections.correctClusteringCoefficients(dataset);
             dataset = MetricCorrections.correctIteratedAverageNeighbourDegree(dataset);
 
             logger.debug("executing normalization of metrics");
@@ -102,18 +102,25 @@ public class CoriaUnifiedRiskScore implements Metric{
             }
 
             logger.debug("calculating score for each node");
-
+            double maxUrs = 0;
             for(CoriaNode node : dataset.getNodes()){
                 double urc = 0;
                 for(String metric : requiredMetrics.keySet()){
                     urc += Double.parseDouble(node.getAttribute(metric + "_normalized")) * requiredMetrics.get(metric);
                 }
+                if(urc > maxUrs){maxUrs = urc;}
                 node.setRiscScore(String.valueOf(urc));
                 node.setAttribute(getShortcut(), String.valueOf(urc));
             }
 
             logger.debug("calculating relative metric values");
+            for(CoriaNode node : dataset.getNodes()){
+                Double relUrs = (Double.valueOf(node.getAttribute(getShortcut())) / maxUrs) * 100;
+                logger.trace("URS: {} / {} * 100 = {}", Double.valueOf(node.getAttribute(getShortcut())), maxUrs, relUrs);
+                node.setAttribute(getShortcut()+"_relative", relUrs.toString());
 
+
+            }
 
             logger.debug("finished metric computation");
 

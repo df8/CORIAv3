@@ -64,7 +64,7 @@ public class NXAverageShortestPathLength implements Metric {
 
     @Override
     public MetricInfo.MetricType getType() {
-        return MetricInfo.MetricType.DATASET;
+        return MetricInfo.MetricType.NODE;
     }
 
     @Override
@@ -126,22 +126,40 @@ public class NXAverageShortestPathLength implements Metric {
             starts = Instant.now();
 
             BufferedReader br = null;
+            double maxAspl = 0.0;
             List<CoriaNode> nodes = new ArrayList<>();
             try {
                 br = new BufferedReader(new FileReader(response));
                 for (String line; (line = br.readLine()) != null; ) {
-                    //first line contains the computed value
-                    if(Strings.isNullOrEmpty(line)){
-                        logger.error("no value received from python script");
-                        throw new RuntimeException("no value received from python script");
+                    String parts[] = line.split(",");
+                    Optional<CoriaNode> ocn = dataset.getNodes().stream().filter(coriaNode -> coriaNode.getName().equals(parts[0])).findFirst();
+                    if(!ocn.isPresent()){
+                        logger.warn("could not update node {} (value:{}) - node not found in dataset", parts[0], parts[1]);
+                    }else{
+                        CoriaNode cn = ocn.get();
+                        cn.setAttribute(getShortcut(), parts[1]);
+                        nodes.add(cn);
+                        try{
+                            Double aspl = Double.valueOf(parts[1]);
+                            if(aspl > maxAspl){
+                                maxAspl = aspl;
+                            }
+                        }catch(Exception ex){logger.warn("could not parse aspl value {} from node {}", parts[1], parts[0]);}
                     }
-                    dataset.setAttribute(getShortcut(), line);
                 }
                 br.close();
             } catch (IOException e) {
                 logger.error("failed reading response file: {}", e.getMessage());
                 e.printStackTrace();
                 throw new RuntimeException("failed reading response file: " + e.getMessage());
+            }
+
+            logger.debug("updating relative {}", getName());
+
+            for(CoriaNode n : nodes){
+                Double relBc = (Double.valueOf(n.getAttribute(getShortcut())) / maxAspl) * 100;
+                logger.trace("{}: {} / {} * 100 = {}",getShortcut(), Double.valueOf(n.getAttribute(getShortcut())), maxAspl, relBc);
+                n.setAttribute(getShortcut()+"_relative", relBc.toString());
             }
 
             Instant ends = Instant.now();

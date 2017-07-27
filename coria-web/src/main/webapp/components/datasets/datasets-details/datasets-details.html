@@ -124,7 +124,7 @@
                             <th ng-repeat="(key, value) in $ctrl.dataset.nodes[0].attributes" ng-if="key.indexOf('_')<0 && $ctrl.allowDisplayShortcut(key)" st-sort="attributes[key]">{{$ctrl.getMetricByShortcut(key)}}</th>
                         </tr>
                         <tr>
-                            <th>&nbsp;</th>
+                            <th><button type="button" class="btn btn-default" uib-popover-html='"This table displays additional computed values for each metric, the color indicates different meanings (see below). Note: additional values are not computed for all metrics but only for the ones where they are needed for other metrics to work properly!<hr/><span class=\"label label-info\">Relative Value</span> displays how high the value is compared to the highest value in the whole dataset in %<hr/><span class=\"label label-default\">Normalized Value</span> displays the normalized value (range 0 to 1)<hr/><span class=\"label label-primary\">Corrected Value</span> displays the corrected value, which tries to smooth the very high and low corner cases"' popover-title="Color Meanings"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></button></th>
                             <th><input st-search="" class="form-control" placeholder="name search ..." type="text"/></th>
                         </tr>
                         </thead>
@@ -132,9 +132,9 @@
                         <tr ng-repeat="node in $ctrl.displayedCollectionNodes">
                             <td><button class="btn btn-default btn-xs" ng-click="$ctrl.showNode(node)"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button></td>
                             <td>{{node.name}}</td>
-                            <td>{{node.riscScore}}</td>
+                            <td>{{$ctrl.roundNumber(node.riscScore, 2)}}</td>
                             <td ng-repeat="(key, value) in node.attributes" ng-if="key.indexOf('_')<0 && $ctrl.allowDisplayShortcut(key)">
-                                {{$ctrl.roundNumber(value, 5)}} <span class="label label-info" ng-repeat="sm in $ctrl.getSubMetrics(node, key)">{{sm}}</span>
+                                {{$ctrl.roundNumber(value, 5)}} <br/><span class="label label-{{$ctrl.getStringPart(sm, 0, ';')}}" style="margin-right:3px;" ng-repeat="sm in $ctrl.getSubMetrics(node, key) track by $index">{{$ctrl.getStringPart(sm,1,";")}}</span>
                             </td>
                         </tr>
                         </tbody>
@@ -146,6 +146,9 @@
                         </tr>
                         </tfoot>
                     </table>
+                    <div>
+
+                    </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="graph">
                     <div id="metric-canvas" style="width: 100%; height: 800px;"></div>
@@ -156,7 +159,7 @@
                         <tr>
                             <th>Metric for Node {{$ctrl.selectedNodeInfos.nodeName}}</th>
                             <th>Absolute Value</th>
-                            <th>Normalized Value</th>
+                            <th>Relative Value</th>
                             <th>[%]</th>
                         </tr>
                         </thead>
@@ -184,7 +187,7 @@
                         <tr>
                             <th st-sort="name">Node</th>
                             <th st-sort="attributes[$ctrl.selectedMetric.shortcut]">Absolute Value</th>
-                            <th>Normalized Value</th>
+                            <th>Relative Value</th>
                             <th st-sort="attributes[$ctrl.selectedMetric.shortcut + '_relative']">[%]</th>
                         </tr>
                         </thead>

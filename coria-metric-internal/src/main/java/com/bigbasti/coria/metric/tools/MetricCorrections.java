@@ -25,7 +25,7 @@ public class MetricCorrections {
             double degree = Double.parseDouble(node.getAttribute("ndeg"));
 
             double correctedCc = cc + (degree * cc) / 4;
-            logger.debug("Corrected CC: {}->{}", cc, correctedCc);
+            logger.trace("Corrected CC: {}->{}", cc, correctedCc);
             node.setAttribute("clco_corrected", String.valueOf(correctedCc));
         }
         return dataset;
@@ -38,12 +38,12 @@ public class MetricCorrections {
         Graph g = GSHelper.createGraphFromDataSet(dataset);
 
         for(CoriaNode node : dataset.getNodes()){
-            int neighboursCount = Integer.getInteger(node.getAttribute("ndeg"));
+            int neighboursCount = Integer.parseInt(node.getAttribute("ndeg"));
             double avgNdg = Double.parseDouble(node.getAttribute("and"));
 
             //prepare array for median computation
             DescriptiveStatistics stat = new DescriptiveStatistics();
-            Iterator<Node> iterator = g.getNode(node.getId()).getNeighborNodeIterator();
+            Iterator<Node> iterator = g.getNode(node.getName()).getNeighborNodeIterator();
             while(iterator.hasNext()){
                 Node gsNode = iterator.next();
                 double ccVal = gsNode.getDegree();
@@ -58,7 +58,7 @@ public class MetricCorrections {
                 double corrected = avgNdg + (((median - avgNdg) / standardDeviation) / neighboursCount) * avgNdg;
                 node.setAttribute("and_corrected", String.valueOf(corrected));
             }
-            logger.debug("Corrected AND: {}->{}", avgNdg, node.getAttribute("and_corrected"));
+            logger.trace("Corrected AND: {}->{}", avgNdg, node.getAttribute("and_corrected"));
         }
 
         Instant ends = Instant.now();
@@ -77,7 +77,7 @@ public class MetricCorrections {
 
             int nodesCount = 0;
             DescriptiveStatistics stat = new DescriptiveStatistics();
-            Iterator<Node> neighborNodes = g.getNode(node.getId()).getNeighborNodeIterator();
+            Iterator<Node> neighborNodes = g.getNode(node.getName()).getNeighborNodeIterator();
             while(neighborNodes.hasNext()){
                 Node firstLevelNode = neighborNodes.next();
                 Iterator<Node> secodLevelNodes = firstLevelNode.getNeighborNodeIterator();
@@ -97,7 +97,7 @@ public class MetricCorrections {
                 double corrected = avgINdg + (((median - avgINdg) / standardDeviation) / nodesCount) * avgINdg;
                 node.setAttribute("iand_corrected", String.valueOf(corrected));
             }
-            logger.debug("Corrected IAND: {}->{}", avgINdg, node.getAttribute("iand_corrected"));
+            logger.trace("Corrected IAND: {}->{}", avgINdg, node.getAttribute("iand_corrected"));
         }
 
         Instant ends = Instant.now();
