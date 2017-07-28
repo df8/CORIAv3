@@ -24,6 +24,9 @@ public class StandardTabImporter implements InputParser {
 
     private Logger logger = LoggerFactory.getLogger(StandardTabImporter.class);
 
+    ArrayList<CoriaEdge> importedEdges = new ArrayList<>();
+    ArrayList<CoriaNode> importedNodes = new ArrayList<>();
+
     @Override
     public String getIdentification() {
         return "caida-misc-default-tab-parser";
@@ -53,31 +56,35 @@ public class StandardTabImporter implements InputParser {
         return new HashMap<>();
     }
 
-    public List<CoriaEdge> getParsedObjects(Object data, Map<String, Object> params) throws FormatNotSupportedException {
-        ArrayList<CoriaEdge> importedEdges = new ArrayList<>();
+    @Override
+    public List<CoriaEdge> getParsedEdges() {
+        return importedEdges;
+    }
 
+    @Override
+    public List<CoriaNode> getParsedNodes() {
+        return importedNodes;
+    }
+
+    public void parseInformation(Object data, Map<String, Object> params) throws FormatNotSupportedException {
         logger.debug("starting import of data");
 
-        String strData = "";
-        if(data instanceof byte[]){
-            //we got an byte array -> convert to string before parsing
-            strData = new String(((byte[])data), Charset.defaultCharset());
-        }else if(data instanceof String){
-            //data is in string format -> no need to convert
-            strData = (String)data;
-        }else{
-            //the given format is not supported -> exception
-            logger.error("The provided format is not supported, please provide data in String od byte[] format!");
-            throw new FormatNotSupportedException("The provided format is not supported, please provide data in String or byte[] format!");
-        }
+        String strData = getStringFromData(data);
 
         logger.debug("data format accepted - begin parsing");
 
+        parseAsLinks(strData);
+
+        logger.debug("parsing finished, parsed " + importedEdges.size() + " edges");
+    }
+
+    private void parseAsLinks(String strData) {
         String splitExpr  = "\n";
         if(strData.contains("\r\n")){
             splitExpr = "\r\n";
         }
 
+        List<String> nodeDict = new ArrayList<>();
         for(String line : strData.split(splitExpr)){
             if(line.contains("\t")){
                 String [] parts = line.split("\t");
@@ -90,6 +97,14 @@ public class StandardTabImporter implements InputParser {
                         for(String fPart : fromParts){
                             for(String tPart : toParts){
                                 importedEdges.add(new CoriaEdge("", fPart, tPart));
+                                if(!nodeDict.contains(fPart)) {
+                                    importedNodes.add(new CoriaNode(fPart));
+                                    nodeDict.add(fPart);
+                                }
+                                if(!nodeDict.contains(tPart)) {
+                                    importedNodes.add(new CoriaNode(tPart));
+                                    nodeDict.add(tPart);
+                                }
                             }
                         }
                     }else{
@@ -102,10 +117,22 @@ public class StandardTabImporter implements InputParser {
                 logger.trace("ignoring line because it is not separeted by tab: " + line);
             }
         }
+    }
 
-        logger.debug("parsing finished, parsed " + importedEdges.size() + " edges");
-
-        return importedEdges;
+    private String getStringFromData(Object data) throws FormatNotSupportedException {
+        String strData;
+        if(data instanceof byte[]){
+            //we got an byte array -> convert to string before parsing
+            strData = new String(((byte[])data), Charset.defaultCharset());
+        }else if(data instanceof String){
+            //data is in string format -> no need to convert
+            strData = (String)data;
+        }else{
+            //the given format is not supported -> exception
+            logger.error("The provided format is not supported, please provide data in String od byte[] format!");
+            throw new FormatNotSupportedException("The provided format is not supported, please provide data in String or byte[] format!");
+        }
+        return strData;
     }
 
     @Override

@@ -84,7 +84,7 @@ public class GSEccentricity implements Metric{
             for (Node n : g) {
                 CoriaNode currentNode = dataset.getNodes()
                         .stream()
-                        .filter(coriaNode -> coriaNode.getName().equals(n.getId()))
+                        .filter(coriaNode -> coriaNode.getAsid().equals(n.getId()))
                         .findFirst()
                         .get();
                 currentNode.setAttribute(getShortcut(), n.getAttribute("eccentricity")?"1":"0");

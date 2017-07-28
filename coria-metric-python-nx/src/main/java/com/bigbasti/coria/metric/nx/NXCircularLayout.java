@@ -130,7 +130,7 @@ public class NXCircularLayout implements Metric {
                 br = new BufferedReader(new FileReader(response));
                 for (String line; (line = br.readLine()) != null; ) {
                     String parts[] = line.split(",");
-                    Optional<CoriaNode> ocn = dataset.getNodes().stream().filter(coriaNode -> coriaNode.getName().equals(parts[0])).findFirst();
+                    Optional<CoriaNode> ocn = dataset.getNodes().stream().filter(coriaNode -> coriaNode.getAsid().equals(parts[0])).findFirst();
                     if(!ocn.isPresent()){
                         logger.warn("could not update node {} (value:{}) - node not found in dataset", parts[0], parts[1]);
                     }else{

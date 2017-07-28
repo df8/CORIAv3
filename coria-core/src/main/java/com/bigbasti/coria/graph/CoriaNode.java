@@ -13,6 +13,7 @@ import java.util.Map;
 public class CoriaNode implements Serializable {
 
     private String id;
+    private String asid;
     private String name;
     private String riscScore;
 
@@ -26,6 +27,7 @@ public class CoriaNode implements Serializable {
 
     public CoriaNode(String name) {
         this.name = name;
+        this.asid = name;
         this.neighbours = new ArrayList<String>();
         this.attributes = new HashMap<String, String>();
     }
@@ -85,11 +87,20 @@ public class CoriaNode implements Serializable {
         this.riscScore = riscScore;
     }
 
+    public String getAsid() {
+        return asid;
+    }
+
+    public void setAsid(String asid) {
+        this.asid = asid;
+    }
+
     @Override
     public String toString() {
         return "CoriaNode{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
+                ", asid='" + asid + '\'' +
                 ", riscScore='" + riscScore + '\'' +
                 ", neighbours=" + neighbours +
                 ", attributes=" + attributes +

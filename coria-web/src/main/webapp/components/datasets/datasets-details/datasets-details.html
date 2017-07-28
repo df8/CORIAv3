@@ -130,8 +130,11 @@
                         </thead>
                         <tbody>
                         <tr ng-repeat="node in $ctrl.displayedCollectionNodes">
-                            <td><button class="btn btn-default btn-xs" ng-click="$ctrl.showNode(node)"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button></td>
-                            <td>{{node.name}}</td>
+                            <td>
+                                <button class="btn btn-default btn-xs" ng-click="$ctrl.showNode(node)"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>
+                                <a class="btn btn-default btn-xs" role="button" href="https://www.google.de/maps/search/{{node.attributes.geo_latitude}},{{node.attributes.geo_longitude}}" target="_blank" ng-if="node.attributes.geo"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span></a>
+                            </td>
+                            <td><img src="img/flags/{{node.attributes.geo_country}}.png" title="{{node.attributes.geo_city}}" ng-if="node.attributes.geo"/> {{node.name}}</td>
                             <td>{{$ctrl.roundNumber(node.riscScore, 2)}}</td>
                             <td ng-repeat="(key, value) in node.attributes" ng-if="key.indexOf('_')<0 && $ctrl.allowDisplayShortcut(key)">
                                 {{$ctrl.roundNumber(value, 5)}} <br/><span class="label label-{{$ctrl.getStringPart(sm, 0, ';')}}" style="margin-right:3px;" ng-repeat="sm in $ctrl.getSubMetrics(node, key) track by $index">{{$ctrl.getStringPart(sm,1,";")}}</span>
@@ -154,30 +157,37 @@
                     <div id="metric-canvas" style="width: 100%; height: 800px;"></div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="nodeinfo">
-                    <table class="table table-hover">
-                        <thead>
-                        <tr>
-                            <th>Metric for Node {{$ctrl.selectedNodeInfos.nodeName}}</th>
-                            <th>Absolute Value</th>
-                            <th>Relative Value</th>
-                            <th>[%]</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr ng-repeat="metric in $ctrl.selectedNodeInfos.metrics">
-                            <td>{{metric.name}}</td>
-                            <td>{{metric.value}}</td>
-                            <td>
-                                <div class="progress" style="margin-bottom: 0 !important;">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="{{metric.relative}}" aria-valuemin="0" aria-valuemax="100" style="width: {{metric.relative}}%;">
-                                        <span class="sr-only">{{metric.relative}}%</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>{{metric.relative}}%</td>
-                        </tr>
-                        </tbody>
-                    </table>
+                    <div class="row">
+                        <div class="col-md-{{$ctrl.selectedNodeInfos.tableWidth}}">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Metric for Node {{$ctrl.selectedNodeInfos.nodeName}}</th>
+                                    <th>Absolute Value</th>
+                                    <th>Relative Value</th>
+                                    <th>[%]</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-repeat="metric in $ctrl.selectedNodeInfos.metrics">
+                                    <td>{{metric.name}}</td>
+                                    <td>{{metric.value}}</td>
+                                    <td>
+                                        <div class="progress" style="margin-bottom: 0 !important;">
+                                            <div class="progress-bar" role="progressbar" aria-valuenow="{{metric.relative}}" aria-valuemin="0" aria-valuemax="100" style="width: {{metric.relative}}%;">
+                                                <span class="sr-only">{{metric.relative}}%</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{metric.relative}}%</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-{{$ctrl.selectedNodeInfos.mapWidth}}" id="googlemap" style="height: 300px !important;">
+
+                        </div>
+                    </div>
                     <div id="node-canvas" style="width: 100%; height: 500px;"></div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="metricinfo">

@@ -24,6 +24,9 @@ public class ASLinksEdgeImporter implements InputParser {
 
     private Logger logger = LoggerFactory.getLogger(ASLinksEdgeImporter.class);
 
+    ArrayList<CoriaEdge> importedEdges = new ArrayList<>();
+    ArrayList<CoriaNode> importedNodes = new ArrayList<>();
+
     @Override
     public String getIdentification() {
         return "caida-as-links-parser";
@@ -53,26 +56,20 @@ public class ASLinksEdgeImporter implements InputParser {
         return new HashMap<>();
     }
 
-    public List<CoriaEdge> getParsedObjects(Object data, Map<String, Object> params) throws FormatNotSupportedException {
-        ArrayList<CoriaEdge> importedEdges = new ArrayList<>();
-
+    public void parseInformation(Object data, Map<String, Object> params) throws FormatNotSupportedException {
         logger.debug("starting import of data");
 
-        String strData = "";
-        if(data instanceof byte[]){
-            //we got an byte array -> convert to string before parsing
-            strData = new String(((byte[])data), Charset.defaultCharset());
-        }else if(data instanceof String){
-            //data is in string format -> no need to convert
-            strData = (String)data;
-        }else{
-            //the given format is not supported -> exception
-            logger.error("The provided format is not supported, please provide data in String od byte[] format!");
-            throw new FormatNotSupportedException("The provided format is not supported, please provide data in String or byte[] format!");
-        }
+        String strData = getStringFromData(data);
 
         logger.debug("data format accepted - begin parsing");
 
+        parseAsLinks(strData);
+
+        logger.debug("parsing finished, parsed " + importedEdges.size() + " edges");
+    }
+
+    private void parseAsLinks(String strData) {
+        List<String> nodeDict = new ArrayList<>();
         for(String line : strData.split("\n")){
             if(line.contains("\r")){line = line.replaceAll("\r","");}
             if(!line.startsWith("#")){                                  //ignore lines which comments
@@ -87,6 +84,14 @@ public class ASLinksEdgeImporter implements InputParser {
                             for(String fPart : fromParts){
                                 for(String tPart : toParts){
                                     importedEdges.add(new CoriaEdge("", fPart, tPart));
+                                    if(!nodeDict.contains(fPart)) {
+                                        importedNodes.add(new CoriaNode(fPart));
+                                        nodeDict.add(fPart);
+                                    }
+                                    if(!nodeDict.contains(tPart)) {
+                                        importedNodes.add(new CoriaNode(tPart));
+                                        nodeDict.add(tPart);
+                                    }
                                 }
                             }
                         }else{
@@ -102,10 +107,32 @@ public class ASLinksEdgeImporter implements InputParser {
                 logger.trace("ignoring line because it is a comment: " + line);
             }
         }
+    }
 
-        logger.debug("parsing finished, parsed " + importedEdges.size() + " edges");
+    private String getStringFromData(Object data) throws FormatNotSupportedException {
+        String strData;
+        if(data instanceof byte[]){
+            //we got an byte array -> convert to string before parsing
+            strData = new String(((byte[])data), Charset.defaultCharset());
+        }else if(data instanceof String){
+            //data is in string format -> no need to convert
+            strData = (String)data;
+        }else{
+            //the given format is not supported -> exception
+            logger.error("The provided format is not supported, please provide data in String od byte[] format!");
+            throw new FormatNotSupportedException("The provided format is not supported, please provide data in String or byte[] format!");
+        }
+        return strData;
+    }
 
+    @Override
+    public List<CoriaEdge> getParsedEdges() {
         return importedEdges;
+    }
+
+    @Override
+    public List<CoriaNode> getParsedNodes() {
+        return importedNodes;
     }
 
     @Override

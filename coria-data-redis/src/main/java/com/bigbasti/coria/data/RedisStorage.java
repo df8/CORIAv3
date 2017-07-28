@@ -439,6 +439,7 @@ public class RedisStorage implements DataStorage {
                 if(un.getId().equals(on.getId())){
                     found = true;
                     on.setName(un.getName());
+                    on.setAsid(un.getAsid());
                     on.setRiscScore(un.getRiscScore());
                     for(String key : un.getAttributes().keySet()){
                         on.setAttribute(key, un.getAttribute(key));

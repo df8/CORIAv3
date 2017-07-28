@@ -68,7 +68,7 @@ public class GSClusteringCoefficients implements Metric {
             for (Node n : g) {
                 CoriaNode currentNode = dataset.getNodes()
                         .stream()
-                        .filter(coriaNode -> coriaNode.getName().equals(n.getId()))
+                        .filter(coriaNode -> coriaNode.getAsid().equals(n.getId()))
                         .findFirst()
                         .get();
                 double cc = Toolkit.clusteringCoefficient(n);

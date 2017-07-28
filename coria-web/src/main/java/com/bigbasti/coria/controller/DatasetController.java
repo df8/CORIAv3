@@ -116,18 +116,19 @@ public class DatasetController extends BaseController {
                     return ResponseEntity.status(500).body("{\"error\":\"DataSet could not be stored because could not read additional parameters\"}");
                 }
 
-                List<CoriaEdge> edges = parser.getParsedObjects(upload.getFile().getBytes(), params);
-                List<CoriaNode> nodes = null;
-                if(edges == null){
+                parser.parseInformation(upload.getFile().getBytes(), params);
+                List<CoriaEdge> edges = parser.getParsedEdges();
+                List<CoriaNode> nodes = parser.getParsedNodes();
+                if(edges == null || nodes == null){
                     //user specified an unknown parser
                     logger.error("the parser " + upload.getParser() + " is unknown to coria");
                     return ResponseEntity.status(500).body("{\"error\":\"The specified parser is not registered in CORIA\"}");
                 }
 
                 try{
-                    logger.debug("successfully parsed " + edges.size() + " edges from upload");
-                    if(edges.size() == 0){
-                        logger.debug("no edges was created by the import - there must be something wrong with the data file");
+                    logger.debug("successfully parsed {} nodes and {} edges from upload", nodes.size(), edges.size());
+                    if(edges.size() == 0 || nodes.size() == 0){
+                        logger.debug("no edges/nodes was created by the import - there must be something wrong with the data file");
                         return ResponseEntity.status(500).body("{\"error\":\"no data was created by the import - there must be something wrong with the data file\"}");
                     }
 
@@ -154,7 +155,7 @@ public class DatasetController extends BaseController {
                     dataSet.setCreated(new Date());
 
                     edges = new ArrayList<>();
-                    nodes = new ArrayList<>();
+//                    nodes = new ArrayList<>();
 
                     List<String> nodeDict = new ArrayList<>();
                     List<String> edgeDict = new ArrayList<>();
@@ -172,8 +173,8 @@ public class DatasetController extends BaseController {
                         if(fn != null && dn != null) {
                             ce = new CoriaEdge(e.getId(), e.getId(), fn.getId(), dn.getId());
                             // check id there is already a node with this id in the database
-                            if (!nodeDict.contains(fn.getId())) { nodes.add(fn); nodeDict.add(fn.getId());}
-                            if (!nodeDict.contains(dn.getId())) { nodes.add(dn); nodeDict.add(dn.getId());}
+//                            if (!nodeDict.contains(fn.getId())) { nodes.add(fn); nodeDict.add(fn.getId());}
+//                            if (!nodeDict.contains(dn.getId())) { nodes.add(dn); nodeDict.add(dn.getId());}
                             //TODO: are duplicates of edges possible? duplicate checks are extremely time consuming
 //                            if (!edgeDict.contains(ce.getId())) { edges.add(ce); edgeDict.add(ce.getId());}
                             edges.add(ce);
@@ -188,7 +189,7 @@ public class DatasetController extends BaseController {
                     dataSet.setName(upload.getName());
                     String result = getActiveStorage().addDataSet(dataSet);
                     if(!Strings.isNullOrEmpty(result)){
-                        logger.error("new dataset was not stored stored");
+                        logger.error("new dataset was not stored");
                         return ResponseEntity.status(500).body("{\"error\":\"DataSet could not be stored because of internal error\"}");
                     }
 

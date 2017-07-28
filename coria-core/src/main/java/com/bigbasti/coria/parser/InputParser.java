@@ -1,6 +1,7 @@
 package com.bigbasti.coria.parser;
 
 import com.bigbasti.coria.graph.CoriaEdge;
+import com.bigbasti.coria.graph.CoriaNode;
 
 import java.util.List;
 import java.util.Map;
@@ -48,10 +49,23 @@ public interface InputParser {
     Map<String, String> getAdditionalFields();
 
     /**
-     * Parses the Objects provided by the parser from the given data<br/>
+     * Parses the provided files into an internal dataset of nodes and edges
      * @param data the data in the format described in {@link #getExpectedFormat()}
+     * @param params additional optional information for parser
+     * @throws FormatNotSupportedException
+     */
+    void parseInformation(Object data, Map<String, Object> params) throws FormatNotSupportedException;
+
+    /**
+     * Returns the edges which were parsed while execution of parseInformation<br/>
+     *
      * @return List of {@code CoriaEdge}
      */
-    List<CoriaEdge> getParsedObjects(Object data, Map<String, Object> params) throws FormatNotSupportedException;
+    List<CoriaEdge> getParsedEdges();
 
+    /**
+     * Returns the nodes which were parsed while execution of parseInformation
+     * @return List of {@code CoriaNode}
+     */
+    List<CoriaNode> getParsedNodes();
 }

@@ -74,7 +74,7 @@ public class GSNodeDegree implements Metric {
                 int deg = n.getDegree();
                 CoriaNode currentNode = dataset.getNodes()
                         .stream()
-                        .filter(coriaNode -> coriaNode.getName().equals(n.getId()))
+                        .filter(coriaNode -> coriaNode.getAsid().equals(n.getId()))
                         .findFirst()
                         .get();
                 currentNode.setAttribute(getShortcut(), String.valueOf(deg));

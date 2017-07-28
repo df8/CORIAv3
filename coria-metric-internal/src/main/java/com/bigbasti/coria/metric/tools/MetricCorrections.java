@@ -43,7 +43,7 @@ public class MetricCorrections {
 
             //prepare array for median computation
             DescriptiveStatistics stat = new DescriptiveStatistics();
-            Iterator<Node> iterator = g.getNode(node.getName()).getNeighborNodeIterator();
+            Iterator<Node> iterator = g.getNode(node.getAsid()).getNeighborNodeIterator();
             while(iterator.hasNext()){
                 Node gsNode = iterator.next();
                 double ccVal = gsNode.getDegree();
@@ -77,7 +77,7 @@ public class MetricCorrections {
 
             int nodesCount = 0;
             DescriptiveStatistics stat = new DescriptiveStatistics();
-            Iterator<Node> neighborNodes = g.getNode(node.getName()).getNeighborNodeIterator();
+            Iterator<Node> neighborNodes = g.getNode(node.getAsid()).getNeighborNodeIterator();
             while(neighborNodes.hasNext()){
                 Node firstLevelNode = neighborNodes.next();
                 Iterator<Node> secodLevelNodes = firstLevelNode.getNeighborNodeIterator();

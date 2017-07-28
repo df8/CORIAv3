@@ -25,6 +25,9 @@ public class ASLinksEdgeResolveImporter implements InputParser {
 
     private Logger logger = LoggerFactory.getLogger(ASLinksEdgeResolveImporter.class);
 
+    ArrayList<CoriaEdge> importedEdges = new ArrayList<>();
+    ArrayList<CoriaNode> importedNodes = new ArrayList<>();
+
     @Override
     public String getIdentification() {
         return "caida-as-links-resolve-parser";
@@ -63,27 +66,56 @@ public class ASLinksEdgeResolveImporter implements InputParser {
         return fields;
     }
 
-    public List<CoriaEdge> getParsedObjects(Object data, Map<String, Object> params) throws FormatNotSupportedException {
-        ArrayList<CoriaEdge> importedEdges = new ArrayList<>();
+    @Override
+    public List<CoriaEdge> getParsedEdges() {
+        return importedEdges;
+    }
 
+    @Override
+    public List<CoriaNode> getParsedNodes() {
+        return importedNodes;
+    }
+
+    public void parseInformation(Object data, Map<String, Object> params) throws FormatNotSupportedException {
         logger.debug("starting import of data");
-
-        //check if mandatory parameters are present
-        if(params.size() == 0){
-            throw new FormatNotSupportedException("The mandatory fields have not been filled!");
-        }
-        for(String param : getAdditionalFields().keySet()){
-            if(params.get(param) == null){
-                throw new FormatNotSupportedException("The mandatory field " + param + " ist not filled");
-            }
-        }
-
+        checkIfAdditionalParamsSadisfied(params);
 
         String strData = "";
         strData = getStringFromData(data);
 
         logger.debug("data format accepted - begin parsing");
 
+        parseAsLinks(importedEdges, strData);
+
+        logger.debug("parsing finished, parsed " + importedEdges.size() + " edges");
+        logger.debug("starting parsing of organization data");
+
+        Object orgData = params.get("organizations");
+        strData = getStringFromData(orgData);
+
+        Map<String, String> orgs = new HashMap<>();
+
+        parseOrganizations(strData, orgs);
+
+        logger.debug("finished parsing of organization data, parsed {} ids", orgs.size());
+        logger.debug("starting matching of as names to org ids");
+
+        matchAsNamesToOrganizations(orgs);
+
+        logger.debug("finished matching org ids");
+    }
+
+    private void checkIfAdditionalParamsSadisfied(Map<String, Object> params) throws FormatNotSupportedException {
+        //check if mandatory parameters are present
+        for(String param : getAdditionalFields().keySet()){
+            if(params.get(param) == null){
+                throw new FormatNotSupportedException("The mandatory field " + param + " ist not filled");
+            }
+        }
+    }
+
+    private void parseAsLinks(ArrayList<CoriaEdge> importedEdges, String strData) {
+        List<String> nodeDict = new ArrayList<>();
         for(String line : strData.split("\n")){
             if(line.contains("\r")){line = line.replaceAll("\r","");}
             if(!line.startsWith("#")){                                  //ignore lines which comments
@@ -98,6 +130,14 @@ public class ASLinksEdgeResolveImporter implements InputParser {
                             for(String fPart : fromParts){
                                 for(String tPart : toParts){
                                     importedEdges.add(new CoriaEdge("", fPart, tPart));
+                                    if(!nodeDict.contains(fPart)) {
+                                        importedNodes.add(new CoriaNode(fPart));
+                                        nodeDict.add(fPart);
+                                    }
+                                    if(!nodeDict.contains(tPart)) {
+                                        importedNodes.add(new CoriaNode(tPart));
+                                        nodeDict.add(tPart);
+                                    }
                                 }
                             }
                         }else{
@@ -113,15 +153,9 @@ public class ASLinksEdgeResolveImporter implements InputParser {
                 logger.trace("ignoring line because it is a comment: " + line);
             }
         }
+    }
 
-        logger.debug("parsing finished, parsed " + importedEdges.size() + " edges");
-        logger.debug("starting parsing of organization data");
-
-        Object orgData = params.get("organizations");
-        strData = getStringFromData(orgData);
-
-        Map<String, String> orgs = new HashMap<>();
-
+    private void parseOrganizations(String strData, Map<String, String> orgs) {
         for(String line : strData.split("\n")){
             if(line.contains("\r")){line = line.replaceAll("\r","");}
             if(!line.startsWith("#")){                                  //ignore lines which comments
@@ -144,27 +178,29 @@ public class ASLinksEdgeResolveImporter implements InputParser {
                 logger.trace("ignoring line because it is a comment: " + line);
             }
         }
+    }
 
-        logger.debug("finished parsing of organization data, parsed {} ids", orgs.size());
-        logger.debug("starting matching of as names to org ids");
-
+    private void matchAsNamesToOrganizations(Map<String, String> orgs) {
         for(CoriaEdge edge : importedEdges){
-            String sourceOrg = orgs.get(edge.getSourceNode());
-            String destOrg = orgs.get(edge.getDestinationNode());
+//            String sourceOrg = orgs.get(edge.getSourceNode());
+//            String destOrg = orgs.get(edge.getDestinationNode());
 
-            if(sourceOrg != null){
-                edge.setName(edge.getName().replace(edge.getSourceNode(), sourceOrg));
-                edge.setSourceNode(sourceOrg);
-            }
-            if(destOrg != null){
-                edge.setName(edge.getName().replace(edge.getDestinationNode(), destOrg));
-                edge.setDestinationNode(destOrg);
+//            if(sourceOrg != null){
+//                edge.setName(edge.getName().replace(edge.getSourceNode(), sourceOrg));
+//                edge.setSourceNode(sourceOrg);
+//            }
+//            if(destOrg != null){
+//                edge.setName(edge.getName().replace(edge.getDestinationNode(), destOrg));
+//                edge.setDestinationNode(destOrg);
+//            }
+        }
+        for(CoriaNode node : importedNodes){
+            String org = orgs.get(node.getName());
+            if(org != null){
+                node.setAsid(node.getName());
+                node.setName(org);
             }
         }
-
-        logger.debug("finished matching org ids");
-
-        return importedEdges;
     }
 
     private String getStringFromData(Object data) throws FormatNotSupportedException {

@@ -76,7 +76,7 @@ public class GSBetweennessCentrality implements Metric {
         double maxCb = 0.0;
         for(Node n: g){
             double cb = n.getAttribute("Cb");
-            CoriaNode cn = dataset.getNodes().stream().filter(coriaNode -> coriaNode.getName().equals(n.getId())).findFirst().get();
+            CoriaNode cn = dataset.getNodes().stream().filter(coriaNode -> coriaNode.getAsid().equals(n.getId())).findFirst().get();
             if(cn == null){
                 logger.warn("could not update node {} - node not found in dataset", n.getId());
             }else{
