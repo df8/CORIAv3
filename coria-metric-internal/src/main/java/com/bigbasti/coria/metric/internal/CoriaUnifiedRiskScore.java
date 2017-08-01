@@ -36,7 +36,8 @@ public class CoriaUnifiedRiskScore implements Metric{
                 "<li><code>Average Neighbour Degree</code>: 0.15</li>" +
                 "<li><code>Iterated Neighbour Degree</code>: 0.1</li>" +
                 "<li><code>Betweenness Centrality</code>: 0.25</li>" +
-                "<li><code>Average Shortest Path Length</code>: 0.25</li></ul>" +
+                "<li><code>Eccentricity</code>: 0.125</li>" +
+                "<li><code>Average Shortest Path Length</code>: 0.125</li></ul>" +
                 "<strong>NOTE:</strong> All the metrics above must be executed before this metric!</p>" +
                 "<p>This Metric is based on the Master Thesis 'Internet Resilience and Connectivity Risks for Online Businesses' by Annika Baumann</p>";
     }
@@ -74,7 +75,8 @@ public class CoriaUnifiedRiskScore implements Metric{
         requiredMetrics.put("and", 0.15);
         requiredMetrics.put("iand", 0.1);
         requiredMetrics.put("bc", 0.25);
-        requiredMetrics.put("aspl", 0.25);
+        requiredMetrics.put("ecc", 0.125);
+        requiredMetrics.put("aspl", 0.125);
         try {
             logger.debug("checking if all preconditions are met");
             //select first node to check if it has all the needed metrics

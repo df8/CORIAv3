@@ -5,8 +5,8 @@ angular.module('coria.components')
         bindings: {},
         transclude: true,
         templateUrl: 'components/datasets/datasets-details/datasets-details.html',
-        controller: ["dataSetService", "$scope", "$location", "$timeout", "$routeParams", "metricsService",
-            function( dataSetService,   $scope,   $location,   $timeout,   $routeParams,   metricsService){
+        controller: ["dataSetService", "$scope", "$location", "$timeout", "$compile", "$routeParams", "metricsService",
+            function( dataSetService,   $scope,   $location,   $timeout,   $compile,   $routeParams,   metricsService){
             var vm = this;
             vm.dataset = {};
             vm.isNodesRefreshing = true;
@@ -21,6 +21,7 @@ angular.module('coria.components')
                 nodes: true,
                 metric: false,
                 metricLoading: false,
+                geoAvailable: false,
                 currentMetric: {
                     shortcut: ""
                 }
@@ -91,7 +92,7 @@ angular.module('coria.components')
             vm.metric = {
                 description: "Select Metric Provider below"
             };
-            vm.selectedMetric = undefined;
+            // vm.selectedMetric = undefined;
 
             vm.submitMetric = function submitMetric(){
                 vm.metric.datasetid = $routeParams.datasetid;
@@ -114,7 +115,7 @@ angular.module('coria.components')
 
             vm.metricProviderSelected = function metricProviderSelected(){
                 for(var i = 0; i < vm.metrics.length; i++){
-                    if(vm.metrics[i].identification === vm.selectedMetric){
+                    if(vm.metrics[i].identification === vm.selectedNewMetric){
                         vm.metric = vm.metrics[i];
                     }
                 }
@@ -122,14 +123,20 @@ angular.module('coria.components')
 
             vm.displayMetricStats = function displayMetricStats(metric){
                 $('.nav-tabs a[href="#metricinfo"]').tab('show');   //activate metricinfo tab
+                vm.selectedMetric.showChart = false;
                 vm.selectedMetric = {
                     name: metric.name,
                     shortcut: metric.shortcut
                 };
+
+                drawSimpleChart(vm.dataset.nodes, metric.shortcut);
+
                 vm.selectedMetric.nodes = vm.dataset.nodes;
                 vm.selectedMetric.nodes.sort(function(a, b) {
                     return parseFloat(b.attributes[metric.shortcut]) - parseFloat(a.attributes[metric.shortcut]);
                 });
+
+                vm.selectedMetric.showChart = true;
             };
             //endregion
 
@@ -146,7 +153,10 @@ angular.module('coria.components')
                 for(var i = 0; i < data.nodes.length; i++){
                     var node = data.nodes[i];
                     if(node.attributes.geo){
-
+                        //if at least one of the nodes has the geo attribute
+                        //enable the geo specific functions on the view
+                        vm.display.geoAvailable = true;
+                        break;
                     }
                 }
             }, function(error){
@@ -362,6 +372,62 @@ angular.module('coria.components')
             };
             //endregion
 
+            //region MAP
+            vm.displayNodeMap = function displayNodeMap(){
+                $('.nav-tabs a[href="#map"]').tab('show');   //activate map tab
+
+                var map = new google.maps.Map(document.getElementById('google-map-content'), {
+                    zoom: 2,
+                    center: new google.maps.LatLng(0, 0)
+                });
+                vm.dataset.nodes.forEach(function(node){
+                    if(node.attributes.geo) {
+                        var metrics = [];
+                        Object.keys(node.attributes).forEach(function(key,index) {
+                            if(""+key.indexOf('_')<0 && (""+key) !== "pos" && (""+key) !== "geo") {
+                                //metric attributes
+                                metrics.push({
+                                    name: vm.getMetricByShortcut(key),
+                                    value: node.attributes[key],
+                                    shortcut: key
+                                });
+                            }
+                        });
+
+                        var contentString =
+                            '<div id="content">'+
+                                '<div id="siteNotice">'+
+                                '</div>'+
+                                '<h1 id="firstHeading" class="firstHeading">' + node.name + '</h1>'+
+                                '<h3>AS' + node.asid + '</h3>' +
+                                '<div id="bodyContent">';
+
+                                metrics.forEach(function(metric){
+                                    contentString += "<p><strong>" + metric.name + "</strong>: " + metric.value + "</p>";
+                                });
+
+                                contentString += '</div>'+
+                            '</div>';
+                        var infowindow = new google.maps.InfoWindow({
+                            content: contentString
+                        });
+                        var coordinates = {
+                            lat: parseFloat(node.attributes.geo_latitude),
+                            lng: parseFloat(node.attributes.geo_longitude)
+                        };
+                        var marker = new google.maps.Marker({
+                            position: coordinates,
+                            title: node.name,
+                            map: map
+                        });
+                        marker.addListener('click', function() {
+                            infowindow.open(map, marker);
+                        });
+                    }
+                });
+            };
+            //endregion
+
             //region NODEDETAILS
             vm.selectedNodeInfos = {
                 metrics: []
@@ -444,6 +510,115 @@ angular.module('coria.components')
             //endregion
 
             //region HELPER
+            function drawSimpleChart(nodes, shortcut){
+                // Load the Visualization API and the corechart package.
+                google.charts.load('current', {'packages':['bar']});
+                // Set a callback to run when the Google Visualization API is loaded.
+                google.charts.setOnLoadCallback(drawChart);
+
+                var valueArr = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+                nodes.forEach(function(node){
+                    var relVal = node.attributes[shortcut + "_relative"];
+                    if(relVal !== null && relVal !== undefined){
+                        var rounded = vm.roundNumber(relVal, 0);
+                        if(rounded < 5){
+                            valueArr[0]++;
+                        }else if(rounded >= 5 && rounded < 10){
+                            valueArr[1]++;
+                        }else if(rounded >= 10 && rounded < 15){
+                            valueArr[2]++;
+                        }else if(rounded >= 15 && rounded < 20){
+                            valueArr[3]++;
+                        }else if(rounded >= 20 && rounded < 25){
+                            valueArr[4]++;
+                        }else if(rounded >= 25 && rounded < 30){
+                            valueArr[5]++;
+                        }else if(rounded >= 30 && rounded < 35){
+                            valueArr[6]++;
+                        }else if(rounded >= 35 && rounded < 40){
+                            valueArr[7]++;
+                        }else if(rounded >= 40 && rounded < 45){
+                            valueArr[8]++;
+                        }else if(rounded >= 45 && rounded < 50){
+                            valueArr[9]++;
+                        }else if(rounded >= 50 && rounded < 55){
+                            valueArr[10]++;
+                        }else if(rounded >= 55 && rounded < 60){
+                            valueArr[11]++;
+                        }else if(rounded >= 60 && rounded < 65){
+                            valueArr[12]++;
+                        }else if(rounded >= 65 && rounded < 70){
+                            valueArr[13]++;
+                        }else if(rounded >= 70 && rounded < 75){
+                            valueArr[14]++;
+                        }else if(rounded >= 75 && rounded < 80){
+                            valueArr[15]++;
+                        }else if(rounded >= 80 && rounded < 85){
+                            valueArr[16]++;
+                        }else if(rounded >= 85 && rounded < 90){
+                            valueArr[17]++;
+                        }else if(rounded >= 90 && rounded < 95){
+                            valueArr[18]++;
+                        }else if(rounded >= 95 && rounded <= 100){
+                            valueArr[19]++;
+                        }
+                    }
+                });
+
+                // for(var i = 0; i < valueArr.length; i++){
+                //     valueArr[i] = valueArr[i] / nodes.length * 100;
+                // }
+                console.dir(valueArr);
+
+                // Callback that creates and populates a data table,
+                // instantiates the chart, passes in the data and draws it.
+                function drawChart() {
+
+                    // Create the data table.
+                    var data = google.visualization.arrayToDataTable([
+                        ['Relative percentage', "# of nodes", '% of nodes'],
+                        ['<= 5%', valueArr[0], (valueArr[0] / nodes.length * 100)],
+                        ['<= 10%', valueArr[1], (valueArr[1] / nodes.length * 100)],
+                        ['<= 15%', valueArr[2], (valueArr[2] / nodes.length * 100)],
+                        ['<= 20%', valueArr[3], (valueArr[3] / nodes.length * 100)],
+                        ['<= 25%', valueArr[4], (valueArr[4] / nodes.length * 100)],
+                        ['<= 30%', valueArr[5], (valueArr[5] / nodes.length * 100)],
+                        ['<= 35%', valueArr[6], (valueArr[6] / nodes.length * 100)],
+                        ['<= 40%', valueArr[7], (valueArr[7] / nodes.length * 100)],
+                        ['<= 45%', valueArr[8], (valueArr[8] / nodes.length * 100)],
+                        ['<= 50%', valueArr[9], (valueArr[9] / nodes.length * 100)],
+                        ['<= 55%', valueArr[10], (valueArr[10] / nodes.length * 100)],
+                        ['<= 60%', valueArr[11], (valueArr[11] / nodes.length * 100)],
+                        ['<= 65%', valueArr[12], (valueArr[12] / nodes.length * 100)],
+                        ['<= 70%', valueArr[13], (valueArr[13] / nodes.length * 100)],
+                        ['<= 75%', valueArr[14], (valueArr[14] / nodes.length * 100)],
+                        ['<= 80%', valueArr[15], (valueArr[15] / nodes.length * 100)],
+                        ['<= 85%', valueArr[16], (valueArr[16] / nodes.length * 100)],
+                        ['<= 90%', valueArr[17], (valueArr[17] / nodes.length * 100)],
+                        ['<= 95%', valueArr[18], (valueArr[18] / nodes.length * 100)],
+                        ['<= 100%', valueArr[19], (valueArr[19] / nodes.length * 100)]
+                    ]);
+
+                    var materialOptions = {
+                        series: {
+                            0: { axis: 'leftAxis' }, // Bind series 0 to an axis named 'distance'.
+                            1: { axis: 'rightAxis' } // Bind series 1 to an axis named 'brightness'.
+                        },
+                        axes: {
+                            y: {
+                                leftAxis: {label: vm.getMetricByShortcut(shortcut)}, // Left y-axis.
+                                rightAxis: {side: 'right', label: '% of nodes'} // Right y-axis.
+                            }
+                        }
+                    };
+
+                    // Instantiate and draw our chart, passing in some options.
+                    // var chart = new google.visualization.ColumnChart(document.getElementById('chartDisplay'));
+                    var chart = new google.charts.Bar(document.getElementById('chartDisplay'));
+                    chart.draw(data, google.charts.Bar.convertOptions(materialOptions));
+                }
+            }
+
             var getNodeByName = function getNodeByName(asid){
                 for(var i = 0; i < vm.dataset.nodes.length; i++){
                     var n = vm.dataset.nodes[i];
@@ -472,16 +647,17 @@ angular.module('coria.components')
             var coordinates = {};
             function updateGoogleMap(node){
                 coordinates = {lat: parseFloat(node.attributes.geo_latitude), lng: parseFloat(node.attributes.geo_longitude)};
-                initMap();
+                initMap(node);
             }
 
-            function initMap() {
+            function initMap(node) {
                 var map = new google.maps.Map(document.getElementById('googlemap'), {
                     zoom: 4,
                     center: coordinates
                 });
                 var marker = new google.maps.Marker({
                     position: coordinates,
+                    title: node.name,
                     map: map
                 });
             }

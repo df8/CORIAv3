@@ -68,6 +68,7 @@
             <div class="col-md-12">
                 <button class="btn btn-default btn-xs"  ng-click="$ctrl.displayAddMetric = true" ng-hide="$ctrl.displayAddMetric === true"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Metric</button>
                 <button class="btn btn-default btn-xs" ng-click="$ctrl.displayMetric({shortcut:'new'})" ng-show="$ctrl.dataset.nodes"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Display Graph</button>
+                <button class="btn btn-default btn-xs" ng-click="$ctrl.displayNodeMap()" ng-show="$ctrl.display.geoAvailable"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> Display Node Map</button>
             </div>
         </div>
         <div class="row spacer" ng-show="$ctrl.displayAddMetric === true">
@@ -76,12 +77,12 @@
                 <form name="import" id="import" ng-submit="$ctrl.submitMetric()" >
                     <div class="form-group">
                         <label for="metric.providers">Select Metric</label>
-                        <select class="form-control" ng-model="$ctrl.selectedMetric" id="metric.providers" ng-change="$ctrl.metricProviderSelected()">
+                        <select class="form-control" ng-model="$ctrl.selectedNewMetric" id="metric.providers" ng-change="$ctrl.metricProviderSelected()">
                             <option ng-repeat="metric in $ctrl.metrics" value="{{metric.identification}}">{{metric.technology}} - {{metric.provider}} - {{metric.name}}</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-default" ng-hide="$ctrl.import.isActive" ng-disabled="$ctrl.metric.identification === undefined"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Start Metric Execution</button>
-                    <button class="btn btn-default" ng-hide="$ctrl.import.isActive" ng-click="$ctrl.cancelAddMetric()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel</button>
+                    <button class="btn btn-default" ng-hide="$ctrl.import.isActive" ng-disabled="$ctrl.metric.identification === undefined"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Start Metric Execution</button>
+                    <button type="button" class="btn btn-default" ng-hide="$ctrl.import.isActive" ng-click="$ctrl.cancelAddMetric()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel</button>
                 </form>
             </div>
         </div>
@@ -101,6 +102,7 @@
             <ul class="nav nav-tabs" role="tablist" id="nav-tabs">
                 <li role="presentation" class="active"><a href="#nodes" aria-controls="nodes" role="tab" data-toggle="tab">Nodes</a></li>
                 <li role="presentation"><a href="#graph" aria-controls="graph" role="tab" data-toggle="tab">Graph</a></li>
+                <li role="presentation" ng-show="$ctrl.display.geoAvailable"><a href="#map" aria-controls="map" role="tab" data-toggle="tab">Map</a></li>
                 <li role="presentation"><a href="#nodeinfo" aria-controls="nodeinfo" role="tab" data-toggle="tab">Node Information</a></li>
                 <li role="presentation"><a href="#metricinfo" aria-controls="metricinfo" role="tab" data-toggle="tab">Metric Information</a></li>
             </ul>
@@ -156,6 +158,9 @@
                 <div role="tabpanel" class="tab-pane" id="graph">
                     <div id="metric-canvas" style="width: 100%; height: 800px;"></div>
                 </div>
+                <div role="tabpanel" class="tab-pane" id="map">
+                    <div id="google-map-content" style="width: 100%; height: 800px;"></div>
+                </div>
                 <div role="tabpanel" class="tab-pane" id="nodeinfo">
                     <div class="row">
                         <div class="col-md-{{$ctrl.selectedNodeInfos.tableWidth}}">
@@ -192,6 +197,7 @@
                 </div>
                 <div role="tabpanel" class="tab-pane" id="metricinfo">
                     <h3>{{$ctrl.selectedMetric.name}}</h3>
+                    <div id="chartDisplay"></div>
                     <table class="table table-hover" st-table="$ctrl.selectedMetric.displayNodes" st-safe-src="$ctrl.selectedMetric.nodes">
                         <thead>
                         <tr>
