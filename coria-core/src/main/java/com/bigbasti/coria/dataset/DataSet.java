@@ -35,7 +35,7 @@ public class DataSet implements Serializable {
     private List<MetricInfo> metricInfos;
 
     public DataSet() {
-        this.attributes = new HashMap<String, String>();
+        this.attributes = new TreeMap<String, String>();
         this.edges = new ArrayList<>();
         this.nodes = new ArrayList<>();
         this.metricInfos = new ArrayList<>();
@@ -45,7 +45,7 @@ public class DataSet implements Serializable {
     public DataSet(List<CoriaEdge> edges, List<CoriaNode> nodes) {
         this.edges = edges;
         this.nodes = nodes;
-        this.attributes = new HashMap<String, String>();
+        this.attributes = new TreeMap<String, String>();
         this.metricInfos = new ArrayList<>();
         this.notificationEmails = new ArrayList<>();
     }

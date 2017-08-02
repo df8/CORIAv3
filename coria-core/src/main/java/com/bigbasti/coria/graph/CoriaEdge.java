@@ -3,6 +3,7 @@ package com.bigbasti.coria.graph;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Internal representation of an Edge
@@ -22,14 +23,14 @@ public class CoriaEdge  implements Serializable {
 
     public CoriaEdge(String name) {
         this.name = name;
-        this.attributes = new HashMap<String, String>();
+        this.attributes = new TreeMap<String, String>();
     }
 
     public CoriaEdge(String name, String sourceNode, String destinationNode) {
         this.name = name;
         this.sourceNode = sourceNode;
         this.destinationNode = destinationNode;
-        this.attributes = new HashMap<String, String>();
+        this.attributes = new TreeMap<String, String>();
     }
 
     public CoriaEdge(String id, String name, String sourceNode, String destinationNode) {
@@ -37,7 +38,7 @@ public class CoriaEdge  implements Serializable {
         this.name = name;
         this.sourceNode = sourceNode;
         this.destinationNode = destinationNode;
-        this.attributes = new HashMap<String, String>();
+        this.attributes = new TreeMap<String, String>();
     }
 
     public String getId() {

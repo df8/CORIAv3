@@ -95,7 +95,11 @@ public class CoriaUnifiedRiskScore implements Metric{
 
             logger.debug("executing correction of values");
             dataset = MetricCorrections.correctAverageNeighbourDegree(dataset);
-//            dataset = MetricCorrections.correctClusteringCoefficients(dataset);
+            try {
+                dataset = MetricCorrections.correctClusteringCoefficients(dataset);
+            }catch(Exception ex){
+                logger.debug("skipping clustering coefficients correction because this metric is not available on the dataset!");
+            }
             dataset = MetricCorrections.correctIteratedAverageNeighbourDegree(dataset);
 
             logger.debug("executing normalization of metrics");

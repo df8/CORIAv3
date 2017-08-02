@@ -322,7 +322,7 @@ public class RedisStorage implements DataStorage {
     }
 
     @Override
-    public String updateDataSet(DataSet dataSet) {
+    synchronized public String updateDataSet(DataSet dataSet) {
         logger.debug("updating dataset {}", dataSet.getId());
         Instant starts = Instant.now();
 
@@ -331,9 +331,10 @@ public class RedisStorage implements DataStorage {
         for(Object o : foundDataSets){
             DataSet ds = (DataSet) o;
             if(ds.getId().equals(dataSet.getId())){
-                dbDataSet = ds;
+                dbDataSet = getDataSet(ds.getId());
             }
         }
+
         if(dbDataSet == null){return null;}
 
         Instant check = Instant.now();
@@ -386,6 +387,55 @@ public class RedisStorage implements DataStorage {
         return null;
     }
 
+    private void updateDataSetAndAttributes(DataSet updatedDataSet, DataSet dbDataSet){
+        dbDataSet.setEdgesCount(updatedDataSet.getEdges().size());
+        dbDataSet.setNodesCount(updatedDataSet.getNodes().size());
+        dbDataSet.setName(updatedDataSet.getName());
+        dbDataSet.setNotificationEmails(updatedDataSet.getNotificationEmails());
+
+        RMap<String, String> dbAttrs = getClient().getMap("attrs#" + dbDataSet.getId());
+
+        for(String key : updatedDataSet.getAttributes().keySet()){
+            dbAttrs.put(key, updatedDataSet.getAttribute(key));
+        }
+    }
+
+    private void updateNodes(List<CoriaNode> updatedNodes, String dataSetId){
+        RList<CoriaNode> dbNodes = getClient().getList("nodes#" + dataSetId);
+        for(CoriaNode n : updatedNodes){
+            Optional<CoriaNode> optNode = dbNodes.stream().filter(coriaNode -> coriaNode.getId().equals(n.getId())).findFirst();
+            if(optNode.isPresent()){
+                CoriaNode dbNode = optNode.get();
+                dbNode.setName(n.getName());
+                dbNode.setAsid(n.getAsid());
+                dbNode.setRiscScore(n.getRiscScore());
+                for(String key : n.getAttributes().keySet()){
+                    dbNode.setAttribute(key, n.getAttribute(key));
+                }
+            }else{
+                getClient().getList("nodes#" + dataSetId).add(n);
+            }
+        }
+    }
+
+    private void updateEdges(List<CoriaEdge> updatedEdges, String dataSetId){
+        RList<CoriaEdge> dbEdges = getClient().getList("edges#" + dataSetId);
+        for(CoriaEdge e : updatedEdges){
+            Optional<CoriaEdge> optEdge = dbEdges.stream().filter(coriaEdge -> coriaEdge.getId().equals(e.getId())).findFirst();
+            if(optEdge.isPresent()){
+                CoriaEdge dbEdge = optEdge.get();
+                dbEdge.setName(e.getName());
+                dbEdge.setSourceNode(e.getSourceNode());
+                dbEdge.setDestinationNode(e.getDestinationNode());
+                for(String key : e.getAttributes().keySet()){
+                    dbEdge.setAttribute(key, e.getAttribute(key));
+                }
+            }else{
+                getClient().getList("edges#" + dataSetId).add(e);
+            }
+        }
+    }
+
     private Map<String, String> syncAttributes(Map<String, String> old, Map<String, String> updated){
         Map<String, String> synced = new HashMap<>();
 
@@ -410,6 +460,12 @@ public class RedisStorage implements DataStorage {
 
         for(CoriaEdge ue : updated){
             boolean found = false;
+            if(ue.getAttributes().size() == 0){
+                //if there are no attributes we skip the comparison
+                //since it takes quite a long time to process
+                synced.add(ue);
+                continue;
+            }
             for(CoriaEdge oe : old){
                 if(ue.getId().equals(oe.getId())){
                     found = true;
@@ -441,6 +497,9 @@ public class RedisStorage implements DataStorage {
                     on.setName(un.getName());
                     on.setAsid(un.getAsid());
                     on.setRiscScore(un.getRiscScore());
+                    logger.trace("### updating node {}, old attribute count: {}", on.getName(), on.getAttributes().size());
+                    int oldSize = on.getAttributes().size();
+                    logger.trace("###\tnew attribute count: {}", un.getAttributes().keySet().size());
                     for(String key : un.getAttributes().keySet()){
                         on.setAttribute(key, un.getAttribute(key));
                     }

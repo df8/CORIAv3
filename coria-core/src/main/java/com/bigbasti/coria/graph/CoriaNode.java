@@ -1,10 +1,7 @@
 package com.bigbasti.coria.graph;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Internal representation of a node
@@ -22,21 +19,21 @@ public class CoriaNode implements Serializable {
 
     public CoriaNode(){
         this.neighbours = new ArrayList<String>();
-        this.attributes = new HashMap<String, String>();
+        this.attributes = new TreeMap<String, String>();
     }
 
     public CoriaNode(String name) {
         this.name = name;
         this.asid = name;
         this.neighbours = new ArrayList<String>();
-        this.attributes = new HashMap<String, String>();
+        this.attributes = new TreeMap<String, String>();
     }
 
     public CoriaNode(String id, String name) {
         this.id = id;
         this.name = name;
         this.neighbours = new ArrayList<String>();
-        this.attributes = new HashMap<String, String>();
+        this.attributes = new TreeMap<String, String>();
     }
 
     public String getId() {
