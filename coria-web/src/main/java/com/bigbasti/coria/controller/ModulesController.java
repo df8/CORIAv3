@@ -1,6 +1,7 @@
 package com.bigbasti.coria.controller;
 
 import com.bigbasti.coria.db.DataStorage;
+import com.bigbasti.coria.export.ExportAdapter;
 import com.bigbasti.coria.parser.InputParser;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import org.slf4j.Logger;
@@ -29,5 +30,15 @@ public class ModulesController extends BaseController {
     public @ResponseBody List<InputParser> getAllImportProviders(){
         logger.debug("retrieving all input providers");
         return availableInputParsers;
+    }
+
+    /**
+     * get all registered export providers
+     * @return
+     */
+    @GetMapping(path = "/export")
+    public @ResponseBody List<ExportAdapter> getAllExportProviders(){
+        logger.debug("retrieving all export providers");
+        return exportAdapters;
     }
 }

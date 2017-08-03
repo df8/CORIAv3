@@ -27,6 +27,11 @@
                     <input type="file" id="{{key}}" name="{{key}}" file-upload>
                     <p class="help-block">Please note the requirements on the right -></p>
                 </div>
+                <div ng-if="value==='text'">
+                    <label for="{{key}}">{{key}}</label>
+                    <input type="text" class="form-control" id="{{key}}" name="{{key}}" ng-model="$ctrl.import.addTextFields['additional_'+key]">
+                    <p class="help-block">Please note the requirements on the right -></p>
+                </div>
             </div>
             <button type="submit" class="btn btn-default" ng-hide="$ctrl.import.isActive"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> Upload Dataset</button>
         </form>

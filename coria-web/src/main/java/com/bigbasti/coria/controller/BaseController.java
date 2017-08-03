@@ -2,6 +2,7 @@ package com.bigbasti.coria.controller;
 
 import com.bigbasti.coria.config.AppContext;
 import com.bigbasti.coria.db.DataStorage;
+import com.bigbasti.coria.export.ExportAdapter;
 import com.bigbasti.coria.metrics.Metric;
 import com.bigbasti.coria.parser.InputParser;
 import org.slf4j.Logger;
@@ -26,6 +27,19 @@ public class BaseController {
 
     @Autowired
     List<Metric> metrics;
+
+    @Autowired
+    List<ExportAdapter> exportAdapters;
+
+    protected ExportAdapter getExportAdapter(String id){
+        ExportAdapter parser = exportAdapters
+                .stream()
+                .filter(exportAdapter -> exportAdapter.getIdentification().equals(id))
+                .findFirst()
+                .get();
+        logger.debug("using following export adapter: " + parser);
+        return parser;
+    }
 
     protected InputParser getInputParser(String id){
         InputParser parser = availableInputParsers

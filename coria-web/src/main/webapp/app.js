@@ -32,8 +32,13 @@ var mod = app
                 .when('/', { template: "<home-index></home-index>" })
                 .when('/datasets', { template: "<datasets-overview></datasets-overview>" })
                 .when('/datasets/upload', { template: "<datasets-upload></datasets-upload>" })
+                .when('/datasets/export', { template: "<datasets-export></datasets-export>" })
                 .when('/datasets/:datasetid', { template: "<datasets-details></datasets-details>" })
                 .otherwise({ template: "<h2>Not yet implemented</h2>"});
+        }])
+    .config(['$compileProvider',
+        function ($compileProvider) {
+            $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|blob):/);
         }]);
 
 mod.factory('myHttpInterceptor', ['$rootScope', '$q', '$location', '$injector', 'errorDataService', 'globalSettings', '$timeout',

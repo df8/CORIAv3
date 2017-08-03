@@ -138,7 +138,7 @@ public class ASLinksEdgeResolveGeoImporter implements InputParser {
     private void checkIfAdditionalParamsSadisfied(Map<String, Object> params) throws FormatNotSupportedException {
         //check if mandatory parameters are present
         for(String param : getAdditionalFields().keySet()){
-            if(params.get(param) == null){
+            if(!params.containsKey(param)){
                 throw new FormatNotSupportedException("The mandatory field " + param + " ist not filled");
             }
         }

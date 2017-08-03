@@ -19,6 +19,7 @@
         <module>coria-metric-java-gs</module>
         <module>coria-metric-python-nx</module>
         <module>coria-metric-internal</module>
+        <module>coria-export-misc</module>
     </modules>
 
     <properties>

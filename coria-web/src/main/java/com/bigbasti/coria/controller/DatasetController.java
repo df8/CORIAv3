@@ -3,6 +3,7 @@ package com.bigbasti.coria.controller;
 import com.bigbasti.coria.config.AppContext;
 import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.db.DataStorage;
+import com.bigbasti.coria.export.ExportAdapter;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
 import com.bigbasti.coria.model.DataSetUpload;
@@ -27,6 +28,7 @@ import javax.servlet.http.Part;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -76,6 +78,57 @@ public class DatasetController extends BaseController {
         return ResponseEntity.ok(ds);
     }
 
+    @PostMapping("/export/{datasetid}")
+    public @ResponseBody
+    ResponseEntity handleDataSetExport(@PathVariable("datasetid") String datasetid, HttpServletRequest request) {
+        logger.debug("received export request for dataset {}", datasetid);
+
+        String adapterId = request.getParameter("adapterid");
+        if(Strings.isNullOrEmpty(adapterId)){
+            return ResponseEntity.badRequest().body("{\"error\":\"DataSet could not be exported because an invalid export adapter was specified!\"}");
+        }
+
+        ExportAdapter exportAdapter = getExportAdapter(adapterId);
+        DataSet dataSet = getActiveStorage().getDataSet(datasetid);
+        if(dataSet == null){
+            return ResponseEntity.badRequest().body("{\"error\":\"DataSet could not be exported because the specified dataset could not be found!\"}");
+        }
+
+        //try reading additional parameters
+        Map<String, Object> params = new HashMap<>();
+        try {
+            //load all additional text fields
+            List<Part> additionalParts = request.getParts()
+                    .stream()
+                    .filter(part -> part.getName().startsWith("additional_"))
+                    .collect(Collectors.toList());
+            if(additionalParts.size() > 0){
+                for(Part p : additionalParts){
+                    int read = 0;
+                    final byte[] bytes = new byte[1024];
+                    InputStream filecontent = p.getInputStream();
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    while ((read = filecontent.read(bytes)) != -1) {
+                        out.write(bytes, 0, read);
+                    }
+                    //remove dynamically added "additional_" string from field name
+                    params.put(p.getName().substring("additional_".length()), new String(out.toByteArray(), Charset.defaultCharset()));
+                }
+            }
+        } catch (Exception e) {
+            logger.error("could not read additional parameters");
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("{\"error\":\"DataSet could not be stored because could not read additional parameters\"}");
+        }
+
+        Object result = exportAdapter.exportDataSet(dataSet, params);
+
+        logger.debug("finished exporting dataset");
+
+
+        return ResponseEntity.ok(result);
+    }
+
     /**
      * Handles the upload of a new dataset containing its name, the target parser and the raw data
      * @param upload form fields containing the data
@@ -91,14 +144,14 @@ public class DatasetController extends BaseController {
 
             try {
                 //try reading additional parameters
-                Map<String, Object> params = null;
+                Map<String, Object> params = new HashMap<>();
                 try {
+                    //load all uploaded files
                     List<Part> fileParts = request.getParts()
                             .stream()
                             .filter(part -> part.getSubmittedFileName() != null && !part.getName().equals("file"))
                             .collect(Collectors.toList());
                     if(fileParts.size() > 0){
-                        params = new HashMap<>();
                         for(Part p : fileParts){
                             int read = 0;
                             final byte[] bytes = new byte[1024];
@@ -108,6 +161,24 @@ public class DatasetController extends BaseController {
                                 out.write(bytes, 0, read);
                             }
                             params.put(p.getName(), out.toByteArray());
+                        }
+                    }
+                    //load all additional text fields
+                    List<Part> additionalParts = request.getParts()
+                            .stream()
+                            .filter(part -> part.getName().startsWith("additional_"))
+                            .collect(Collectors.toList());
+                    if(additionalParts.size() > 0){
+                        for(Part p : additionalParts){
+                            int read = 0;
+                            final byte[] bytes = new byte[1024];
+                            InputStream filecontent = p.getInputStream();
+                            ByteArrayOutputStream out = new ByteArrayOutputStream();
+                            while ((read = filecontent.read(bytes)) != -1) {
+                                out.write(bytes, 0, read);
+                            }
+                            //remove dynamically added "additional_" string from field name
+                            params.put(p.getName().substring("additional_".length()), new String(out.toByteArray(), Charset.defaultCharset()));
                         }
                     }
                 } catch (ServletException e) {
@@ -203,7 +274,7 @@ public class DatasetController extends BaseController {
                 return ResponseEntity.status(500).body("{\"error\":\"Please check if the file has the appropriate format\"}");
 
             } catch (FormatNotSupportedException e) {
-                return ResponseEntity.status(500).body("{\"error\":\"The uploaded file does not match the specified format\"}");
+                return ResponseEntity.status(500).body("{\"error\":\"The uploaded data does not match the specified format (" + e.getMessage() + ")\"}");
             } catch (IOException e) {
                 return ResponseEntity.status(500).body("{\"error\":\"Error while processing the uploaded file: " + e.getMessage() + "\"}");
             }

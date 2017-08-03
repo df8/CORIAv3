@@ -10,12 +10,7 @@ angular.module('coria.components')
         function($resource){
             return $resource('api/modules/import', {}, {
                 queryImportModules: {url: "api/modules/import", method:'GET', params:{}, isArray:true},
-
-                read: {url: 'service/pbs/input/order/:uuid', method:'GET', params:{}, isArray:false },
-                queryCompleted: {url: 'service/pbs/input/orders/completed', method:'GET', params:{}, isArray:true },
-                checkNumbers: {url: 'service/pbs/input/orders/check', method:'POST', params:{}, isArray:false },
-                getFile: {url: 'service/pbs/input/order/download/:uuid', method:'GET', params:{}, isArray:false },
-                getFilteredOrders: {url: 'service/pbs/completedCases/getFilteredCases', method:'POST', params:{}, isArray:false}
+                queryExportModules: {url: "api/modules/export", method:'GET', params:{}, isArray:true}
             })
         }])
 
@@ -37,8 +32,33 @@ angular.module('coria.components')
 
     .factory('dataSetService', ['$http', '$q',
         function($http, $q) {
+            function exportDataSet(id, exportAdapterId, addFields){
+                var deferred = $q.defer();
 
-            function uploadImportForm(files, parser, name){
+                var fd = new FormData();
+
+                fd.append("adapterid", exportAdapterId);
+                Object.keys(addFields).forEach(function(key,index) {
+                    fd.append(key, addFields[key]);
+                });
+
+                $http({
+                    method: 'POST',
+                    url: 'api/datasets/export/' + id,
+                    data: fd,
+                    withCredentials: false,
+                    headers: {'Content-Type': undefined },
+                    transformRequest: angular.identity
+                }).then(function success(response){
+                    deferred.resolve(response.data);
+                }, function error(response){
+                    deferred.reject(response.data);
+                });
+
+                return deferred.promise;
+            }
+
+            function uploadImportForm(files, parser, name, addFields){
                 var deferred = $q.defer();
 
                 var fd = new FormData();
@@ -50,6 +70,9 @@ angular.module('coria.components')
                 // fd.append("file", file);    //ist nun ein object
                 fd.append("parser", parser);
                 fd.append("name", name);
+                Object.keys(addFields).forEach(function(key,index) {
+                    fd.append(key, addFields[key]);
+                });
                 // fd.append("data", JSON.stringify({parser:parser, name:name}))
 
                 $http({
@@ -90,7 +113,8 @@ angular.module('coria.components')
                 uploadNewDataSet: uploadImportForm,
                 shortDataSets: getShortDataSets,
                 shortDataSet: getShortDataSet,
-                deleteDataset: postDeleteDataset
+                deleteDataset: postDeleteDataset,
+                exportDataset: exportDataSet
             }
         }])
 ;
