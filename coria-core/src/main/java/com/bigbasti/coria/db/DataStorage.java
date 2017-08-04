@@ -61,4 +61,5 @@ public interface DataStorage {
      * @return Status of storage
      */
     StorageStatus getStorageStatus();
+    void dispose();
 }

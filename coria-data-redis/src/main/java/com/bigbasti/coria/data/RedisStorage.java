@@ -45,13 +45,22 @@ public class RedisStorage implements DataStorage {
         dbPass = env.getProperty("coria.db.redis.password");
 
 
-        config = new Config();
-        SingleServerConfig ssc = config.useSingleServer();
-        ssc.setAddress(dbUrl);
-        if(!Strings.isNullOrEmpty(dbUser)){ssc.setClientName(dbUser);}
-        if(!Strings.isNullOrEmpty(dbPass)){ssc.setPassword(dbPass);}
+        try {
+            config = new Config();
+            SingleServerConfig ssc = config.useSingleServer();
+            ssc.setAddress(dbUrl);
+            if (!Strings.isNullOrEmpty(dbUser)) {
+                ssc.setClientName(dbUser);
+            }
+            if (!Strings.isNullOrEmpty(dbPass)) {
+                ssc.setPassword(dbPass);
+            }
 
-        client = Redisson.create(config);
+            client = Redisson.create(config);
+        }catch(Exception ex){
+            logger.error("could not establish database connection");
+            logger.error("db seems not to be ready to use");
+        }
     }
 
     @Override
@@ -524,6 +533,15 @@ public class RedisStorage implements DataStorage {
         logger.debug("deleting dataset {}", id);
         Instant starts = Instant.now();
 
+        RList<DataSet> dataSets = getClient().getList("datasets");
+        int index = 0;
+        for(DataSet ds : dataSets){
+            if(ds.getId().equals(id)){
+                dataSets.remove(index);
+                break;
+            }
+            index++;
+        }
 
         Instant ends = Instant.now();
         logger.debug("deleting dataset finished ({})", Duration.between(starts, ends));
@@ -533,13 +551,27 @@ public class RedisStorage implements DataStorage {
     public StorageStatus getStorageStatus() {
         StorageStatus status = new StorageStatus(true, null);
 
-        RedissonClient client = Redisson.create(config);
+        try {
+            RedissonClient client = Redisson.create(config);
+
+        } catch (Exception e) {
+
+        }
         if(client == null){
             status.setReadyToUse(false);
             status.setMessage("Connection was not successful");
         }
 
         return status;
+    }
+
+    @Override
+    public void dispose() {
+        logger.debug("closing database connection for {}", getName());
+        if(this.client != null){
+            client.shutdown();
+            config = null;
+        }
     }
 
     private RedissonClient getClient(){

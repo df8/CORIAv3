@@ -139,6 +139,21 @@ public class DataSet implements Serializable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DataSet dataSet = (DataSet) o;
+
+        return id != null ? id.equals(dataSet.id) : dataSet.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
     public String toString() {
         return "DataSet{" +
                 "id='" + id + '\'' +

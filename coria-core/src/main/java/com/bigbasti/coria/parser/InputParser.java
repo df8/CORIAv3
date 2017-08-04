@@ -1,5 +1,6 @@
 package com.bigbasti.coria.parser;
 
+import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
 
@@ -68,4 +69,23 @@ public interface InputParser {
      * @return List of {@code CoriaNode}
      */
     List<CoriaNode> getParsedNodes();
+
+    /**
+     * Returns the parsed DataSet (if available; usually when getImportType = DATASET)
+     * @return DataSet Instance
+     */
+    DataSet getDataSet();
+
+    /**
+     * Defines what type of data is to be expected as a result from this importer
+     * @return type of data which is returned by the importer
+     */
+    ImportType getImportType();
+
+    enum ImportType {
+        NODES,
+        EDGES,
+        NODES_AND_EDGES,
+        DATASET
+    }
 }

@@ -43,17 +43,26 @@ angular.module('coria.components')
             }
 
             vm.submitExport = function submitExport(){
+                vm.export.isActive = true;
                 dataSetService.exportDataset(vm.export.selectedDataset, vm.export.provider, vm.export.addTextFields)
                     .then(function success(data){
-                       console.dir(data);
-                        var blob = new Blob([data], { type:"text/plain;charset=utf-8;" });
+                        var blob;
+                        if(data.contentType.indexOf("json") > 0)
+                        {
+                            blob = new Blob([JSON.stringify(data.exportResult)], {type: data.contentType});
+                        }else {
+                            blob = new Blob([data.exportResult], {type: data.contentType});
+                        }
                         var downloadLink = angular.element('<a></a>');
                         downloadLink.attr('href',window.URL.createObjectURL(blob));
-                        downloadLink.attr('download', vm.export.selectedDataset + '.txt');
+                        downloadLink.attr('download', data.fileName);
                         downloadLink[0].click();
+                        vm.export.isActive = false;
                     }, function error(errordata){
                         //todo errorhandling
                         console.dir(errordata);
+                        vm.export.errorMessage = errordata.error;
+                        vm.export.isActive = false;
                     });
             }
 

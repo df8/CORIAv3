@@ -93,6 +93,8 @@ ADD CONSTRAINT `node_dataset_id`
   REFERENCES `datasets` (`id`)
   ON DELETE CASCADE
   ON UPDATE NO ACTION;
+ALTER TABLE `nodes`
+  ADD COLUMN `asid` VARCHAR(128) NULL AFTER `risc_score`;
 
 
 CREATE TABLE `attributes` (

@@ -2,6 +2,10 @@ package com.bigbasti.coria.export.coria;
 
 import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.export.ExportAdapter;
+import com.bigbasti.coria.export.ExportResult;
+import com.bigbasti.coria.graph.CoriaEdge;
+import com.bigbasti.coria.graph.CoriaNode;
+import com.bigbasti.coria.metrics.MetricInfo;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
@@ -33,7 +37,8 @@ public class CoriaExportAdapter implements ExportAdapter {
     public String getDescription() {
         return "<p><strong>This export adapter exports a whole DataSet including its name and all meta information inside it</strong></p>" +
                 "<p>The exportet data can be in <code>XML</code> or <code>JSON</code> format. You can choose the format in the input field named 'format' on the left. (If it is left blank or an unsupported value is entered JSON format will be used)</p>" +
-                "<p>This format is designed to be used to transfer a dataset between different instances of CORIA</p>";
+                "<p>This format is designed to be used to transfer a dataset between different instances of CORIA</p>" +
+                "<p><strong>NOTE:</strong> Although the data is extracted, the internal IDs of the objects will not be exported. They will be regenerated while importing the DataSet</p>";
     }
 
     @Override
@@ -51,8 +56,8 @@ public class CoriaExportAdapter implements ExportAdapter {
      * @return String with the desired format
      */
     @Override
-    public Object exportDataSet(DataSet dataset, Map<String, Object> params) {
-        String output = "";
+    public ExportResult exportDataSet(DataSet dataset, Map<String, Object> params) {
+        ExportResult result = new ExportResult();
         logger.debug("starting export of dataset");
 
         SupportedFormats format = SupportedFormats.JSON;
@@ -65,13 +70,32 @@ public class CoriaExportAdapter implements ExportAdapter {
         }
 
         logger.debug("export format is: {}", format.name());
+        logger.debug("removing ids from dataset...");
+        for(CoriaNode node : dataset.getNodes()){
+            node.setId("");
+        }
+        for(CoriaEdge edge : dataset.getEdges()){
+            edge.setId("");
+        }
+        for(MetricInfo info : dataset.getMetricInfos()){
+            info.setId("");
+        }
+        dataset.setId("");
 
+
+        String output = "";
         try {
             if (format == SupportedFormats.JSON) {
+                result.setContentType("application/json;charset=utf-8;");
                 output = new GsonBuilder().create().toJson(dataset);
+                result.setExportResult(output);
+                result.setFileName(dataset.getName().replace(" ", "_")+".json");
             }
             if (format == SupportedFormats.XML) {
+                result.setContentType("application/xml;charset=utf-8;");
                 output = new XmlMapper().writeValueAsString(dataset);
+                result.setExportResult(output);
+                result.setFileName(dataset.getName().replace(" ", "_")+".xml");
             }
         }catch(Exception ex){
             throw new RuntimeException(ex.getMessage());
@@ -79,7 +103,7 @@ public class CoriaExportAdapter implements ExportAdapter {
 
         logger.debug("finished export successfully length:{}", output.length());
 
-        return output;
+        return result;
     }
 
     private String jaxbObjectToXML(DataSet object) throws JAXBException {

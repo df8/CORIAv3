@@ -38,5 +38,5 @@ public interface ExportAdapter {
      * @param params additional params for the export adapter
      * @return {@link DataSet}
      */
-    Object exportDataSet(DataSet dataset, Map<String, Object> params);
+    ExportResult exportDataSet(DataSet dataset, Map<String, Object> params);
 }

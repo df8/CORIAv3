@@ -13,6 +13,9 @@ angular.module('coria.components')
             vm.datasetsPerPage = 15;
             dataSetService.shortDataSets().then(function(data){
                 vm.datasets = data;
+            }, function(error){
+                console.dir(error);
+                vm.errorOccured = error.data.error;
             });
 
             vm.openDataset = function openDataset(ds){

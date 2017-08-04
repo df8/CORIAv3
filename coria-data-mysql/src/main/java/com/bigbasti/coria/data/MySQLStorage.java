@@ -201,7 +201,7 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public String addMetricInfo(MetricInfo metric, String datasetId) {
-        final String INSERT_METRIC = "INSERT INTO " + dbSchema + ".`metrics` (`dataset_id`, `name`, `shortcut`, `provider`, `technology`, `started`, `status`, `type`, `value`, `message`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        final String INSERT_METRIC = "INSERT INTO " + dbSchema + ".`metrics` (`dataset_id`, `name`, `shortcut`, `provider`, `technology`, `started`, `finished`, `status`, `type`, `value`, `message`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         int retVal = 0;
 
         logger.debug("inserting metric for dataset {}", datasetId);
@@ -218,10 +218,15 @@ public class MySQLStorage implements DataStorage {
                 }else{
                     stmt.setTimestamp(6, null);
                 }
-                stmt.setString(7, metric.getStatus()==null?"":metric.getStatus().name());
-                stmt.setString(8, metric.getType()==null?"":metric.getType().name());
-                stmt.setString(9, metric.getValue());
-                stmt.setString(10, metric.getMessage());
+                if(metric.getExecutionFinished() != null) {
+                    stmt.setTimestamp(7, metric.getExecutionFinished()==null?null:new Timestamp(metric.getExecutionFinished().getTime()));
+                }else{
+                    stmt.setTimestamp(7, null);
+                }
+                stmt.setString(8, metric.getStatus()==null?"":metric.getStatus().name());
+                stmt.setString(9, metric.getType()==null?"":metric.getType().name());
+                stmt.setString(10, metric.getValue());
+                stmt.setString(11, metric.getMessage());
 
                 stmt.executeUpdate();
                 con.commit();
@@ -297,7 +302,8 @@ public class MySQLStorage implements DataStorage {
     public String addDataSet(DataSet dataSet) {
         final String INSERT_DATASET = "INSERT INTO " + dbSchema + ".`datasets` (`name`, `created`, `nodesCount`, `edgesCount`) VALUES (?, ?, ?, ?)";
         final String INSERT_EDGE = "INSERT INTO " + dbSchema + ".`edges` (`dataset_id`, `name`, `source`, `destination`) VALUES (?, ?, ?, ?);";
-        final String INSERT_NODE = "INSERT INTO " + dbSchema + ".`nodes` (`dataset_id`, `name`) VALUES (?, ?);";
+        final String INSERT_NODE = "INSERT INTO " + dbSchema + ".`nodes` (`dataset_id`, `name`, `asid`) VALUES (?, ?, ?);";
+        final String INSERT_ATTRIBUTE_NODE = "INSERT INTO " + dbSchema + ".`attributes` (`node_id`, `key`, `value`) VALUES (?, ?, ?)";
 
         int dataSetKey = 0;
         logger.debug("inserting dataset...");
@@ -341,16 +347,43 @@ public class MySQLStorage implements DataStorage {
                         stmt.clearParameters();
                         stmt.setInt(1, dataSetKey);
                         stmt.setString(2, node.getName());
+                        stmt.setString(3, node.getAsid());
                         stmt.addBatch();
 
-                        if (batchCounter++ > BATCH_SIZE) {
-                            stmt.executeBatch();
-                            batchCounter = 0;
-                        }
+                        //deactivated because large datasets will return only last batch of generated ids
+                        //and then the attributes cannot be loaded correctly
+//                        if (batchCounter++ > BATCH_SIZE) {
+//                            stmt.executeBatch();
+//                            batchCounter = 0;
+//                        }
                     }
                     stmt.executeBatch();
                     con.commit();
+                    try {
+                        ResultSet rs = stmt.getGeneratedKeys();
+                        int counter = 0;
+                        while(rs.next()) {
+                            Long retVal = rs.getLong(1);
+                            CoriaNode node = dataSet.getNodes().get(counter);
+                            if (node.getAttributes() != null && node.getAttributes().size() > 0) {
+                                for (Map.Entry<String, String> attr : node.getAttributes().entrySet()) {
+                                    try (PreparedStatement stmtCreateAttribute = con.prepareStatement(INSERT_ATTRIBUTE_NODE)) {
+                                        stmtCreateAttribute.setLong(1, retVal);
+                                        stmtCreateAttribute.setString(2, attr.getKey());
+                                        stmtCreateAttribute.setString(3, attr.getValue());
+                                        stmtCreateAttribute.executeUpdate();
+                                    }
+                                }
+                                con.commit();
+                            }
+                            counter++;
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
+
+
             } catch (SQLException | ClassNotFoundException e) {
                 logger.error("Inserting Nodes failed: {}", e.getMessage());
                 return e.getMessage();
@@ -388,6 +421,12 @@ public class MySQLStorage implements DataStorage {
             }
             ends = Instant.now();
             logger.debug("inserting edges finished ({})", Duration.between(starts, ends));
+
+            // ========== METRIC INFOS
+
+            for(MetricInfo info : dataSet.getMetricInfos()){
+                addMetricInfo(info, String.valueOf(dataSetKey));
+            }
         }
         return null;
     }
@@ -625,6 +664,7 @@ public class MySQLStorage implements DataStorage {
         CoriaNode node = new CoriaNode(rs.getString("name"));
         node.setId(String.valueOf(rs.getInt("id")));
         node.setRiscScore(rs.getString("risc_score"));
+        node.setAsid(rs.getString("asid"));
 
         //======== ATTRIBUTES
 
@@ -769,7 +809,7 @@ public class MySQLStorage implements DataStorage {
      * @throws SQLException
      */
     private String updateNodeList(List<CoriaNode> nodes, Connection con, String dsId) throws SQLException {
-        final String UPDATE_NODE = "UPDATE " + dbSchema + ".`nodes` SET `name`=?, `risc_score`=? WHERE `id`=?";
+        final String UPDATE_NODE = "UPDATE " + dbSchema + ".`nodes` SET `name`=?, `risc_score`=?, `asid`=? WHERE `id`=?";
         final String UPDATE_ATTRIBUTE = "UPDATE " + dbSchema + ".`attributes` SET `key`=?, `value`=? WHERE `node_id`=? and `key`=?";
         final String INSERT_ATTRIBUTE_NODE = "INSERT INTO " + dbSchema + ".`attributes` (`node_id`, `key`, `value`) VALUES (?, ?, ?)";
 
@@ -804,7 +844,8 @@ public class MySQLStorage implements DataStorage {
                     stmtUpdateNode.clearParameters();
                     stmtUpdateNode.setString(1, node.getName());
                     stmtUpdateNode.setString(2, node.getRiscScore());
-                    stmtUpdateNode.setLong(3, Long.valueOf(node.getId()));
+                    stmtUpdateNode.setString(3, node.getAsid());
+                    stmtUpdateNode.setLong(4, Long.valueOf(node.getId()));
                     stmtUpdateNode.addBatch();
                     if (batchCounterNodes++ > BATCH_SIZE) {
                         stmtUpdateNode.executeBatch();
@@ -1060,6 +1101,11 @@ public class MySQLStorage implements DataStorage {
             status.setMessage(e.getMessage());
         }
         return status;
+    }
+
+    @Override
+    public void dispose() {
+        logger.debug("closing database connection for {}", getName());
     }
 
     private Connection getConnection() throws SQLException, ClassNotFoundException {

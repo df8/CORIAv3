@@ -1,5 +1,6 @@
 package com.bigbasti.coria.aslinks;
 
+import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
 import com.bigbasti.coria.parser.FormatNotSupportedException;
@@ -326,6 +327,16 @@ public class ASLinksEdgeResolveGeoImporter implements InputParser {
     @Override
     public List<CoriaNode> getParsedNodes() {
         return importedNodes;
+    }
+
+    @Override
+    public DataSet getDataSet() {
+        return null;
+    }
+
+    @Override
+    public ImportType getImportType() {
+        return ImportType.NODES_AND_EDGES;
     }
 
     private String getStringFromData(Object data) throws FormatNotSupportedException {

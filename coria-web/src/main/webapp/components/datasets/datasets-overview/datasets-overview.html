@@ -1,6 +1,11 @@
 <div class="page-header">
     <h1>Datasets <small>Upload and manage datasets</small></h1>
 </div>
+<div class="row spacer" ng-if="$ctrl.errorOccured">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="alert alert-danger" role="alert"><strong>There seems to be something wrong on the server:</strong><br/>{{$ctrl.errorOccured}}</div>
+    </div>
+</div>
 <div class="row" ng-hide="$ctrl.datasets.length === 0" >
     <div class="col-md-12">
         <table st-table="$ctrl.displayedCollection" st-safe-src="$ctrl.datasets" class="table table-striped">
