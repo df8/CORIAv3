@@ -59,8 +59,6 @@ angular.module('coria.components')
                         downloadLink[0].click();
                         vm.export.isActive = false;
                     }, function error(errordata){
-                        //todo errorhandling
-                        console.dir(errordata);
                         vm.export.errorMessage = errordata.error;
                         vm.export.isActive = false;
                     });

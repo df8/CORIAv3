@@ -108,13 +108,24 @@ angular.module('coria.components')
                         return response.data;
                     });
             }
+            function postMergeDataset(data){
+                var str = [];
+                Object.keys(data).forEach(function(key,index) {
+                    str.push(encodeURIComponent(key) + "=" + encodeURIComponent(data[key]));
+                });
+                return $http.post("api/datasets/merge", str.join("&"), {headers:{ 'Content-Type': 'application/x-www-form-urlencoded' }})
+                    .then(function(response){
+                        return response.data;
+                    });
+            }
 
             return {
                 uploadNewDataSet: uploadImportForm,
                 shortDataSets: getShortDataSets,
                 shortDataSet: getShortDataSet,
                 deleteDataset: postDeleteDataset,
-                exportDataset: exportDataSet
+                exportDataset: exportDataSet,
+                mergeDataSets: postMergeDataset
             }
         }])
 ;

@@ -7,6 +7,9 @@ import com.bigbasti.coria.export.ExportAdapter;
 import com.bigbasti.coria.export.ExportResult;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
+import com.bigbasti.coria.metric.gs.GSHelper;
+import com.bigbasti.coria.metrics.Metric;
+import com.bigbasti.coria.model.DataSetMerge;
 import com.bigbasti.coria.model.DataSetUpload;
 import com.bigbasti.coria.parser.FormatNotSupportedException;
 import com.bigbasti.coria.parser.InputParser;
@@ -310,6 +313,40 @@ public class DatasetController extends BaseController {
         logger.debug("deleting dataset {}", datasetid);
 
         getActiveStorage().deleteDataSet(datasetid);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/merge")
+    public @ResponseBody
+    ResponseEntity handleDataSetMerge(DataSetMerge mergeInfos) {
+        if(!mergeInfos.idValid()){
+            logger.error("Not all required fields provided for merging");
+            return ResponseEntity.status(500).body("{\"error\":\"Please fill out all fields!\"}");
+        }
+
+        logger.debug("merging datasets {} and {}", mergeInfos.getFirst(), mergeInfos.getSecond());
+
+        DataSet first = getActiveStorage().getDataSet(mergeInfos.getFirst());
+        DataSet second = getActiveStorage().getDataSet(mergeInfos.getSecond());
+
+        if(first == null || second == null){
+            logger.error("One or more datasets could not be found");
+            return ResponseEntity.status(500).body("{\"error\":\"One or both DataSets you specified could not be found!\"}");
+        }
+
+        logger.debug("starting merging datasets");
+        List<String> forbiddenAttributes = new ArrayList<>();
+        metrics.forEach(metric -> forbiddenAttributes.add(metric.getShortcut()));
+        DataSet merged = GSHelper.mergeDatasets(first, second, forbiddenAttributes);
+        merged.setName(mergeInfos.getName());
+        merged.setCreated(new Date());
+        merged.setNodesCount(merged.getNodes().size());
+        merged.setEdgesCount(merged.getEdges().size());
+        logger.debug("successfully finished merging datasets");
+        logger.debug("saving merged dataset to database");
+        getActiveStorage().addDataSet(merged);
+        logger.debug("finished processing!");
 
         return ResponseEntity.ok().build();
     }

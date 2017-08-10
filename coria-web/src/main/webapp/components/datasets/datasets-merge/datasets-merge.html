@@ -1,0 +1,50 @@
+<div class="page-header">
+    <h1>Merge DataSets</h1>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="alert alert-success" role="alert" ng-show="$ctrl.merge.message">{{$ctrl.merge.message}}<p>&nbsp;</p><a href="#!/datasets" class="btn btn-default">Go To Datasets</a></div>
+        <div class="alert alert-danger" role="alert" ng-show="$ctrl.merge.errorMessage">{{$ctrl.merge.errorMessage}}</div>
+        <div class="alert alert-warning" role="alert" ng-show="($ctrl.merge.first === $ctrl.merge.second) && ($ctrl.merge.first !== '')"><strong>WARNING</strong>: You selected the same DataSet twice</div>
+        <form name="import" id="import" ng-submit="$ctrl.submitMerge()">
+            <div class="form-group">
+                <label for="merge.first">Select first DataSet</label>
+                <select class="form-control" ng-model="$ctrl.merge.first" id="merge.first" name="first">
+                    <option ng-repeat="dataset in $ctrl.datasets" value="{{dataset.id}}">{{dataset.name}}</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="merge.second">Select second DataSet</label>
+                <select class="form-control" ng-model="$ctrl.merge.second" id="merge.second" name="second">
+                    <option ng-repeat="dataset in $ctrl.datasets" value="{{dataset.id}}">{{dataset.name}}</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="merge.name">Give the Dataset a name</label>
+                <input type="text" class="form-control" id="merge.name" placeholder="Merged DataSet Name" ng-model="$ctrl.merge.name" name="name">
+            </div>
+            <button type="submit" class="btn btn-default" ng-hide="$ctrl.merge.isActive"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> Merge DataSets</button>
+        </form>
+        <div class="progress"ng-show="$ctrl.merge.isActive">
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+        </div>
+        <div ng-show="$ctrl.merge.isActive" class="alert alert-info" role="alert">Depending on the size of the two DataSets it could take a while to merge them.</div>
+    </div>
+    <div class="col-md-8">
+        <h2>How to Merge DataSets</h2>
+        <span class="label label-danger">IMPORTANT</span> Please read this section before merging your first DataSets
+        <ul>
+            <li>When you merge two DataSets, a new DataSet is created, which contains the combined information of the two selected DataSets</li>
+            <li>The two selected DataSets are not changed in any way</li>
+            <li>If you select the same DataSet twice, a new copy of this DataSet is created, without its attributes (see below)</li>
+            <li>The new DataSet will contain all non conflicting Nodes and Edges of the two selected DataSets but no metric attributes</li>
+            <ul>
+                <li>Conflicting Nodes and Edges, are Nodes or Edges which occur more than once (this is not allowed)</li>
+                <li>Since metric calculations are not valid after changing the DatSet, metric attributes will not be copied to the new DataSet (metrics have to be executed again to account for the changed DataSet)</li>
+                <li>Non metric attributes like <code>geo</code> will be copied to the new DataSet</li>
+            </ul>
+            <li>You can merge as many DataSets as you like, but only two at a time</li>
+            <li>In case of a conflict the value from DataSet 'second' is taken</li>
+        </ul>
+    </div>
+</div>

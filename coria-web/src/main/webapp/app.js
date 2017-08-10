@@ -33,6 +33,7 @@ var mod = app
                 .when('/datasets', { template: "<datasets-overview></datasets-overview>" })
                 .when('/datasets/upload', { template: "<datasets-upload></datasets-upload>" })
                 .when('/datasets/export', { template: "<datasets-export></datasets-export>" })
+                .when('/datasets/merge', { template: "<datasets-merge></datasets-merge>" })
                 .when('/datasets/:datasetid', { template: "<datasets-details></datasets-details>" })
                 .otherwise({ template: "<h2>Not yet implemented</h2>"});
         }])

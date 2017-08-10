@@ -53,6 +53,7 @@
     <div class="col-md-12">
         <a class="btn btn-default spacer" href="#!/datasets/upload"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Upload New Dataset</a>
         <a class="btn btn-default spacer" href="#!/datasets/export"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Export DataSet</a>
+        <a ng-hide="$ctrl.datasets.length < 2" class="btn btn-default spacer" href="#!/datasets/merge"><span class="glyphicon glyphicon-filter" aria-hidden="true"></span> Merge DataSets</a>
     </div>
 </div>
 <div class="row" ng-show="$ctrl.datasets.length === 0">

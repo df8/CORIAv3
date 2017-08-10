@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,7 +90,7 @@ public class NodeExportAdapter implements ExportAdapter {
                 layoutParams = strLayout.split(",");
             }
         }
-        logger.debug("using layout: {}", layoutParams);
+        logger.debug("using layout: {}", Arrays.asList(layoutParams));
         logger.debug("using separator: {}", separator);
 
         StringBuilder builder = new StringBuilder();
