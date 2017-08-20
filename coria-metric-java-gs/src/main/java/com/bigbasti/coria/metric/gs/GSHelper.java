@@ -110,7 +110,7 @@ public class GSHelper {
 
             }else{
                 //something is wrong here!
-                logger.debug("ooops ¯\\_(ツ)_/¯");
+                logger.warn("ooops ¯\\_(ツ)_/¯");
             }
             merged.getNodes().add(cn);
         }
