@@ -105,8 +105,8 @@ public class GSHelper {
 
                 cn.setAttributes(
                         syncAttributes(
-                                filterAttributes(first.getAttributes(), forbiddenAttributes),
-                                filterAttributes(second.getAttributes(), forbiddenAttributes)));
+                                filterAttributes(fromFirst.getAttributes(), forbiddenAttributes),
+                                filterAttributes(fromSecond.getAttributes(), forbiddenAttributes)));
 
             }else{
                 //something is wrong here!
@@ -136,8 +136,8 @@ public class GSHelper {
 
                 ce.setAttributes(
                         syncAttributes(
-                                filterAttributes(first.getAttributes(), forbiddenAttributes),
-                                filterAttributes(second.getAttributes(), forbiddenAttributes)));
+                                filterAttributes(fromFirst.getAttributes(), forbiddenAttributes),
+                                filterAttributes(fromSecond.getAttributes(), forbiddenAttributes)));
 
             }else{
                 //something is wrong here!
