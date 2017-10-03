@@ -9,6 +9,7 @@ import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
 import com.bigbasti.coria.metric.gs.GSHelper;
 import com.bigbasti.coria.metrics.Metric;
+import com.bigbasti.coria.metrics.MetricInfo;
 import com.bigbasti.coria.model.DataSetMerge;
 import com.bigbasti.coria.model.DataSetUpload;
 import com.bigbasti.coria.parser.FormatNotSupportedException;
@@ -351,6 +352,19 @@ public class DatasetController extends BaseController {
         merged.setCreated(new Date());
         merged.setNodesCount(merged.getNodes().size());
         merged.setEdgesCount(merged.getEdges().size());
+        if(mergeInfos.isExtend()){
+            //in case of extension we need to copy the mertic infos into the new dataset
+            for(MetricInfo mi : first.getMetricInfos()){
+                mi.setId(null);
+                merged.getMetricInfos().add(mi);
+            }
+            for(MetricInfo mi : second.getMetricInfos()){
+                if(merged.getMetricInfos().stream().noneMatch(metricInfo -> metricInfo.getShortcut().equals(mi.getShortcut()))){
+                    mi.setId(null);
+                    merged.getMetricInfos().add(mi);
+                }
+            }
+        }
         logger.debug("successfully finished merging datasets");
         logger.debug("saving merged dataset to database");
         getActiveStorage().addDataSet(merged);
