@@ -7,14 +7,16 @@ public class DataSetMerge {
     private String first;
     private String second;
     private String name;
+    private boolean extend;
 
     public DataSetMerge() {
     }
 
-    public DataSetMerge(String first, String second, String name) {
+    public DataSetMerge(String first, String second, String name, boolean extend) {
         this.first = first;
         this.second = second;
         this.name = name;
+        this.extend = extend;
     }
 
     public String getFirst() {
@@ -41,6 +43,14 @@ public class DataSetMerge {
         this.name = name;
     }
 
+    public boolean isExtend() {
+        return extend;
+    }
+
+    public void setExtend(boolean extend) {
+        this.extend = extend;
+    }
+
     public boolean idValid(){
         boolean valid = true;
 
@@ -63,6 +73,7 @@ public class DataSetMerge {
                 "first='" + first + '\'' +
                 ", second='" + second + '\'' +
                 ", name='" + name + '\'' +
+                ", extend=" + extend +
                 '}';
     }
 }

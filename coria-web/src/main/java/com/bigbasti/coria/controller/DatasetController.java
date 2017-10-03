@@ -325,7 +325,7 @@ public class DatasetController extends BaseController {
             return ResponseEntity.status(500).body("{\"error\":\"Please fill out all fields!\"}");
         }
 
-        logger.debug("merging datasets {} and {}", mergeInfos.getFirst(), mergeInfos.getSecond());
+        logger.debug("merging datasets {} and {} (extension:{})", mergeInfos.getFirst(), mergeInfos.getSecond(), mergeInfos.isExtend());
 
         DataSet first = getActiveStorage().getDataSet(mergeInfos.getFirst());
         DataSet second = getActiveStorage().getDataSet(mergeInfos.getSecond());
@@ -337,7 +337,15 @@ public class DatasetController extends BaseController {
 
         logger.debug("starting merging datasets");
         List<String> forbiddenAttributes = new ArrayList<>();
-        metrics.forEach(metric -> forbiddenAttributes.add(metric.getShortcut()));
+        if(mergeInfos.isExtend()){
+            if(first.getEdges().size() != second.getEdges().size()){
+                logger.error("Extension not possible because the two selected datasets contain different amounts of edges!");
+                return ResponseEntity.status(500).body("{\"error\":\"Extension not possible because the two selected datasets contain different amounts of edges!\"}");
+            }
+        }else{
+            //only for regular merges -> do not merge existing metrics since theyre not valid after merging
+            metrics.forEach(metric -> forbiddenAttributes.add(metric.getShortcut()));
+        }
         DataSet merged = GSHelper.mergeDatasets(first, second, forbiddenAttributes);
         merged.setName(mergeInfos.getName());
         merged.setCreated(new Date());

@@ -48,6 +48,11 @@ public class GSHelper {
         for (CoriaEdge edge : second.getEdges()) {
             try {
                 logger.trace("Edge: " + edge);
+                /*
+                 * Since we're using the same edge naming schema here as everywhere else in coria (start_node->destination_node)
+                 * we cen create a combined graph containing edges from both graphs. This works because GraphStream
+                 * will only add edges which don't exists already.
+                 */
                 Edge e = mergedGraph.addEdge(edge.getSourceNode() + "->" + edge.getDestinationNode(), edge.getSourceNode(), edge.getDestinationNode());
             } catch (Exception ex) {
                 logger.error("failed creating edge for CoriaEdge {}", edge);
@@ -80,7 +85,7 @@ public class GSHelper {
 //                cn.setRiscScore(fromFirst.getRiscScore());        //this value is not valid after merging
                 cn.setAttributes(filterAttributes(fromFirst.getAttributes(), forbiddenAttributes));
             }else if(fromSecond != null && fromFirst == null){
-                //2. Node is only in first -> take all information from first
+                //2. Node is only in second -> take all information from second
                 cn.setName(fromSecond.getName());
                 cn.setAsid(fromSecond.getAsid());
 //                cn.setRiscScore(fromSecond.getRiscScore());       //this value is not valid after merging

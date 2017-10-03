@@ -18,6 +18,7 @@ angular.module('coria.components')
                 first: "",
                 second: "",
                 name: "",
+                extend: false,
                 message: "",
                 errorMessage: ""
             };
