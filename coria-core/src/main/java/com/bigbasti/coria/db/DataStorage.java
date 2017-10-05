@@ -6,6 +6,7 @@ import com.bigbasti.coria.graph.CoriaNode;
 import com.bigbasti.coria.metrics.Metric;
 import com.bigbasti.coria.metrics.MetricInfo;
 
+import java.beans.Transient;
 import java.util.List;
 
 /**
@@ -22,6 +23,7 @@ public interface DataStorage {
     String getDescription();
 
     CoriaEdge getEdge(String id);
+    @Transient
     List<CoriaEdge> getEdges();
     List<CoriaEdge> getEdges(String orderby, String ordertype);
     List<CoriaEdge> getEdges(Long from, Long to, String orderBy, String orderType);
@@ -30,6 +32,7 @@ public interface DataStorage {
     void deleteEdge(String id);
 
     CoriaNode getNode(String id);
+    @Transient
     List<CoriaNode> getNodes();
     List<CoriaNode> getNodes(String orderby, String ordertype);
     List<CoriaEdge> getNodes(Long from, Long to, String orderBy, String orderType);
@@ -38,6 +41,7 @@ public interface DataStorage {
     void deleteNode(String id);
 
     MetricInfo getMetricInfo(String id);
+    @Transient
     List<MetricInfo> getMetricInfos();
     List<MetricInfo> getMetricInfos(String datasetId);
     String addMetricInfo(MetricInfo metric, String datasetId);
@@ -45,11 +49,13 @@ public interface DataStorage {
 
     String addDataSet(DataSet dataSet);
     DataSet getDataSet(String id);
+    @Transient
     List<DataSet> getDataSets();
     /**
      * returns all datasets without the nodes and edges
      * @return list of all datasets minus nodes & edges
      */
+    @Transient
     List<DataSet> getDataSetsShort();
     String updateDataSet(DataSet dataSet);
     void deleteDataSet(DataSet dataSet);

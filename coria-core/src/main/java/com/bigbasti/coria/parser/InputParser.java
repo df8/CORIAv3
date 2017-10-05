@@ -4,6 +4,7 @@ import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
 
+import java.beans.Transient;
 import java.util.List;
 import java.util.Map;
 
@@ -62,18 +63,21 @@ public interface InputParser {
      *
      * @return List of {@code CoriaEdge}
      */
+    @Transient
     List<CoriaEdge> getParsedEdges();
 
     /**
      * Returns the nodes which were parsed while execution of parseInformation
      * @return List of {@code CoriaNode}
      */
+    @Transient
     List<CoriaNode> getParsedNodes();
 
     /**
      * Returns the parsed DataSet (if available; usually when getImportType = DATASET)
      * @return DataSet Instance
      */
+    @Transient
     DataSet getDataSet();
 
     /**
