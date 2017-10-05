@@ -7,9 +7,11 @@ import com.fasterxml.jackson.databind.ser.Serializers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
@@ -40,5 +42,27 @@ public class ModulesController extends BaseController {
     public @ResponseBody List<ExportAdapter> getAllExportProviders(){
         logger.debug("retrieving all export providers");
         return exportAdapters;
+    }
+
+    /**
+     * get all registered metrics providers
+     * @return
+     */
+    @GetMapping(path = "/metrics")
+    public @ResponseBody
+    ResponseEntity getAllMetrics() {
+        logger.debug("retrieving all available metrics");
+        return ResponseEntity.ok(metrics);
+    }
+
+    /**
+     * get all registered storage providers
+     * @return
+     */
+    @GetMapping(path = "/storage")
+    public @ResponseBody
+    ResponseEntity getAllStorageadapters() {
+        logger.debug("retrieving all available storage adapters");
+        return ResponseEntity.ok(dataStorages);
     }
 }

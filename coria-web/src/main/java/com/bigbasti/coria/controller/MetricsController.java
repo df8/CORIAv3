@@ -25,14 +25,6 @@ import java.util.concurrent.Future;
 public class MetricsController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(MetricsController.class);
 
-    @RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
-    public @ResponseBody
-    ResponseEntity getAllMetrics() {
-        logger.debug("retrieving all available metrics");
-
-        return ResponseEntity.ok(metrics);
-    }
-
     @GetMapping(path = "/dataset/{datasetid}")
     public @ResponseBody ResponseEntity getMetricsForDataSet(@PathVariable("datasetid") String datasetid){
         logger.trace("retrieving metrics for dataset {}", datasetid);

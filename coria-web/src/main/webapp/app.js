@@ -30,6 +30,7 @@ var mod = app
             $routeProvider
                 // .when('/', { redirectTo: '/login' })
                 .when('/', { template: "<home-index></home-index>" })
+                .when('/modules', { template: "<modules-overview></modules-overview>" })
                 .when('/datasets', { template: "<datasets-overview></datasets-overview>" })
                 .when('/datasets/upload', { template: "<datasets-upload></datasets-upload>" })
                 .when('/datasets/export', { template: "<datasets-export></datasets-export>" })

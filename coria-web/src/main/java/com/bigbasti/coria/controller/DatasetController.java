@@ -1,6 +1,5 @@
 package com.bigbasti.coria.controller;
 
-import com.bigbasti.coria.config.AppContext;
 import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.db.DataStorage;
 import com.bigbasti.coria.export.ExportAdapter;
@@ -8,7 +7,6 @@ import com.bigbasti.coria.export.ExportResult;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
 import com.bigbasti.coria.metric.gs.GSHelper;
-import com.bigbasti.coria.metrics.Metric;
 import com.bigbasti.coria.metrics.MetricInfo;
 import com.bigbasti.coria.model.DataSetMerge;
 import com.bigbasti.coria.model.DataSetUpload;
@@ -17,12 +15,9 @@ import com.bigbasti.coria.parser.InputParser;
 import com.google.common.base.Strings;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.DefaultGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

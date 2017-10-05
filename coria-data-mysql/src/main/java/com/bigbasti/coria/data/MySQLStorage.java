@@ -88,7 +88,7 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public String getDescription() {
-        return "Connects CORIA to the MySQL Storage, the access configuration needs to be setup in the application.properties of this module";
+        return "Connects CORIA to the MySQL Storage, the access configuration needs to be setup in the application.properties";
     }
 
     @Override

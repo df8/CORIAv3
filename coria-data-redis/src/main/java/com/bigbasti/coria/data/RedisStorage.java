@@ -75,7 +75,7 @@ public class RedisStorage implements DataStorage {
 
     @Override
     public String getDescription() {
-        return "Connects CORIA to the Redis Storage, the access configuration needs to be setup in the application.properties of this module";
+        return "Connects CORIA to the Redis Storage, the access configuration needs to be setup in the application.properties";
     }
 
     @Override

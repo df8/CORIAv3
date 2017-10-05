@@ -10,7 +10,9 @@ angular.module('coria.components')
         function($resource){
             return $resource('api/modules/import', {}, {
                 queryImportModules: {url: "api/modules/import", method:'GET', params:{}, isArray:true},
-                queryExportModules: {url: "api/modules/export", method:'GET', params:{}, isArray:true}
+                queryExportModules: {url: "api/modules/export", method:'GET', params:{}, isArray:true},
+                queryStorageModules: {url: "api/modules/storage", method:'GET', params:{}, isArray:true},
+                queryMetricModules: {url: "api/modules/metrics", method:'GET', params:{}, isArray:true}
             })
         }])
 
