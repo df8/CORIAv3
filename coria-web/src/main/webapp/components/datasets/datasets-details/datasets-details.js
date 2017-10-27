@@ -9,22 +9,24 @@ angular.module('coria.components')
             function( dataSetService,   $scope,   $location,   $timeout,   $compile,   $routeParams,   metricsService){
             var vm = this;
             vm.dataset = {};
-            vm.isNodesRefreshing = true;
+
+            //load all current metrics from server
             vm.allMetrics = metricsService.queryMetrics();
 
+            //overwriting logoc to switch bootstrap tabs on click
             $('#nav-tabs a').click(function (e) {
                 e.preventDefault();
                 $(this).tab('show');
             });
 
             vm.display = {
-                nodes: true,
-                metric: false,
-                metricLoading: false,
-                geoAvailable: false,
-                currentMetric: {
-                    shortcut: ""
-                }
+                // nodes: true,
+                // metric: false,
+                // metricLoading: false,
+                geoAvailable: false        //true: at least one node has geo attributes
+                // currentMetric: {
+                //     shortcut: ""
+                // }
             };
 
             //region METRICS
@@ -32,6 +34,11 @@ angular.module('coria.components')
                 $('[data-toggle="popover"]').popover()
             });
 
+            /**
+             * This section periodically loads metric infos from the server to display the time progress
+             * To save resources every further request is delayed by 2500 msec
+             * @type {boolean}
+             */
             vm.isMetricRefreshing = true;
             loadMetricsUpdate();
             var refreshSeconds = 0;
@@ -53,6 +60,12 @@ angular.module('coria.components')
                     vm.isMetricRefreshing = false;
                 });
             }
+
+            /**
+             * Each time the values in the metrics table must be refreshed. To avoid repainting the table
+             * the values are changed in the corresponding object resulting in a smooth update of values
+             * @param metrics
+             */
             function updateMetricIinfos(metrics){
                 var finishedMetrics = [];
                 for(var i = 0; i < vm.dataset.metricInfos.length; i++){
@@ -63,14 +76,21 @@ angular.module('coria.components')
                             finishedMetrics.push(metric);
                             metric.executionStarted = updatedMetric.executionStarted;
                             metric.executionFinished = updatedMetric.executionFinished;
-                            metric.status = updatedMetric.status;
                             metric.message = updatedMetric.message;
                             metric.name = updatedMetric.name;
                             metric.value = updatedMetric.value;
+                            if(updatedMetric.status === "FINISHED" && metric.status !== "FINISHED"){
+                                //a new metric has finished processing -> refresh nodes
+                                vm.dataset.nodes = [];
+                                vm.isNodesRefreshing = true;
+                                updateDataSet(false);
+                            }
+                            metric.status = updatedMetric.status;
                         }
                     }
                 }
-                //check if new metrics were added
+                //check if new metrics were added and add the new entry to the metrics overview
+                //if a new entry was added the dataset table must be reloaded to show the new values
                 if(finishedMetrics.length !== metrics.length){
                     for(var i = 0; i < metrics.length; i++){
                         var metricFound = false;
@@ -88,12 +108,16 @@ angular.module('coria.components')
 
             vm.datasetsPerPage = 10;
 
+            //load all available metric modules
             vm.metrics = metricsService.queryMetrics();
             vm.metric = {
-                description: "Select Metric Provider below"
+                description: "Select Metric Module below"
             };
             // vm.selectedMetric = undefined;
 
+            /**
+             * submit selected metric for execution on the backend
+             */
             vm.submitMetric = function submitMetric(){
                 vm.metric.datasetid = $routeParams.datasetid;
                 vm.metric.description = undefined;
@@ -106,6 +130,9 @@ angular.module('coria.components')
                 vm.cancelAddMetric();
             };
 
+            /**
+             * hide metric module selection dialog
+             */
             vm.cancelAddMetric = function cancelAddMetric(){
                 vm.displayAddMetric = false;
                 vm.metric = {
@@ -113,6 +140,9 @@ angular.module('coria.components')
                 };
             };
 
+            /**
+             * when user selects a metric for execution update view model accordingly
+             */
             vm.metricProviderSelected = function metricProviderSelected(){
                 for(var i = 0; i < vm.metrics.length; i++){
                     if(vm.metrics[i].identification === vm.selectedNewMetric){
@@ -121,6 +151,10 @@ angular.module('coria.components')
                 }
             };
 
+            /**
+             * switch view to the metric tab and update displayed information
+             * @param metric metric which should be displayed
+             */
             vm.displayMetricStats = function displayMetricStats(metric){
                 $('.nav-tabs a[href="#metricinfo"]').tab('show');   //activate metricinfo tab
                 vm.selectedMetric.showChart = false;
@@ -129,6 +163,7 @@ angular.module('coria.components')
                     shortcut: metric.shortcut
                 };
 
+                //create chart for metric distribution
                 drawSimpleChart(vm.dataset.nodes, metric.shortcut);
 
                 vm.selectedMetric.nodes = vm.dataset.nodes;
@@ -142,27 +177,49 @@ angular.module('coria.components')
 
             //region DATASET
             vm.isDatasetRefreshing = true;
-            dataSetService.shortDataSet($routeParams.datasetid).then(function(data){
-                vm.dataset = data;
-                vm.isNodesRefreshing = false;
-                vm.isDatasetRefreshing = false;
 
-                if(data.nodes.length === 0 || data.edges.length === 0){
-                    vm.datasetCorrupted = true;
-                }
-                for(var i = 0; i < data.nodes.length; i++){
-                    var node = data.nodes[i];
-                    if(node.attributes.geo){
-                        //if at least one of the nodes has the geo attribute
-                        //enable the geo specific functions on the view
-                        vm.display.geoAvailable = true;
-                        break;
+            /**
+             * Refresh the current dataset from the server
+             * @param fullReload if true all data is replaced with the information from the server
+             * if false, only the nodes will be refreshed
+             */
+            function updateDataSet(fullReload) {
+                dataSetService.shortDataSet($routeParams.datasetid).then(function (data) {
+                    if(fullReload) {
+                        vm.dataset = data;
+                    }else{
+                        vm.dataset.nodes = data.nodes;
                     }
-                }
-            }, function(error){
-                //TODO: errorhandling
-            });
+                    vm.isNodesRefreshing = false;
+                    vm.isDatasetRefreshing = false;
+                    vm.display.geoAvailable = false;
 
+                    //sometimes there are collision on the database or some other problems
+                    //they often are represented by an empty set of nodes or edges
+                    if (data.nodes.length === 0 || data.edges.length === 0) {
+                        vm.datasetCorrupted = true;
+                    }
+                    for (var i = 0; i < data.nodes.length; i++) {
+                        var node = data.nodes[i];
+                        if (node.attributes.geo) {
+                            //if at least one of the nodes has the geo attribute
+                            //enable the geo specific functions on the view
+                            vm.display.geoAvailable = true;
+                            break;
+                        }
+                    }
+                }, function (error) {
+                    //TODO: errorhandling
+                });
+            }
+            updateDataSet(true);
+
+            /**
+             * If you only have the metric shortcut you can use this method
+             * to get the corresponding full name of the metric
+             * @param shortcut String with metric shortcut
+             * @returns {*} the full metric name if found, else the provided shortcut
+             */
             vm.getMetricByShortcut = function getMetricByShortcut(shortcut){
                 for(var i = 0; i < vm.allMetrics.length; i++){
                     var currentMetric = vm.allMetrics[i];
@@ -172,6 +229,15 @@ angular.module('coria.components')
                 }
                 return shortcut;
             };
+
+            /**
+             * Metrics can have sub metrics which extend the parent with _submetricname
+             * This method extracts sub metrics for a specific metric from a node and attached color
+             * properties to some special attributes
+             * @param node node to extract sub metric from
+             * @param shortcut metric short cut for which the sub metrics should be extracted
+             * @returns {Array} [String;Number] of [Color;Value]
+             */
             vm.getSubMetrics = function getSubMetrics(node, shortcut){
                 if(shortcut.indexOf('_') > 0){
                     return [];
@@ -194,9 +260,18 @@ angular.module('coria.components')
                 }
                 return subMetrics;
             };
+
+            /**
+             * Utility method for extracting a part of a string
+             * @param str string to extract from
+             * @param part the id of the part to extract (0 based)
+             * @param splitby String to split by
+             * @returns {*} String with part of str
+             */
             vm.getStringPart = function getStringPart(str, part, splitby){
                 return str.split(splitby)[part];
             };
+
             /**
              * It does not make sense to display all available metrics.
              * the blacklist array contains the shortcuts of the metrics which
@@ -219,16 +294,29 @@ angular.module('coria.components')
             //endregion
 
             //region GRAPH
+            /**
+             * Utility method for rounding numbers
+             * @param number number to be rounded
+             * @param digits amount of numbers after the comma
+             * @returns {number} rouded number
+             */
             vm.roundNumber = function roundNumber(number, digits) {
                 var multiple = Math.pow(10, digits);
                 var rndedNum = Math.round(number * multiple) / multiple;
                 return rndedNum;
             };
 
+            /**
+             * Create an interactive graph visualization
+             * @param metric the metric by which the graph should be created.
+             *          metric.shortcut == new -> use vivagraph to live render a new graph.
+             *          metric.shortcut == pos -> use predefined positions to render graph using cytoscape.
+             *          metric.shortcut == something else -> use cytoscape to render graph in circular layout
+             */
             vm.displayMetric = function displayMetric(metric){
                 $('.nav-tabs a[href="#graph"]').tab('show');   //activate graph tab
 
-                if(metric.shortcut === "new"){
+                if(metric.shortcut === "new"){          //-> render live graph using vivagraph
                     // render the graph new and live
                     var graph = Viva.Graph.graph();
                     var graphics = Viva.Graph.View.webglGraphics();
@@ -249,8 +337,7 @@ angular.module('coria.components')
                         container: document.getElementById('metric-canvas')
                     });
                     renderer.run();
-                }else if(metric.shortcut === "pos"){
-                    //use cytoscape to display precalculated positions
+                }else if(metric.shortcut === "pos"){    //-> use pre calculated values with cytoscape
                     var cy = window.cy = cytoscape({
                         container: document.getElementById('metric-canvas'),
                         elements: positions,
@@ -368,11 +455,14 @@ angular.module('coria.components')
                     createCircleGraph('metric-canvas', vm.dataset.nodes, vm.dataset.edges, metric);
                 }
 
-                vm.display.metricLoading = false;
+                // vm.display.metricLoading = false;
             };
             //endregion
 
             //region MAP
+            /**
+             * Uses Google Map API to display a map containing all nodes which have geo attributes on them
+             */
             vm.displayNodeMap = function displayNodeMap(){
                 $('.nav-tabs a[href="#map"]').tab('show');   //activate map tab
 
@@ -432,9 +522,14 @@ angular.module('coria.components')
             vm.selectedNodeInfos = {
                 metrics: []
             };
+            /**
+             * Opens the node tab and displays information based on the selected node
+             * @param node the selected node
+             */
             vm.showNode = function showNode(node){
                 $('.nav-tabs a[href="#nodeinfo"]').tab('show');   //activate graph tab
 
+                //if there is geo information available the view must be altered to contain a map
                 vm.selectedNodeInfos.mapWidth = node.attributes.geo === undefined?0:4;
                 vm.selectedNodeInfos.tableWidth = node.attributes.geo === undefined?12:8;
                 if(node.attributes.geo !== undefined){
@@ -445,11 +540,6 @@ angular.module('coria.components')
                 vm.selectedNodeInfos.metrics = [];
                 vm.selectedNodeInfos.nodeName = node.name;
                 var subAttributes = [];
-                // vm.selectedNodeInfos.metrics.push({
-                //     name: "Risk Score",
-                //     value: node.riscScore,
-                //     shortcut: "rs"
-                // });
                 Object.keys(node.attributes).forEach(function(key,index) {
                     if(""+key.indexOf('_')<0 && (""+key) !== "pos" && (""+key) !== "geo") {
                         //metric attributes
@@ -510,12 +600,18 @@ angular.module('coria.components')
             //endregion
 
             //region HELPER
+            /**
+             * Draws a bar chart based on metric shortcut
+             * @param nodes nodes to use in chart
+             * @param shortcut metric shortcut to filter from nodes
+             */
             function drawSimpleChart(nodes, shortcut){
                 // Load the Visualization API and the corechart package.
                 google.charts.load('current', {'packages':['bar']});
                 // Set a callback to run when the Google Visualization API is loaded.
                 google.charts.setOnLoadCallback(drawChart);
 
+                //loop all nodes and put each node in the corresponding category
                 var valueArr = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
                 nodes.forEach(function(node){
                     var relVal = node.attributes[shortcut + "_relative"];
@@ -565,10 +661,11 @@ angular.module('coria.components')
                     }
                 });
 
+                //for debugging
                 // for(var i = 0; i < valueArr.length; i++){
                 //     valueArr[i] = valueArr[i] / nodes.length * 100;
                 // }
-                console.dir(valueArr);
+                // console.dir(valueArr);
 
                 // Callback that creates and populates a data table,
                 // instantiates the chart, passes in the data and draws it.
@@ -601,8 +698,8 @@ angular.module('coria.components')
 
                     var materialOptions = {
                         series: {
-                            0: { axis: 'leftAxis' }, // Bind series 0 to an axis named 'distance'.
-                            1: { axis: 'rightAxis' } // Bind series 1 to an axis named 'brightness'.
+                            0: { axis: 'leftAxis' }, // Bind series 0 to an axis
+                            1: { axis: 'rightAxis' } // Bind series 1 to an axis
                         },
                         axes: {
                             y: {
@@ -619,6 +716,12 @@ angular.module('coria.components')
                 }
             }
 
+            /**
+             * If you have the asid of a node and need the name, you can use this method to
+             * find the corresponding node.
+             * @param asid String with asid
+             * @returns {*} Node object or null if not found
+             */
             var getNodeByName = function getNodeByName(asid){
                 for(var i = 0; i < vm.dataset.nodes.length; i++){
                     var n = vm.dataset.nodes[i];
@@ -629,6 +732,13 @@ angular.module('coria.components')
                 return null;
             };
 
+            /**
+             * Utility method for sorting an orject array
+             * @param field proporty of the object to sort by
+             * @param reverse if true order is in reverse
+             * @param primer function
+             * @returns {Function}
+             */
             var sort_by = function(field, reverse, primer){
 
                 var key = primer ?
@@ -645,6 +755,11 @@ angular.module('coria.components')
             };
 
             var coordinates = {};
+
+            /**
+             * update the currently displayed node on the map to anew one
+             * @param node node to be displayed
+             */
             function updateGoogleMap(node){
                 coordinates = {lat: parseFloat(node.attributes.geo_latitude), lng: parseFloat(node.attributes.geo_longitude)};
                 initMap(node);
@@ -662,6 +777,14 @@ angular.module('coria.components')
                 });
             }
 
+            /**
+             * Draws an interactive circle graph with cytoscape
+             * @param canvasId id of the div to draw in
+             * @param nodes nodes based on which to create the graph
+             * @param edges edges based on which to create the graph
+             * @param metric metric to order the nodes by
+             * @param onClick method to react on click events function(event)
+             */
             function createCircleGraph(canvasId, nodes, edges, metric, onClick){
                 var cy = window.cy = cytoscape({
                     container: document.getElementById(canvasId),

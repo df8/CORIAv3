@@ -19,7 +19,7 @@ angular.module('coria.components')
     .factory('metricsService', ['$resource',
         function($resource){
             return $resource('api/metrics', {}, {
-                queryMetrics: {url: "api/metrics", method:'GET', params:{}, isArray:true},
+                queryMetrics: {url: "api/modules/metrics", method:'GET', params:{}, isArray:true},
                 metricsForDataset: {url: "api/metrics/dataset/:datasetId", method:'GET', params:{}, isArray:true},
                 startMetric: {url: 'api/metrics/start', method:'POST', params:{}, isArray:false,
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
