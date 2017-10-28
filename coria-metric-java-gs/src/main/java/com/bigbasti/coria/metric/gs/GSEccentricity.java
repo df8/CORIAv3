@@ -2,8 +2,8 @@ package com.bigbasti.coria.metric.gs;
 
 import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.graph.CoriaNode;
-import com.bigbasti.coria.metrics.Metric;
 import com.bigbasti.coria.metrics.MetricInfo;
+import com.bigbasti.coria.metrics.MetricModule;
 import org.graphstream.algorithm.APSP;
 import org.graphstream.algorithm.Eccentricity;
 import org.graphstream.graph.Graph;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  * Created by Sebastian Gross
  */
 @Component
-public class GSEccentricity implements Metric{
+public class GSEccentricity implements MetricModule{
     private Logger logger = LoggerFactory.getLogger(GSEccentricity.class);
 
     @Override

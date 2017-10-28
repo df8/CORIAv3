@@ -1,7 +1,7 @@
 package com.bigbasti.coria.export.coria;
 
 import com.bigbasti.coria.dataset.DataSet;
-import com.bigbasti.coria.export.ExportAdapter;
+import com.bigbasti.coria.export.ExportModule;
 import com.bigbasti.coria.export.ExportResult;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class CoriaExportAdapter implements ExportAdapter {
-    private Logger logger = LoggerFactory.getLogger(CoriaExportAdapter.class);
+public class CoriaExportModule implements ExportModule {
+    private Logger logger = LoggerFactory.getLogger(CoriaExportModule.class);
 
     @Override
     public String getIdentification() {

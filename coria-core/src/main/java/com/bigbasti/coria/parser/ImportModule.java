@@ -14,7 +14,7 @@ import java.util.Map;
  * before saving its result to the database
  * Created by Sebastian Gross
  */
-public interface InputParser {
+public interface ImportModule {
 
     /**
      * Defines an internal unique id for this parser

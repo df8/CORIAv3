@@ -4,7 +4,7 @@ import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
 import com.bigbasti.coria.parser.FormatNotSupportedException;
-import com.bigbasti.coria.parser.InputParser;
+import com.bigbasti.coria.parser.ImportModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ import java.util.Map;
  * Created by Sebastian Gross
  */
 @Component
-public class ASLinksEdgeResolveImporter implements InputParser {
+public class ASLinksEdgeResolveImporter implements ImportModule {
 
     private Logger logger = LoggerFactory.getLogger(ASLinksEdgeResolveImporter.class);
 

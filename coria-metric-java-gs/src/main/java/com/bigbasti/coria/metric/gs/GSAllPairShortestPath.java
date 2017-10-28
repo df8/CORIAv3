@@ -1,15 +1,12 @@
 package com.bigbasti.coria.metric.gs;
 
 import com.bigbasti.coria.dataset.DataSet;
-import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
-import com.bigbasti.coria.metrics.Metric;
 import com.bigbasti.coria.metrics.MetricInfo;
+import com.bigbasti.coria.metrics.MetricModule;
 import org.graphstream.algorithm.APSP;
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.DefaultGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,7 +15,7 @@ import org.springframework.stereotype.Component;
  * Created by Sebastian Gross
  */
 @Component
-public class GSAllPairShortestPath implements Metric{
+public class GSAllPairShortestPath implements MetricModule{
     private Logger logger = LoggerFactory.getLogger(GSAllPairShortestPath.class);
 
     @Override

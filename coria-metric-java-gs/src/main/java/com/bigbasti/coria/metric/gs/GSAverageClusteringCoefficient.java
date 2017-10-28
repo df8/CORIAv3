@@ -1,7 +1,7 @@
 package com.bigbasti.coria.metric.gs;
 
 import com.bigbasti.coria.dataset.DataSet;
-import com.bigbasti.coria.metrics.Metric;
+import com.bigbasti.coria.metrics.MetricModule;
 import com.bigbasti.coria.metrics.MetricInfo;
 import org.graphstream.algorithm.Toolkit;
 import org.graphstream.graph.Graph;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * Created by Sebastian Gross
  */
 @Component
-public class GSAverageClusteringCoefficient implements Metric{
+public class GSAverageClusteringCoefficient implements MetricModule{
     private Logger logger = LoggerFactory.getLogger(GSAverageClusteringCoefficient.class);
 
     @Override

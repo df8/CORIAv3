@@ -2,24 +2,22 @@ package com.bigbasti.coria.metric.internal;
 
 import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.graph.CoriaNode;
-import com.bigbasti.coria.metric.gs.GSHelper;
 import com.bigbasti.coria.metric.tools.MetricCorrections;
 import com.bigbasti.coria.metric.tools.MetricNormalizations;
-import com.bigbasti.coria.metrics.Metric;
 import com.bigbasti.coria.metrics.MetricInfo;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
+import com.bigbasti.coria.metrics.MetricModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Sebastian Gross
  */
 @Component
-public class CoriaUnifiedRiskScore implements Metric{
+public class CoriaUnifiedRiskScore implements MetricModule{
     private Logger logger = LoggerFactory.getLogger(CoriaUnifiedRiskScore.class);
 
     @Override

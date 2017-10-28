@@ -1,11 +1,10 @@
 package com.bigbasti.coria.data;
 
 import com.bigbasti.coria.dataset.DataSet;
-import com.bigbasti.coria.db.DataStorage;
+import com.bigbasti.coria.db.StorageModule;
 import com.bigbasti.coria.db.StorageStatus;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
-import com.bigbasti.coria.metrics.Metric;
 import com.bigbasti.coria.metrics.MetricInfo;
 import com.google.common.base.Strings;
 import org.flywaydb.core.Flyway;
@@ -29,9 +28,9 @@ import java.util.stream.Collectors;
  * Created by Sebastian Gross
  */
 @Component
-public class MySQLStorage implements DataStorage {
+public class MySQLStorageModule implements StorageModule {
 
-    private Logger logger = LoggerFactory.getLogger(MySQLStorage.class);
+    private Logger logger = LoggerFactory.getLogger(MySQLStorageModule.class);
 
     @Autowired
     Environment env;
@@ -1115,7 +1114,7 @@ public class MySQLStorage implements DataStorage {
 
     @Override
     public String toString() {
-        return "MySQLStorage{" +
+        return "MySQLStorageModule{" +
                 "id: " + getIdentification() +
                 ", name: " + getName() +
                 "}";

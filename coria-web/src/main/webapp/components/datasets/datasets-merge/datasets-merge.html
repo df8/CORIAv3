@@ -42,17 +42,17 @@
             <li>When you merge two DataSets, a new DataSet is created, which contains the combined information of the two selected DataSets</li>
             <li>The two selected DataSets are not changed in any way</li>
             <li>If you select the same DataSet twice, a new copy of this DataSet is created, without its attributes (see below)</li>
-            <li>The new DataSet will contain all non conflicting Nodes and Edges of the two selected DataSets but no metric attributes</li>
+            <li>The new DataSet will contain all non conflicting Nodes and Edges of the two selected DataSets but no metricModule attributes</li>
             <ul>
                 <li>Conflicting Nodes and Edges, are Nodes or Edges which occur more than once (this is not allowed)</li>
-                <li>Since metric calculations are not valid after changing the DatSet, metric attributes will not be copied to the new DataSet (metrics have to be executed again to account for the changed DataSet)</li>
-                <li>Non metric attributes like <code>geo</code> will be copied to the new DataSet</li>
+                <li>Since metricModule calculations are not valid after changing the DatSet, metricModule attributes will not be copied to the new DataSet (metrics have to be executed again to account for the changed DataSet)</li>
+                <li>Non metricModule attributes like <code>geo</code> will be copied to the new DataSet</li>
             </ul>
             <li>You can merge as many DataSets as you like, but only two at a time</li>
             <li>In case of a conflict the value from DataSet 'second' is taken</li>
         </ul>
         <h2>DataSet Extensions</h2>
-        <p>Extensions work the same way as Merging with the exception, that all metric attributes are copied into the new DataSet!</p>
+        <p>Extensions work the same way as Merging with the exception, that all metricModule attributes are copied into the new DataSet!</p>
         <span class="label label-warning">WHEN TO USE EXTENSIONS</span> Please read this section to understand when it is appropriate to use the extension mechanism
         <p>Extensions should be used when you want to <code>extend</code> an existing DataSet with new information.</p>
         <p><strong>Example:</strong> You have imported a DataSet and already have run several time consuming metrics on it.<br/>
@@ -61,7 +61,7 @@
             Now you can choose your <code>first</code> DataSet (without AS Names) and select the new one (with the AS Names) as the <code>second</code> DataSet and extend the first one with the information from the second
         </p>
         <span class="label label-danger">IMPORTANT</span> Both DataSets must contain the same AS Nodes
-        <p>You can only extend a DataSet with a DataSet which contains the same Nodes. If this would not be the case it would not make sense to copy the metric results and attributes into the new DataSet since the results would not be valid anymore (this is what regular merging is for)</p>
+        <p>You can only extend a DataSet with a DataSet which contains the same Nodes. If this would not be the case it would not make sense to copy the metricModule results and attributes into the new DataSet since the results would not be valid anymore (this is what regular merging is for)</p>
         <p>Use Extensions for (a few examples)</p>
         <ul>
             <li>Adding Names to a DataSet</li>

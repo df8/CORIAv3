@@ -3,7 +3,7 @@ package com.bigbasti.coria.metric.internal;
 import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.graph.CoriaNode;
 import com.bigbasti.coria.metric.gs.GSHelper;
-import com.bigbasti.coria.metrics.Metric;
+import com.bigbasti.coria.metrics.MetricModule;
 import com.bigbasti.coria.metrics.MetricInfo;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -17,7 +17,7 @@ import java.util.Iterator;
  * Created by Sebastian Gross
  */
 @Component
-public class GSIteratedAverageNeighbourDegree implements Metric{
+public class GSIteratedAverageNeighbourDegree implements MetricModule{
     private Logger logger = LoggerFactory.getLogger(GSIteratedAverageNeighbourDegree.class);
 
     @Override

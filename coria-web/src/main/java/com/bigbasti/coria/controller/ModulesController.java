@@ -1,17 +1,13 @@
 package com.bigbasti.coria.controller;
 
-import com.bigbasti.coria.db.DataStorage;
-import com.bigbasti.coria.export.ExportAdapter;
-import com.bigbasti.coria.parser.InputParser;
-import com.fasterxml.jackson.databind.ser.Serializers;
+import com.bigbasti.coria.export.ExportModule;
+import com.bigbasti.coria.parser.ImportModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
@@ -29,9 +25,9 @@ public class ModulesController extends BaseController {
      * @return
      */
     @GetMapping(path = "/import")
-    public @ResponseBody List<InputParser> getAllImportProviders(){
+    public @ResponseBody List<ImportModule> getAllImportProviders(){
         logger.debug("retrieving all input providers");
-        return availableInputParsers;
+        return availableImportModules;
     }
 
     /**
@@ -39,20 +35,20 @@ public class ModulesController extends BaseController {
      * @return
      */
     @GetMapping(path = "/export")
-    public @ResponseBody List<ExportAdapter> getAllExportProviders(){
+    public @ResponseBody List<ExportModule> getAllExportProviders(){
         logger.debug("retrieving all export providers");
-        return exportAdapters;
+        return exportModules;
     }
 
     /**
-     * get all registered metrics providers
+     * get all registered metricModules providers
      * @return
      */
     @GetMapping(path = "/metrics")
     public @ResponseBody
     ResponseEntity getAllMetrics() {
-        logger.debug("retrieving all available metrics");
-        return ResponseEntity.ok(metrics);
+        logger.debug("retrieving all available metricModules");
+        return ResponseEntity.ok(metricModules);
     }
 
     /**
@@ -63,6 +59,6 @@ public class ModulesController extends BaseController {
     public @ResponseBody
     ResponseEntity getAllStorageadapters() {
         logger.debug("retrieving all available storage adapters");
-        return ResponseEntity.ok(dataStorages);
+        return ResponseEntity.ok(storageModules);
     }
 }

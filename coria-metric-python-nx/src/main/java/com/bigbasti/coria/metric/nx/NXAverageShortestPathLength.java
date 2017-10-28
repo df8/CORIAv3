@@ -3,10 +3,9 @@ package com.bigbasti.coria.metric.nx;
 import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
-import com.bigbasti.coria.metric.tools.FSTools;
-import com.bigbasti.coria.metrics.Metric;
+import com.bigbasti.coria.interop.FSTools;
 import com.bigbasti.coria.metrics.MetricInfo;
-import com.google.common.base.Strings;
+import com.bigbasti.coria.metrics.MetricModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ import java.util.Optional;
  * Created by Sebastian Gross
  */
 @Component
-public class NXAverageShortestPathLength implements Metric {
+public class NXAverageShortestPathLength implements MetricModule {
     private Logger logger = LoggerFactory.getLogger(NXAverageNeighbourDegree.class);
 
     @Autowired

@@ -5,7 +5,7 @@ import com.bigbasti.coria.dataset.DataSet;
 /**
  * Created by Sebastian on 01.06.2017.
  */
-public interface Metric {
+public interface MetricModule {
     String getIdentification();
     String getDescription();
     String getName();

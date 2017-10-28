@@ -1,10 +1,10 @@
 package com.bigbasti.coria.controller;
 
 import com.bigbasti.coria.config.AppContext;
-import com.bigbasti.coria.db.DataStorage;
-import com.bigbasti.coria.export.ExportAdapter;
-import com.bigbasti.coria.metrics.Metric;
-import com.bigbasti.coria.parser.InputParser;
+import com.bigbasti.coria.db.StorageModule;
+import com.bigbasti.coria.export.ExportModule;
+import com.bigbasti.coria.metrics.MetricModule;
+import com.bigbasti.coria.parser.ImportModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,40 +20,40 @@ public class BaseController {
     private Logger logger = LoggerFactory.getLogger(BaseController.class);
 
     @Autowired
-    List<InputParser> availableInputParsers;
+    List<ImportModule> availableImportModules;
 
     @Autowired
-    List<DataStorage> dataStorages;
+    List<StorageModule> storageModules;
 
     @Autowired
-    List<Metric> metrics;
+    List<MetricModule> metricModules;
 
     @Autowired
-    List<ExportAdapter> exportAdapters;
+    List<ExportModule> exportModules;
 
-    protected ExportAdapter getExportAdapter(String id){
-        ExportAdapter parser = exportAdapters
+    protected ExportModule getExportModule(String id){
+        ExportModule parser = exportModules
                 .stream()
-                .filter(exportAdapter -> exportAdapter.getIdentification().equals(id))
+                .filter(exportModule -> exportModule.getIdentification().equals(id))
                 .findFirst()
                 .get();
         logger.debug("using following export adapter: " + parser);
         return parser;
     }
 
-    protected InputParser getInputParser(String id){
-        InputParser parser = availableInputParsers
+    protected ImportModule getImportModule(String id){
+        ImportModule parser = availableImportModules
                 .stream()
-                .filter(inputParser -> inputParser.getIdentification().equals(id))
+                .filter(importModule -> importModule.getIdentification().equals(id))
                 .findFirst()
                 .get();
         logger.debug("using following inputParser: " + parser);
         return parser;
     }
 
-    protected DataStorage getActiveStorage(){
+    protected StorageModule getActiveStorageModule(){
         String targetDb = AppContext.getInstance().getDatabaseProvider();
-        DataStorage storage = dataStorages
+        StorageModule storage = storageModules
                 .stream()
                 .filter(dataStorage -> dataStorage.getIdentification().equals(targetDb))
                 .findFirst()
@@ -62,13 +62,13 @@ public class BaseController {
         return storage;
     }
 
-    protected Metric getMetric(String id){
-        Metric met = metrics
+    protected MetricModule getMetricModule(String id){
+        MetricModule met = metricModules
                 .stream()
                 .filter(m -> m.getIdentification().equals(id))
                 .findFirst()
                 .get();
-        logger.debug("using following Metric: " + met);
+        logger.debug("using following MetricModule: " + met);
         return met;
     }
 }

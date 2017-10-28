@@ -3,7 +3,6 @@ package com.bigbasti.coria.db;
 import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
-import com.bigbasti.coria.metrics.Metric;
 import com.bigbasti.coria.metrics.MetricInfo;
 
 import java.beans.Transient;
@@ -12,10 +11,10 @@ import java.util.List;
 /**
  * DataStorages offer the possibility to store application data for
  * the purpose of reuse.<br/>
- * How the Data is stored is up to the DataStorage provider
+ * How the Data is stored is up to the StorageModule provider
  * Created by Sebastian Gross
  */
-public interface DataStorage {
+public interface StorageModule {
     String getIdentification();
 
     String getName();

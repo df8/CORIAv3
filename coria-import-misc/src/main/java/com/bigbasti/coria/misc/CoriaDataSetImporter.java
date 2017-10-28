@@ -4,7 +4,7 @@ import com.bigbasti.coria.dataset.DataSet;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
 import com.bigbasti.coria.parser.FormatNotSupportedException;
-import com.bigbasti.coria.parser.InputParser;
+import com.bigbasti.coria.parser.ImportModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
@@ -16,7 +16,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 
 @Component
-public class CoriaDataSetImporter implements InputParser {
+public class CoriaDataSetImporter implements ImportModule {
 
     private Logger logger = LoggerFactory.getLogger(CoriaDataSetImporter.class);
 

@@ -1,7 +1,7 @@
 package com.bigbasti.coria.data;
 
 import com.bigbasti.coria.dataset.DataSet;
-import com.bigbasti.coria.db.DataStorage;
+import com.bigbasti.coria.db.StorageModule;
 import com.bigbasti.coria.db.StorageStatus;
 import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
@@ -25,8 +25,8 @@ import java.time.Instant;
 import java.util.*;
 
 @Component
-public class RedisStorage implements DataStorage {
-    private Logger logger = LoggerFactory.getLogger(RedisStorage.class);
+public class RedisStorageModule implements StorageModule {
+    private Logger logger = LoggerFactory.getLogger(RedisStorageModule.class);
 
     @Autowired
     Environment env;
@@ -580,7 +580,7 @@ public class RedisStorage implements DataStorage {
 
     @Override
     public String toString() {
-        return "RedisStorage{" +
+        return "RedisStorageModule{" +
                 "id: " + getIdentification() +
                 ", name: " + getName() +
                 "}";

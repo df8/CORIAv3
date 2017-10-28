@@ -4,7 +4,7 @@ import com.bigbasti.coria.dataset.DataSet;
 
 import java.util.Map;
 
-public interface ExportAdapter {
+public interface ExportModule {
     /**
      * Defines an internal unique id for this exporter
      * @return id of the exporter

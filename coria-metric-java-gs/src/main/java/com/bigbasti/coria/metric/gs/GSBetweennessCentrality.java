@@ -1,14 +1,12 @@
 package com.bigbasti.coria.metric.gs;
 
 import com.bigbasti.coria.dataset.DataSet;
-import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
-import com.bigbasti.coria.metrics.Metric;
 import com.bigbasti.coria.metrics.MetricInfo;
+import com.bigbasti.coria.metrics.MetricModule;
 import org.graphstream.algorithm.BetweennessCentrality;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.DefaultGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -17,7 +15,7 @@ import org.springframework.stereotype.Component;
  * Created by Sebastian Gross on 02.06.2017.
  */
 @Component
-public class GSBetweennessCentrality implements Metric {
+public class GSBetweennessCentrality implements MetricModule {
     private Logger logger = LoggerFactory.getLogger(GSBetweennessCentrality.class);
 
     @Override

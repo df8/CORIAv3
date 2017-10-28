@@ -1,27 +1,19 @@
 package com.bigbasti.coria.export.coria;
 
 import com.bigbasti.coria.dataset.DataSet;
-import com.bigbasti.coria.export.ExportAdapter;
+import com.bigbasti.coria.export.ExportModule;
 import com.bigbasti.coria.export.ExportResult;
 import com.bigbasti.coria.graph.CoriaEdge;
-import com.bigbasti.coria.graph.CoriaNode;
-import com.bigbasti.coria.metrics.MetricInfo;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class EdgesExportAdapter implements ExportAdapter {
-    private Logger logger = LoggerFactory.getLogger(EdgesExportAdapter.class);
+public class EdgesExportModule implements ExportModule {
+    private Logger logger = LoggerFactory.getLogger(EdgesExportModule.class);
 
     @Override
     public String getIdentification() {
