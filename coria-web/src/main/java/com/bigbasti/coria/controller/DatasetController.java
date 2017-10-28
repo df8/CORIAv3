@@ -114,30 +114,6 @@ public class DatasetController extends BaseController {
         if(params == null){
             return ResponseEntity.status(500).body("{\"error\":\"DataSet could not be stored because could not read additional parameters\"}");
         }
-//        try {
-//            //load all additional text fields
-//            List<Part> additionalParts = request.getParts()
-//                    .stream()
-//                    .filter(part -> part.getName().startsWith("additional_"))
-//                    .collect(Collectors.toList());
-//            if(additionalParts.size() > 0){
-//                for(Part p : additionalParts){
-//                    int read = 0;
-//                    final byte[] bytes = new byte[1024];
-//                    InputStream filecontent = p.getInputStream();
-//                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-//                    while ((read = filecontent.read(bytes)) != -1) {
-//                        out.write(bytes, 0, read);
-//                    }
-//                    //remove dynamically added "additional_" string from field name
-//                    params.put(p.getName().substring("additional_".length()), new String(out.toByteArray(), Charset.defaultCharset()));
-//                }
-//            }
-//        } catch (Exception e) {
-//            logger.error("could not read additional parameters");
-//            e.printStackTrace();
-//            return ResponseEntity.status(500).body("{\"error\":\"DataSet could not be stored because could not read additional parameters\"}");
-//        }
 
         ExportResult result = exportModule.exportDataSet(dataSet, params);
 
@@ -172,48 +148,6 @@ public class DatasetController extends BaseController {
                 }
                 params.putAll(files);
 
-//                try {
-//                    //load all uploaded files
-//                    List<Part> fileParts = request.getParts()
-//                            .stream()
-//                            .filter(part -> part.getSubmittedFileName() != null && !part.getName().equals("file"))
-//                            .collect(Collectors.toList());
-//                    if(fileParts.size() > 0){
-//                        for(Part p : fileParts){
-//                            int read = 0;
-//                            final byte[] bytes = new byte[1024];
-//                            InputStream filecontent = p.getInputStream();
-//                            ByteArrayOutputStream out = new ByteArrayOutputStream();
-//                            while ((read = filecontent.read(bytes)) != -1) {
-//                                out.write(bytes, 0, read);
-//                            }
-//                            params.put(p.getName(), out.toByteArray());
-//                        }
-//                    }
-//                    //load all additional text fields
-//                    List<Part> additionalParts = request.getParts()
-//                            .stream()
-//                            .filter(part -> part.getName().startsWith("additional_"))
-//                            .collect(Collectors.toList());
-//                    if(additionalParts.size() > 0){
-//                        for(Part p : additionalParts){
-//                            int read = 0;
-//                            final byte[] bytes = new byte[1024];
-//                            InputStream filecontent = p.getInputStream();
-//                            ByteArrayOutputStream out = new ByteArrayOutputStream();
-//                            while ((read = filecontent.read(bytes)) != -1) {
-//                                out.write(bytes, 0, read);
-//                            }
-//                            //remove dynamically added "additional_" string from field name
-//                            params.put(p.getName().substring("additional_".length()), new String(out.toByteArray(), Charset.defaultCharset()));
-//                        }
-//                    }
-//                } catch (ServletException e) {
-//                    logger.error("could not read additional parameters");
-//                    e.printStackTrace();
-//                    return ResponseEntity.status(500).body("{\"error\":\"DataSet could not be stored because could not read additional parameters\"}");
-//                }
-
                 importModule.parseInformation(upload.getFile().getBytes(), params);
                 List<CoriaEdge> edges = importModule.getParsedEdges();
                 List<CoriaNode> nodes = importModule.getParsedNodes();
@@ -244,19 +178,6 @@ public class DatasetController extends BaseController {
                         //setup a temp graph using graphstream to check and prepare graph data
                         logger.debug("trying to create a temp graph with provided data...");
                         Graph g = GSHelper.createGraphFromDataSet(new DataSet(edges, nodes));
-//                        Graph g = new DefaultGraph("Temp Graph");
-//                        g.setStrict(false);
-//                        g.setAutoCreate(true); //automatically create nodes based on edges
-//
-//                        //create graph based on edges
-//                        for (CoriaEdge edge : edges) {
-//                            logger.trace("Edge: " + edge);
-//                            Edge e = g.addEdge(edge.getSourceNode() + "->" + edge.getDestinationNode(), edge.getSourceNode(), edge.getDestinationNode());
-//                            if (e == null) {
-//                                logger.trace("problem with edge {} (possibly this connection exists already in the other direction)", edge.getSourceNode() + "->" + edge.getDestinationNode());
-//                            }
-//
-//                        }
 
                         logger.debug("successfully created temp graph containing {} nodes and {} edges", g.getNodeCount(), g.getEdgeCount());
                         logger.debug("creating internal dataset from temp graph...");
@@ -265,10 +186,6 @@ public class DatasetController extends BaseController {
                         dataSet.setCreated(new Date());
 
                         edges = new ArrayList<>();
-//                    nodes = new ArrayList<>();
-
-//                        List<String> nodeDict = new ArrayList<>();
-//                        List<String> edgeDict = new ArrayList<>();
 
                         //create a new graph using the correct data from the Graph created by graphstream
                         for (Edge e : g.getEachEdge()) {

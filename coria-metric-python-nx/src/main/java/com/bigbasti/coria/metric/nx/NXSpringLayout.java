@@ -82,47 +82,16 @@ public class NXSpringLayout implements MetricModule {
         String responseFileName = fullPath.replace("import", "export");
         logger.debug("Using paths:\nRequest File: {}\nResponse File:{}", fullPath, responseFileName);
 
-        Instant starts = Instant.now();
-        try {
-            PrintWriter pw = new PrintWriter(new FileWriter(fullPath));
-            for(CoriaEdge e : dataset.getEdges()){
-                pw.println("XX\t" + e.getSourceNode() + "\t" + e.getDestinationNode());
-            }
-            pw.close();
+        boolean result = fsTools.writeEdgesFileToWorkingDir(dataset.getEdges(), fullPath, "\t", "XX\t");
 
-            Instant ends = Instant.now();
-            logger.debug("python import file created succellful ({})", Duration.between(starts, ends));
-        } catch (Exception e) {
-            logger.error("could not create python import file: {}", e.getMessage());
-            e.printStackTrace();
-        }
-
-        starts = Instant.now();
         logger.debug("starting python...");
-        try {
-            String BC_SCRIPT = "/metric/pos/spring_layout.py";
-            URL dir_url = getClass().getResource(BC_SCRIPT);
-            String fullPathToScript = Paths.get(dir_url.toURI()).toFile().getAbsolutePath();
-            logger.debug("Script URL: {}", fullPathToScript);
-
-            int exitValue = fsTools.startProcessAndWait("python \"" + fullPathToScript + "\" -f " + fullPath + " -s " + responseFileName);
-
-            Instant ends = Instant.now();
-            logger.debug("python execution finished ({})", Duration.between(starts, ends));
-
-            if(exitValue != 0){
-                //something happened -> do something
-                logger.debug("python exit code: {}", exitValue);
-            }
-        }
-        catch(Exception e) {
-            System.out.println(e.toString());
-        }
+        String fullPathToScript = fsTools.getFullPathToResource("/metric/pos/spring_layout.py");
+        boolean scriptStart = fsTools.startSyncSystemProcess("python \"" + fullPathToScript + "\" -f " + fullPath + " -s " + responseFileName);
 
         File response = new File(responseFileName);
         if(response.exists()){
             logger.debug("reading response and updating dataset ...");
-            starts = Instant.now();
+            Instant starts = Instant.now();
 
             BufferedReader br = null;
             List<CoriaNode> nodes = new ArrayList<>();
