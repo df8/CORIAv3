@@ -200,7 +200,7 @@ public class DatasetController extends BaseController {
                             CoriaEdge ce = null;
                             if (fn != null && dn != null) {
                                 ce = new CoriaEdge(e.getId(), e.getId(), fn.getId(), dn.getId());
-                                // check id there is already a node with this id in the database
+                                // check if there is already a node with this id in the database
 //                            if (!nodeDict.contains(fn.getId())) { nodes.add(fn); nodeDict.add(fn.getId());}
 //                            if (!nodeDict.contains(dn.getId())) { nodes.add(dn); nodeDict.add(dn.getId());}
                                 //TODO: are duplicates of edges possible? duplicate checks are extremely time consuming

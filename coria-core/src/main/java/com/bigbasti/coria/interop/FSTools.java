@@ -11,7 +11,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -31,8 +30,20 @@ public class FSTools {
     @Autowired
     Environment env;
 
+    /**
+     * saves the last error that occurred while executing a process.
+     * This information is useful to display to the user why the process failed
+     */
     String lastError = "";
 
+    /**
+     * Tries to determine the CORIA working directory.<br/>
+     * First the <code>application.properties</code> setting <code>coria.workingwidectory</code> will be checked,
+     * if it does not exist the system envorionment property <code>CORIA_HOME</code> will be read. If this property
+     * also does not yield a result an exception will be thrown.
+     * @return full path to the CORIA working directory of an exception
+     * @throws Exception if the working directory can not be found
+     */
     public String getWorkingDirectory() throws Exception {
         logger.debug("determining coria working directory...");
         String workingDir = env.getProperty("coria.workingdirectory");
@@ -48,6 +59,14 @@ public class FSTools {
         return workingDir;
     }
 
+    /**
+     * Starts a new process on the host system and waits for it to finish.<br/>
+     * After the execution, all information that was printed on the stdout by the new process will be logged
+     * with the prefix PROCESS.<br/>
+     * If there was an error while executing the process, it can be obtained by calling {@code getLastError()}
+     * @param params parameters which will be used to execute the process. Should contain full paths
+     * @return execution status code. -1 if there was a problem
+     */
     public int startProcessAndWait(String params){
         ThreadedStreamHandler stdOut;
         ThreadedStreamHandler errOut;
@@ -149,6 +168,15 @@ public class FSTools {
         }
     }
 
+    /**
+     * Reads a response file from an executed NetworkX script and attaches the results to a dataset
+     * @param dsToUpdate dataset to attach the results to
+     * @param responseFile file containing the script response
+     * @param paramSeparator separation string used to separate values in a line
+     * @param metricShortcut shortcut of the metric which created the file
+     * @param metricName name of the metric which created the file
+     * @return dataset with updated nodes
+     */
     public DataSet readNetworkXMetricResponseAndUpdateDataset(DataSet dsToUpdate, File responseFile, String paramSeparator, String metricShortcut, String metricName){
         logger.debug("reading response and updating dataset ...");
         Instant starts = Instant.now();
@@ -195,6 +223,49 @@ public class FSTools {
         return dsToUpdate;
     }
 
+    public DataSet readNetworkXLayoutResponseAndUpdateDataset(DataSet dsToUpdate, File responseFile, String paramSeparator, String metricShortcut){
+        logger.debug("reading response and updating dataset ...");
+        Instant starts = Instant.now();
+
+        BufferedReader br = null;
+        List<CoriaNode> nodes = new ArrayList<>();
+        try {
+            br = new BufferedReader(new FileReader(responseFile));
+            for (String line; (line = br.readLine()) != null; ) {
+                String parts[] = line.split(paramSeparator);
+                Optional<CoriaNode> ocn = dsToUpdate.getNodes().stream().filter(coriaNode -> coriaNode.getAsid().equals(parts[0])).findFirst();
+                if(!ocn.isPresent()){
+                    logger.warn("could not update node {} (value:{}) - node not found in dataset", parts[0], parts[1]);
+                }else{
+                    CoriaNode cn = ocn.get();
+                    String coordinates = parts[1];
+                    //networkx sometimes formats numbers in a strange way, we need to correct those
+                    coordinates = coordinates.replaceAll("0\\. ", "0.0");
+                    coordinates = coordinates.replaceAll("1\\. ", "1.0");
+                    coordinates = coordinates.replace("[","").replace("]","").trim().replaceAll("[ ]+", ":");
+                    if(coordinates.equals("1.:0.")){coordinates = "1.0:0.0";}
+                    cn.setAttribute(metricShortcut, coordinates);
+                    nodes.add(cn);
+                }
+            }
+            br.close();
+        } catch (IOException e) {
+            logger.error("failed reading response file: {}", e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("failed reading response file: " + e.getMessage());
+        }
+
+        Instant ends = Instant.now();
+        logger.debug("finished reading response file ({})", Duration.between(starts, ends));
+        return dsToUpdate;
+    }
+
+    /**
+     * Renames the response file of a process to end with archive to indicate, that the processing of it was finished.<br/>
+     * If renaming fails, a deletion is attended.
+     * @param responseFileName the used name to generate the response file
+     * @param response File object linked to the response file
+     */
     public void cleanupResponseFile(String responseFileName, File response){
         String archivedFileName = responseFileName.replace("export.csv", "archive.csv");
         logger.debug("renaming response file to {}", archivedFileName);

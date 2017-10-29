@@ -1,25 +1,16 @@
 package com.bigbasti.coria.metric.nx;
 
 import com.bigbasti.coria.dataset.DataSet;
-import com.bigbasti.coria.graph.CoriaEdge;
-import com.bigbasti.coria.graph.CoriaNode;
 import com.bigbasti.coria.interop.FSTools;
-import com.bigbasti.coria.metrics.MetricModule;
 import com.bigbasti.coria.metrics.MetricInfo;
+import com.bigbasti.coria.metrics.MetricModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
-import java.net.URL;
+import java.io.File;
 import java.nio.file.FileSystems;
-import java.nio.file.Paths;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by Sebastian Gross
@@ -90,39 +81,7 @@ public class NXSpringLayout implements MetricModule {
 
         File response = new File(responseFileName);
         if(response.exists()){
-            logger.debug("reading response and updating dataset ...");
-            Instant starts = Instant.now();
-
-            BufferedReader br = null;
-            List<CoriaNode> nodes = new ArrayList<>();
-            try {
-                br = new BufferedReader(new FileReader(response));
-                for (String line; (line = br.readLine()) != null; ) {
-                    String parts[] = line.split(",");
-                    Optional<CoriaNode> ocn = dataset.getNodes().stream().filter(coriaNode -> coriaNode.getAsid().equals(parts[0])).findFirst();
-                    if(!ocn.isPresent()){
-                        logger.warn("could not update node {} (value:{}) - node not found in dataset", parts[0], parts[1]);
-                    }else{
-                        CoriaNode cn = ocn.get();
-                        String coordinates = parts[1];
-                        coordinates = coordinates.replaceAll("0\\. ", "0.0");
-                        coordinates = coordinates.replaceAll("1\\. ", "1.0");
-                        coordinates = coordinates.replace("[","").replace("]","").trim().replaceAll("[ ]+", ":");
-                        if(coordinates.equals("1.:0.")){coordinates = "1.0:0.0";}
-                        cn.setAttribute(getShortcut(), coordinates);
-                        nodes.add(cn);
-                    }
-                }
-                br.close();
-            } catch (IOException e) {
-                logger.error("failed reading response file: {}", e.getMessage());
-                e.printStackTrace();
-                throw new RuntimeException("failed reading response file: " + e.getMessage());
-            }
-
-            Instant ends = Instant.now();
-            logger.debug("finished reading response file ({})", Duration.between(starts, ends));
-
+            fsTools.readNetworkXLayoutResponseAndUpdateDataset(dataset, response, ",", getShortcut());
             fsTools.cleanupResponseFile(responseFileName, response);
         }else{
             logger.error("the expected python output file ({}) was not found, canceling metric execution", responseFileName);
