@@ -101,6 +101,12 @@ angular.module('coria.components')
                         }
                         if(!metricFound){
                             vm.dataset.metricInfos.push(metrics[i]);
+                            if(metrics[i].status === "FINISHED"){
+                                //a new metric has finished processing -> refresh nodes
+                                vm.dataset.nodes = [];
+                                vm.isNodesRefreshing = true;
+                                updateDataSet(false);
+                            }
                         }
                     }
                 }

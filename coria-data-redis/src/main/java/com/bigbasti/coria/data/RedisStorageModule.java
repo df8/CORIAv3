@@ -535,9 +535,17 @@ public class RedisStorageModule implements StorageModule {
 
         RList<DataSet> dataSets = getClient().getList("datasets");
         int index = 0;
+        String dataSetId = "";
         for(DataSet ds : dataSets){
             if(ds.getId().equals(id)){
+                dataSetId = ds.getId();
+                //remove dateset
                 dataSets.remove(index);
+                //remove edges, nodes, metrics, attrs
+                getClient().getList("edges#" + dataSetId).delete();
+                getClient().getList("nodes#" + dataSetId).delete();
+                getClient().getList("attrs#" + dataSetId).delete();
+                getClient().getList("minfos#" + dataSetId).delete();
                 break;
             }
             index++;
