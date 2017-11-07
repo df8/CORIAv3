@@ -11,6 +11,12 @@
     <name>coria-data-redis</name>
     <description>Provides CORIA with Redis functionality</description>
 
+    <parent>
+        <groupId>com.bigbasti</groupId>
+        <artifactId>coria</artifactId>
+        <version>3.0.0</version>
+    </parent>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

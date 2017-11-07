@@ -11,6 +11,12 @@
 	<name>coria-import-misc</name>
 	<description>Contains parsers for different non specific filetypes</description>
 
+	<parent>
+		<groupId>com.bigbasti</groupId>
+		<artifactId>coria</artifactId>
+		<version>3.0.0</version>
+	</parent>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
