@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.bigbasti.coria</groupId>
-	<artifactId>coria-web</artifactId>
+	<artifactId>coria-api</artifactId>
 	<version>3.0.0</version>
 	<packaging>war</packaging>
 
-	<name>coria-web</name>
+	<name>coria-api</name>
 	<description>Coria REST API and Web Frontned</description>
 
 	<parent>

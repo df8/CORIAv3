@@ -10,7 +10,7 @@
     <version>3.0.0</version>
 
     <modules>
-        <module>coria-web</module>
+        <module>coria-api</module>
         <module>coria-import-caida</module>
         <module>coria-import-misc</module>
         <module>coria-core</module>
