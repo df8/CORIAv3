@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.webjars.bower:angular-smart-table:2.1.8">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/webjars/bower/angular-smart-table/2.1.8/angular-smart-table-2.1.8.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/webjars/bower/angular-smart-table/2.1.8/angular-smart-table-2.1.8-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/webjars/bower/angular-smart-table/2.1.8/angular-smart-table-2.1.8-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="coria-api:war">
+    <output-path>$PROJECT_DIR$/coria-api/target</output-path>
+    <root id="archive" name="coria.war">
+      <element id="artifact" artifact-name="coria-api:war exploded" />
+    </root>
+  </artifact>
+</component>
