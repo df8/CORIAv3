@@ -292,28 +292,33 @@ public class DatasetController extends BaseController {
             //only for regular merges -> do not merge existing metricModules since theyre not valid after merging
             metricModules.forEach(metric -> forbiddenAttributes.add(metric.getShortcut()));
         }
-        DataSet merged = GSHelper.mergeDatasets(first, second, forbiddenAttributes);
-        merged.setName(mergeInfos.getName());
-        merged.setCreated(new Date());
-        merged.setNodesCount(merged.getNodes().size());
-        merged.setEdgesCount(merged.getEdges().size());
-        if(mergeInfos.isExtend()){
-            //in case of extension we need to copy the mertic infos into the new dataset
-            for(MetricInfo mi : first.getMetricInfos()){
-                mi.setId(null);
-                merged.getMetricInfos().add(mi);
-            }
-            for(MetricInfo mi : second.getMetricInfos()){
-                if(merged.getMetricInfos().stream().noneMatch(metricInfo -> metricInfo.getShortcut().equals(mi.getShortcut()))){
+        try {
+            DataSet merged = GSHelper.mergeDatasets(first, second, forbiddenAttributes);
+            merged.setName(mergeInfos.getName());
+            merged.setCreated(new Date());
+            merged.setNodesCount(merged.getNodes().size());
+            merged.setEdgesCount(merged.getEdges().size());
+            if (mergeInfos.isExtend()) {
+                //in case of extension we need to copy the mertic infos into the new dataset
+                for (MetricInfo mi : first.getMetricInfos()) {
                     mi.setId(null);
                     merged.getMetricInfos().add(mi);
                 }
+                for (MetricInfo mi : second.getMetricInfos()) {
+                    if (merged.getMetricInfos().stream().noneMatch(metricInfo -> metricInfo.getShortcut().equals(mi.getShortcut()))) {
+                        mi.setId(null);
+                        merged.getMetricInfos().add(mi);
+                    }
+                }
             }
+            logger.debug("successfully finished merging datasets");
+            logger.debug("saving merged dataset to database");
+            getActiveStorageModule().addDataSet(merged);
+            logger.debug("finished processing!");
+        }catch(Exception ex){
+            logger.debug("error while merging {}", ex.getMessage());
+            return ResponseEntity.status(500).body("{\"error\":\"" + ex.getMessage() + "\"}");
         }
-        logger.debug("successfully finished merging datasets");
-        logger.debug("saving merged dataset to database");
-        getActiveStorageModule().addDataSet(merged);
-        logger.debug("finished processing!");
 
         return ResponseEntity.ok().build();
     }

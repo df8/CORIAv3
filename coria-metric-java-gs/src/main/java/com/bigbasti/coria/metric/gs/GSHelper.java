@@ -20,6 +20,11 @@ import java.util.Optional;
  * Offers convenience methods for working with Graphstream
  */
 public class GSHelper {
+    /**
+     * Greates a new GraphStream Graph Object from a given DataSet
+     * @param dataset DataSet to convert to a Graph
+     * @return Graph containing the attributes, nodes and edges from the DataSet
+     */
     public static Graph createGraphFromDataSet(DataSet dataset){
         Logger logger = LoggerFactory.getLogger(GSHelper.class);
         Graph g = new DefaultGraph("temp");
@@ -41,7 +46,15 @@ public class GSHelper {
         return g;
     }
 
-    public static DataSet mergeDatasets(DataSet first, DataSet second, List<String> forbiddenAttributes){
+    /**
+     * Merges two datasets while ignoting defined attributes
+     * @param first first dataset to merge
+     * @param second second dataset to merge
+     * @param forbiddenAttributes list of attributes which should not be merged in the result (empty = maerge all)
+     * @return A new dataset containing nodes and edges from both provided datasets
+     * @throws Exception is merging fails
+     */
+    public static DataSet mergeDatasets(DataSet first, DataSet second, List<String> forbiddenAttributes) throws Exception {
         Logger logger = LoggerFactory.getLogger(GSHelper.class);
         Graph mergedGraph = createGraphFromDataSet(first);
         logger.debug("creating merged internal graph...");
@@ -124,28 +137,34 @@ public class GSHelper {
 
         for(Edge edge : mergedGraph.getEachEdge()){
             CoriaEdge ce = new CoriaEdge();
-            CoriaEdge fromFirst = first.getEdges().stream().filter(coriaEdge -> coriaEdge.getName().equals(edge.getId())).findFirst().get();
-            CoriaEdge fromSecond = second.getEdges().stream().filter(coriaEdge -> coriaEdge.getName().equals(edge.getId())).findFirst().get();
+            try {
+                CoriaEdge fromFirst = first.getEdges().stream().filter(coriaEdge -> coriaEdge.getName().equals(edge.getId())).findFirst().get();
+                CoriaEdge fromSecond = second.getEdges().stream().filter(coriaEdge -> coriaEdge.getName().equals(edge.getId())).findFirst().get();
 
-            if(fromFirst != null && fromSecond == null){
-                //1. Edge is only in first -> take all information from first
-                ce.setName(fromFirst.getName());
-                ce.setAttributes(filterAttributes(fromFirst.getAttributes(), forbiddenAttributes));
-            }else if(fromSecond != null && fromFirst == null){
-                //2. Edge is only in first -> take all information from first
-                ce.setName(fromSecond.getName());
-                ce.setAttributes(filterAttributes(fromSecond.getAttributes(), forbiddenAttributes));
-            }else if(fromFirst != null && fromSecond != null){
-                //3. Edge is found in both DataSets -> try merging
-                ce.setName(fromSecond.getName());
+                if(fromFirst != null && fromSecond == null){
+                    //1. Edge is only in first -> take all information from first
+                    ce.setName(fromFirst.getName());
+                    ce.setAttributes(filterAttributes(fromFirst.getAttributes(), forbiddenAttributes));
+                }else if(fromSecond != null && fromFirst == null){
+                    //2. Edge is only in first -> take all information from first
+                    ce.setName(fromSecond.getName());
+                    ce.setAttributes(filterAttributes(fromSecond.getAttributes(), forbiddenAttributes));
+                }else if(fromFirst != null && fromSecond != null){
+                    //3. Edge is found in both DataSets -> try merging
+                    ce.setName(fromSecond.getName());
 
-                ce.setAttributes(
-                        syncAttributes(
-                                filterAttributes(fromFirst.getAttributes(), forbiddenAttributes),
-                                filterAttributes(fromSecond.getAttributes(), forbiddenAttributes)));
-
-            }else{
-                //something is wrong here!
+                    ce.setAttributes(
+                            syncAttributes(
+                                    filterAttributes(fromFirst.getAttributes(), forbiddenAttributes),
+                                    filterAttributes(fromSecond.getAttributes(), forbiddenAttributes)));
+                }else{
+                    //something is wrong here!
+                }
+            }catch(Exception ex){
+                String origMessage = ex.getMessage();
+                ex = new Exception("Error while merging edge " + edge.getId() + " because " + origMessage);
+                logger.error(ex.getMessage());
+                throw ex;
             }
             merged.getEdges().add(ce);
         }
@@ -154,6 +173,12 @@ public class GSHelper {
         return merged;
     }
 
+    /**
+     * Returns a new Hashmap of attributes without the formidden attributes
+     * @param attributes attributes which should be filtered
+     * @param forbidden names of attributes which should be filtered out
+     * @return new Hashmap without the forbidden attributes
+     */
     private static Map<String, String> filterAttributes(Map<String, String> attributes, List<String> forbidden){
         Map<String, String> filtered = new HashMap<>();
         for(String key : attributes.keySet()){
@@ -173,6 +198,12 @@ public class GSHelper {
         return filtered;
     }
 
+    /**
+     * Merges two Attributes Hashsets and filtering out duplicate values
+     * @param first first attributes list to merge
+     * @param second second attributes list to merge
+     * @return new Hashset containing attributes from both provided sets
+     */
     private static Map<String, String> syncAttributes(Map<String, String> first, Map<String, String> second){
         Map<String, String> synced = new HashMap<>();
 

@@ -7,6 +7,7 @@ import com.bigbasti.coria.graph.CoriaEdge;
 import com.bigbasti.coria.graph.CoriaNode;
 import com.bigbasti.coria.metrics.MetricInfo;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,8 +88,13 @@ public class CoriaExportModule implements ExportModule {
         try {
             if (format == SupportedFormats.JSON) {
                 result.setContentType("application/json;charset=utf-8;");
-                output = new GsonBuilder().create().toJson(dataset);
-                result.setExportResult(output);
+                GsonBuilder gsb = new GsonBuilder();
+                gsb.disableHtmlEscaping();
+                gsb.serializeNulls();
+                gsb.serializeSpecialFloatingPointValues();
+                Gson gson = gsb.create();
+                output = gson.toJson(dataset);
+                result.setExportResult(new String(output.getBytes("UTF8"), "UTF8"));
                 result.setFileName(dataset.getName().replace(" ", "_")+".json");
             }
             if (format == SupportedFormats.XML) {
