@@ -16,30 +16,9 @@ import java.util.List;
  */
 public interface StorageModule {
     String getIdentification();
-
     String getName();
-
     String getDescription();
 
-    CoriaEdge getEdge(String id);
-    @Transient
-    List<CoriaEdge> getEdges();
-    List<CoriaEdge> getEdges(String orderby, String ordertype);
-    List<CoriaEdge> getEdges(Long from, Long to, String orderBy, String orderType);
-    void updateEdge(CoriaEdge edge);
-    void deleteEdge(CoriaEdge edge);
-    void deleteEdge(String id);
-
-    CoriaNode getNode(String id);
-    @Transient
-    List<CoriaNode> getNodes();
-    List<CoriaNode> getNodes(String orderby, String ordertype);
-    List<CoriaEdge> getNodes(Long from, Long to, String orderBy, String orderType);
-    void updateNode(CoriaNode node);
-    void deleteNode(CoriaNode node);
-    void deleteNode(String id);
-
-    MetricInfo getMetricInfo(String id);
     @Transient
     List<MetricInfo> getMetricInfos();
     List<MetricInfo> getMetricInfos(String datasetId);
@@ -61,7 +40,7 @@ public interface StorageModule {
     void deleteDataSet(String id);
 
     /**
-     * returns current storage status (wether it is available) and provides an
+     * returns current storage status (whether it is available) and provides an
      * error message in case its not
      * @return Status of storage
      */

@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.FileSystemNotFoundException;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -135,7 +136,13 @@ public class MetricsController extends BaseController {
             logger.debug("metricModule execution {} finished for {}", metricid, datasetid);
         } catch (Exception e) {
             //something went wrong while executing the metricModule
-            setMetricInfoToFailed(storage, mInfo, e.getMessage());
+            if(e instanceof FileSystemNotFoundException){
+                //this usually happens when the module resources were not copied into coria-api resources
+                //if this is the case please perform a maven install on the root project
+                setMetricInfoToFailed(storage, mInfo, "Could not find required file resource for metric execution. Please contact your system administrator and check if all resources are in place.");
+            }else {
+                setMetricInfoToFailed(storage, mInfo, e.getMessage());
+            }
             e.printStackTrace();
         }
         return new AsyncResult<>(ResponseEntity.ok(null));

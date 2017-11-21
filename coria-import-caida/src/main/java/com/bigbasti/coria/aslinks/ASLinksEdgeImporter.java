@@ -64,6 +64,8 @@ public class ASLinksEdgeImporter implements ImportModule {
 
         logger.debug("data format accepted - begin parsing");
 
+        this.importedNodes = new ArrayList<>();
+        this.importedEdges = new ArrayList<>();
         parseAsLinks(strData);
 
         logger.debug("parsing finished, parsed " + importedEdges.size() + " edges");

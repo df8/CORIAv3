@@ -7,7 +7,7 @@ angular.module('coria.components')
             function( $scope,   modulesService,   dataSetService){
 
             var vm = this;
-            vm.selectedProvider = {name:"<= Select Import Parser"};
+            vm.selectedProvider = {name:"<= Select Import Module"};
             vm.inputProviders = modulesService.queryImportModules();
 
             vm.import = {

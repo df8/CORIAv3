@@ -22,12 +22,12 @@ public class EdgesExportModule implements ExportModule {
 
     @Override
     public String getName() {
-        return "Raw Edges Export Adapter";
+        return "Raw Edges Export Module";
     }
 
     @Override
     public String getDescription() {
-        return "<p><strong>This export adapter exports all edges from a dataset identified by their AS-ID</strong></p>" +
+        return "<p><strong>This export module exports all edges from a dataset identified by their AS-ID</strong></p>" +
                 "<p>The exported data will be in <code>CSV</code> format. You can specify which separator character to use in the <code>separator</code> text field on the left</p>" +
                 "<p><strong>NOTE:</strong> If no separator is specified a <code>,</code> (comma) will be used as a fallback!</p>" +
                 "<p><strong>NOTE:</strong> No CSV Header / Title row will be created</p>" +

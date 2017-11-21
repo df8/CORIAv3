@@ -79,81 +79,6 @@ public class RedisStorageModule implements StorageModule {
     }
 
     @Override
-    public CoriaEdge getEdge(String id) {
-        return null;
-    }
-
-    @Override
-    public List<CoriaEdge> getEdges() {
-        return null;
-    }
-
-    @Override
-    public List<CoriaEdge> getEdges(String orderby, String ordertype) {
-        return null;
-    }
-
-    @Override
-    public List<CoriaEdge> getEdges(Long from, Long to, String orderBy, String orderType) {
-        return null;
-    }
-
-    @Override
-    public void updateEdge(CoriaEdge edge) {
-
-    }
-
-    @Override
-    public void deleteEdge(CoriaEdge edge) {
-
-    }
-
-    @Override
-    public void deleteEdge(String id) {
-
-    }
-
-    @Override
-    public CoriaNode getNode(String id) {
-        return null;
-    }
-
-    @Override
-    public List<CoriaNode> getNodes() {
-        return null;
-    }
-
-    @Override
-    public List<CoriaNode> getNodes(String orderby, String ordertype) {
-        return null;
-    }
-
-    @Override
-    public List<CoriaEdge> getNodes(Long from, Long to, String orderBy, String orderType) {
-        return null;
-    }
-
-    @Override
-    public void updateNode(CoriaNode node) {
-
-    }
-
-    @Override
-    public void deleteNode(CoriaNode node) {
-
-    }
-
-    @Override
-    public void deleteNode(String id) {
-
-    }
-
-    @Override
-    public MetricInfo getMetricInfo(String id) {
-        return null;
-    }
-
-    @Override
     public List<MetricInfo> getMetricInfos() {
         logger.debug("loading metric infos");
         Instant starts = Instant.now();
@@ -201,18 +126,6 @@ public class RedisStorageModule implements StorageModule {
             RList<MetricInfo> dbMInfos = getClient().getList("minfos#" + ds.getId());
             for(MetricInfo mi : dbMInfos){
                 if(mi.getId().equals(metricInfo.getId())){
-//                    MetricInfo updated = new MetricInfo();
-//                    updated.setId(metricInfo.getId());
-//                    updated.setExecutionStarted(metricInfo.getExecutionStarted());
-//                    updated.setExecutionFinished(metricInfo.getExecutionFinished());
-//                    updated.setMessage(metricInfo.getMessage());
-//                    updated.setName(metricInfo.getName());
-//                    updated.setProvider(metricInfo.getProvider());
-//                    updated.setShortcut(metricInfo.getShortcut());
-//                    updated.setTechnology(metricInfo.getTechnology());
-//                    updated.setType(metricInfo.getType());
-//                    updated.setValue(metricInfo.getValue());
-//                    updated.setStatus(metricInfo.getStatus());
                     dbMInfos.remove(mi);
                     dbMInfos.add(metricInfo);
                     break;
@@ -322,9 +235,6 @@ public class RedisStorageModule implements StorageModule {
 
     @Override
     public List<DataSet> getDataSetsShort() {
-//        RKeys keys = getClient().getKeys();
-//        Iterable<String> dataSets = keys.getKeysByPattern("dataset*");
-
         RList<DataSet> dataSets = getClient().getList("datasets");
         return dataSets.readAll();
 

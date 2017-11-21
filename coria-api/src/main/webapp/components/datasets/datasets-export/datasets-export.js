@@ -8,7 +8,7 @@ angular.module('coria.components')
 
             var vm = this;
             vm.datasets = [];
-            vm.selectedProvider = {name:"<= Select Export Adapter"};
+            vm.selectedProvider = {name:"<= Select Export Module"};
             vm.exportProviders = modulesService.queryExportModules();
             dataSetService.shortDataSets().then(function(data){
                 vm.datasets = data;

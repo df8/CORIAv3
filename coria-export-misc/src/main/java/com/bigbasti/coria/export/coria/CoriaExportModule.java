@@ -31,12 +31,12 @@ public class CoriaExportModule implements ExportModule {
 
     @Override
     public String getName() {
-        return "CORIA DataSet Export Adapter";
+        return "CORIA DataSet Export Module";
     }
 
     @Override
     public String getDescription() {
-        return "<p><strong>This export adapter exports a whole DataSet including its name and all meta information inside it</strong></p>" +
+        return "<p><strong>This export module exports a whole DataSet including its name and all meta information inside it</strong></p>" +
                 "<p>The exportet data can be in <code>XML</code> or <code>JSON</code> format. You can choose the format in the input field named 'format' on the left. (If it is left blank or an unsupported value is entered JSON format will be used)</p>" +
                 "<p>This format is designed to be used to transfer a dataset between different instances of CORIA</p>" +
                 "<p><strong>NOTE:</strong> Although the data is extracted, the internal IDs of the objects will not be exported. They will be regenerated while importing the DataSet</p>";

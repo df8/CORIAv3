@@ -30,9 +30,9 @@ public class NXAverageNeighbourDegree implements MetricModule {
     @Override
     public String getDescription() {
         return "Returns the average degree of the neighborhood of each node. <br/> The average degree of a node i is <br/>" +
-                "<img src=\"https://networkx.github.io/documentation/development/_images/math/ef382473d588681f1efa5156fdf589c8cc3d7fb0.png\"><br/>" +
+                "<img src=\"https://networkx.github.io/documentation/networkx-1.10/_images/math/ef382473d588681f1efa5156fdf589c8cc3d7fb0.png\"><br/>" +
                 "where N(i) are the neighbors of node i and k_j is the degree of node j which belongs to N(i). For weighted graphs, an analogous measure can be defined<br/>" +
-                "<img src=\"https://networkx.github.io/documentation/development/_images/math/20848505733e71688e5bfbe310322bac4b4ac407.png\"><br/>" +
+                "<img src=\"https://networkx.github.io/documentation/networkx-1.10/_images/math/20848505733e71688e5bfbe310322bac4b4ac407.png\"><br/>" +
                 "where s_i is the weighted degree of node i, w_{ij} is the weight of the edge that links i and j and N(i) are the neighbors of node i.";
     }
 

@@ -147,11 +147,6 @@
 			<artifactId>gs-ui</artifactId>
 			<version>1.3</version>
 		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>18.0</version>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -180,9 +175,7 @@
 						</goals>
 						<configuration>
 							<includeGroupIds>${project.groupId}</includeGroupIds>
-							<!--<includeArtifactIds>coria-metric-python-nx</includeArtifactIds>-->
 							<excludeTransitive>true</excludeTransitive>
-							<!--<overWrite>true</overWrite>-->
 							<outputDirectory>${project.build.directory}/classes</outputDirectory>
 							<excludes>com/**,META-INF/**,rebel.xml</excludes>
 							<overWriteReleases>true</overWriteReleases>

@@ -1,12 +1,12 @@
 <div class="page-header">
-    <h1>Datasets <small>Upload new Dataset</small></h1>
+    <h1>Datasets <small>Export</small></h1>
 </div>
 <div class="row">
     <div class="col-md-4">
         <div class="alert alert-danger" role="alert" ng-show="$ctrl.export.errorMessage">{{$ctrl.export.errorMessage}}</div>
         <form name="import" id="import" ng-submit="$ctrl.submitExport()">
             <div class="form-group">
-                <label for="export.providers">Select Export Adapter</label>
+                <label for="export.providers">Select Export Module</label>
                 <select class="form-control" ng-model="$ctrl.export.provider" id="export.providers" ng-change="$ctrl.exportProviderSelected()">
                     <option ng-repeat="provider in $ctrl.exportProviders" value="{{provider.identification}}">{{provider.name}}</option>
                 </select>

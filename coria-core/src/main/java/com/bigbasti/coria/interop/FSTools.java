@@ -138,11 +138,11 @@ public class FSTools {
             int exitValue = startProcessAndWait(params);
 
             Instant ends = Instant.now();
-            logger.debug("python execution finished ({})", Duration.between(starts, ends));
+            logger.debug("process execution finished ({})", Duration.between(starts, ends));
 
             if (exitValue != 0) {
                 //something happened -> do something
-                logger.debug("python exit code: {}", exitValue);
+                logger.debug("process exit code: {}", exitValue);
             }
 
             return true;

@@ -7,7 +7,7 @@
         <div class="alert alert-danger" role="alert" ng-show="$ctrl.import.errorMessage">{{$ctrl.import.errorMessage}}</div>
         <form name="import" id="import" ng-submit="$ctrl.submitImport()">
             <div class="form-group">
-                <label for="import.providers">Select Import Parser</label>
+                <label for="import.providers">Select Import Module</label>
                 <select class="form-control" ng-model="$ctrl.import.provider" id="import.providers" ng-change="$ctrl.importProviderSelected()">
                     <option ng-repeat="provider in $ctrl.inputProviders" value="{{provider.identification}}">{{provider.name}}</option>
                 </select>

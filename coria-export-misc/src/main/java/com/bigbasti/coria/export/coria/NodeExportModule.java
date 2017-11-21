@@ -23,12 +23,12 @@ public class NodeExportModule implements ExportModule {
 
     @Override
     public String getName() {
-        return "Nodes Export Adapter";
+        return "Nodes Export Module";
     }
 
     @Override
     public String getDescription() {
-        return "<p><strong>This export adapter exports all nodes from a dataset identified by their AS-ID</strong></p>" +
+        return "<p><strong>This export module exports all nodes from a dataset identified by their AS-ID</strong></p>" +
                 "<p>The exported data will be in <code>CSV</code> format. You can specify which separator character to use in the <code>separator</code> text field on the left</p>" +
                 "<p>You can specify different fields (which should be included in the exported CSV) and different order in the input field <code>layout</code> on the left</p>" +
                 "<p>The fallback/default output of the export adapter will be this: <code>ASID, NAME, RiskScore</code></p>" +
