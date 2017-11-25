@@ -80,7 +80,7 @@ public class GSAllPairShortestPath implements MetricModule{
                         .filter(coriaNode -> coriaNode.getAsid().equals(n.getId()))
                         .findFirst()
                         .get();
-                currentNode.setAttribute(getShortcut(), "not available yet");
+                currentNode.setAttribute(getShortcut(), n.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME));
             }
             logger.debug("updating dataset finished");
 
