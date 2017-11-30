@@ -21,6 +21,7 @@ To build CORIA from the here provided sources simply follow the steps:
 
 1. Install the application server of your choice (example: Tomcat)
 2. Install a database server (Redis or MySQL as of now)
+2. Downlaod and install Python 3 on the machine (recommended but not mandatory)
 2. Deploy the **coria.war** file as created above into the application server according to the servers manual
 3. find the application.properties file in the unpacked application directory, usually under:
 >WEB-INF\classes\
