@@ -74,6 +74,8 @@ public class CoriaDataSetImporter implements ImportModule {
     public void parseInformation(Object data, Map<String, Object> params) throws FormatNotSupportedException {
         logger.debug("starting import of data");
 
+        cleanSession();
+
         String strData = getStringFromData(data);
 
         logger.debug("data format accepted - begin parsing");
@@ -125,6 +127,11 @@ public class CoriaDataSetImporter implements ImportModule {
             throw new FormatNotSupportedException("The provided format is not supported, please provide data in String or byte[] format!");
         }
         return strData;
+    }
+
+    private void cleanSession(){
+        this.importedEdges = new ArrayList<>();
+        this.importedNodes = new ArrayList<>();
     }
 
     @Override

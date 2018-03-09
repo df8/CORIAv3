@@ -89,6 +89,7 @@ public class ASLinksEdgeResolveImporter implements ImportModule {
 
     public void parseInformation(Object data, Map<String, Object> params) throws FormatNotSupportedException {
         logger.debug("starting import of data");
+        cleanSession();
         checkIfAdditionalParamsSadisfied(params);
 
         String strData = "";
@@ -228,6 +229,11 @@ public class ASLinksEdgeResolveImporter implements ImportModule {
             throw new FormatNotSupportedException("The provided format is not supported, please provide data in String or byte[] format!");
         }
         return strData;
+    }
+
+    private void cleanSession(){
+        this.importedEdges = new ArrayList<>();
+        this.importedNodes = new ArrayList<>();
     }
 
     @Override

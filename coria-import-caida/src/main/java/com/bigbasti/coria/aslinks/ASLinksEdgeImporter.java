@@ -64,8 +64,8 @@ public class ASLinksEdgeImporter implements ImportModule {
 
         logger.debug("data format accepted - begin parsing");
 
-        this.importedNodes = new ArrayList<>();
-        this.importedEdges = new ArrayList<>();
+        cleanSession();
+
         parseAsLinks(strData);
 
         logger.debug("parsing finished, parsed " + importedEdges.size() + " edges");
@@ -146,6 +146,11 @@ public class ASLinksEdgeImporter implements ImportModule {
     @Override
     public ImportType getImportType() {
         return ImportType.NODES_AND_EDGES;
+    }
+
+    private void cleanSession(){
+        this.importedEdges = new ArrayList<>();
+        this.importedNodes = new ArrayList<>();
     }
 
     @Override
