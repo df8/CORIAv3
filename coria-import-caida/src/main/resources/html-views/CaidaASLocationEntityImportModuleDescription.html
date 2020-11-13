@@ -1,0 +1,35 @@
+<p><b>CORIA</b> is a system designed to analyse networks (or graphs) of any size. In the context of Autonomous Systems (AS) we consider the Internet a network of interconnected
+    routers where an AS can be represented by a node and the physical link between any two AS as an edge. This allows us to transfer research problems such as measuring global and
+    regional Internet resilience into known and in some cases already solved mathematical problems within the field of graph theory.</p>
+<p>The CAIDA import module supports the following file type. You can drag and drop files in any order, as CORIA accepts multiple files with the described format and merges
+    all provided information into a single list of AS Locations. </p>
+
+<h3>Autonomous System Locations Dataset</h3>
+<div><i>At least one file of this type is required.</i>
+    <p>In order to understand technical and economic implications for the Internet stability, CAIDA publishes an association mapping between pairs of AS (AS links) and their
+        estimated geographic locations.<sup>[1]</sup> "Understanding the geographic nature of these relationships can facilitate activities such as: realistic
+        simulation of AS path prediction; application performance estimation; predicting the likelihood that two ASes will interconnect; and visualizing the geographic distribution
+        of networks."<sup>[1]</sup> This import module allows you to import a batch of locations from files provided by CAIDA.</p>
+    <p><b>Format definition for AS Location files: </b> <sup>[2]</sup></p>
+    <pre>location ID|continent ID|country ID|region ID|city|latitude|longitude|population number</pre>
+    Example:
+    <pre>Berlin-BE-DE|EU|DE|BE|Berlin|52.5303|13.3333|0</pre>
+    <p><b>Interpretation:</b> From the above line, we add a new entry for the city <code>Berlin</code> in the region <code>BE</code> (<i>state of Berlin</i>) of <code>DE</code>
+        (<i>Germany</i>) located in <code>EU</code> (<i>Europe</i>) and having the GPS coordinates <code>52.5303 N, 13.3333 E</code>.
+    </p>
+    <p><b>Download:</b> Compatible AS location files can be obtained from data.caida.org:&nbsp;e.g. <code>201603.locations.txt.gz</code> Link: <a
+            href="http://data.caida.org/datasets/as-relationships-geo/" target="blank">http://data.caida.org/datasets/as-relationships-geo/</a>
+    </p>
+    <p>Please extract the text file from the caida.org-provided .gz archive before uploading.</p>
+</div>
+
+<h3>References</h3>
+<ul>
+    <li>[1] The Center for Applied Internet Data Analysis UCSD. (2019) AS Relationships -- with geographic annotations.
+        Retrieved from <a href="https://www.caida.org/data/as-relationships-geo/">https://www.caida.org/data/as-relationships-geo/</a> on June 29th, 2020.
+    </li>
+    <li>[2] The Center for Applied Internet Data Analysis UCSD. (2017) Dataset: Autonomous System Links to Geographic Relationships mapping. File "README.txt".
+        Retrieved from <a href="http://data.caida.org/datasets/as-relationships-geo/README.txt"> http://data.caida.org/datasets/as-relationships-geo/README.txt</a> on June 29th,
+        2020.
+    </li>
+</ul>

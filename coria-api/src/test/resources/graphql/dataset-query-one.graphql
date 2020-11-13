@@ -1,0 +1,37 @@
+query Dataset($id: ID!) {
+    data: Dataset(id: $id) {
+        id
+        name
+        created
+        metrics {
+            id
+            __typename
+        }
+        attributesList {
+            key
+            value
+            __typename
+        }
+        metricResults {
+            metric {
+                id
+                metricAlgorithmImplementation {
+                    id
+                    metricAlgorithmVariant {
+                        id
+                        metricAlgorithm {
+                            id
+                            __typename
+                        }
+                        __typename
+                    }
+                    __typename
+                }
+                __typename
+            }
+            value
+            __typename
+        }
+        __typename
+    }
+}

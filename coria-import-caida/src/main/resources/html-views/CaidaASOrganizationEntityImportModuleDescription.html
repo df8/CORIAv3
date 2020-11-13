@@ -1,0 +1,42 @@
+<p><b>CORIA</b> is a system designed to analyse networks (or graphs) of any size. In the context of Autonomous Systems (AS) we consider the Internet a network of interconnected
+    routers where an AS can be represented by a node and the physical link between any two AS as an edge. This allows us to transfer research problems such as measuring global and
+    regional Internet resilience into known and in some cases already solved mathematical problems within the field of graph theory.</p>
+<p>The CAIDA import module supports the following file type. You can drag and drop files in any order, as CORIA accepts multiple files with the described format and merges
+    all provided information into a single list of AS Organizations. </p>
+
+<h3>Autonomous System Organizations Dataset</h3>
+<div><i>At least one file of this type is required.</i>
+    <p>In their effort to infer which organizations operate which Autonomous System(s), since 2009 CAIDA quarterly scans WHOIS database dumps and extracts the organization listed
+        for each AS.<sup>[1][2]</sup> Understanding how various parts of the Internet infrastructure are distributed among the operating organizations allows to unravel "the
+        topological and economic structure of the Internet"<sup>[2]</sup>. An example of a WHOIS entry can be found under [3]. </p>
+
+    <p>This import module allows you to import a batch of organizations from files provided by CAIDA.</p>
+    <p><b>Format definition for AS Organization files: </b> <sup>[4]</sup></p>
+    <pre>organization ID|date of last entry change|organization name|country ID|source database</pre>
+    Example:
+    <pre>HARVAR-ARIN|20190812|Harvard University|US|ARIN</pre>
+    <p><b>Interpretation:</b> From the above line, we add a new entry for the organization <code>Harvard University</code>, initially found via a WHOIS lookup in the database
+        <code>ARIN</code>, located in <code>US</code> and identified by <code>HARVAR-ARIN</code>.
+    </p>
+    <p><b>Download:</b> Compatible AS organization files can be obtained from data.caida.org:&nbsp;e.g. <code>20200401.as-org2info.txt.gz</code> Link: <a
+            href="http://data.caida.org/datasets/as-organizations/" target="blank">http://data.caida.org/datasets/as-organizations/</a>
+    </p>
+    <p>Please extract the text file from the caida.org-provided .gz archive before uploading.</p>
+</div>
+
+<h3>References</h3>
+<ul>
+    <li>[1] The Center for Applied Internet Data Analysis UCSD. (2019) Inferred AS to Organization Mapping Dataset.
+        Retrieved from <a href="https://www.caida.org/data/as-organizations/">https://www.caida.org/data/as-organizations/</a> on June 29th, 2020.
+    </li>
+    <li>[2] The Center for Applied Internet Data Analysis UCSD. (2019) Mapping Autonomous Systems to Organizations: CAIDA's Inference Methodology.
+        Retrieved from <a href="https://www.caida.org/research/topology/as2org/">https://www.caida.org/research/topology/as2org/</a> on June 29th, 2020.
+    </li>
+    <li>[3] IPinfo.io. WHOIS details for AS11 - operated by Harvard University, Cambridge, MA, US.
+        Retrieved from <a href="https://ipinfo.io/AS11">https://ipinfo.io/AS11</a> on June 29th, 2020.
+    </li>
+    <li>[4] The Center for Applied Internet Data Analysis UCSD. (2018) Dataset: Autonomous Systems (AS) to Organizations (Org) mapping. File "README.txt".
+        Retrieved from <a href="http://data.caida.org/datasets/as-organizations/README.txt">
+            http://data.caida.org/datasets/as-organizations/README.txt</a> on June 29th, 2020.
+    </li>
+</ul>

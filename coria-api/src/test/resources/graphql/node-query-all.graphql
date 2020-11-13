@@ -1,0 +1,57 @@
+query allNodes($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: NodeFilter) {
+    items: allNodes(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+        id
+        name
+        metricResults {
+            metric {
+                id
+                metricAlgorithmImplementation {
+                    id
+                    metricAlgorithmVariant {
+                        id
+                        metricAlgorithm {
+                            id
+                            __typename
+                        }
+                        __typename
+                    }
+                    __typename
+                }
+                __typename
+            }
+            value
+            __typename
+        }
+        attributesList {
+            key
+            value
+            __typename
+        }
+        layoutPositions {
+            metric {
+                id
+                metricAlgorithmImplementation {
+                    id
+                    metricAlgorithmVariant {
+                        id
+                        metricAlgorithm {
+                            id
+                            __typename
+                        }
+                        __typename
+                    }
+                    __typename
+                }
+                __typename
+            }
+            x
+            y
+            __typename
+        }
+        __typename
+    }
+    total: _allNodesMeta(page: $page, perPage: $perPage, filter: $filter) {
+        count
+        __typename
+    }
+}

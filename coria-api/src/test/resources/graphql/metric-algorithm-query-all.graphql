@@ -1,0 +1,39 @@
+query allMetricAlgorithms($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: MetricAlgorithmFilter) {
+    items: allMetricAlgorithms(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+        id
+        name
+        description
+        type
+        metricAlgorithmVariants {
+            id
+            name
+            description
+            dependencies {
+                id
+                name
+                metricAlgorithm {
+                    id
+                    name
+                    __typename
+                }
+                __typename
+            }
+            implementations {
+                id
+                provider
+                technology
+                description
+                speedIndex
+                available
+                unavailableReason
+                __typename
+            }
+            __typename
+        }
+        __typename
+    }
+    total: _allMetricAlgorithmsMeta(page: $page, perPage: $perPage, filter: $filter) {
+        count
+        __typename
+    }
+}

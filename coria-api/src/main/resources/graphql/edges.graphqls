@@ -1,0 +1,41 @@
+extend type Query {
+    Edge(id: ID!): Edge
+    allEdges(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: EdgeFilter): [Edge]
+    _allEdgesMeta(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: EdgeFilter): ListMetadata
+}
+
+extend type Mutation {
+    updateEdge(
+        id: ID!
+        name: String!
+    ): Edge
+    deleteEdge(id: ID!): Edge
+}
+
+type Edge {
+    id: ID!
+    name: String!
+    nodeSource: Node!
+    nodeTarget: Node!
+    dataset: Dataset!
+    metricResults: [EdgeMetricResult]
+    attributesList: [AttributeEntry!]
+    locations: [EdgeLocation]
+}
+
+type EdgeMetricResult {
+    edge: Edge!
+    metric: Metric!
+    value: Float!
+}
+
+type EdgeLocation {
+    edge: Edge
+    location: ASLocation
+    source: String
+}
+
+input EdgeFilter {
+    datasetId: ID!
+    name: String
+}

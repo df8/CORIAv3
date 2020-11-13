@@ -1,0 +1,18 @@
+extend type Query {
+    ShortestPathLength(id: ID!): ShortestPathLength
+    allShortestPathLengths(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: ShortestPathLengthFilter): [ShortestPathLength]
+    _allShortestPathLengthsMeta(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: ShortestPathLengthFilter): ListMetadata
+}
+
+type ShortestPathLength {
+    id: ID!
+    metric: Metric!
+    nodeSourceName: String!
+    nodeTargetName: String!
+    distance: Int!
+}
+
+input ShortestPathLengthFilter {
+    datasetId: ID
+    metricAlgorithmImplementationId: ID
+}

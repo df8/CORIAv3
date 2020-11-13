@@ -1,0 +1,316 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type ASLocation {
+    city: String
+    continent: String
+    country: String
+    edgeLocations: [EdgeLocation]
+    id: ID!
+    latitude: String
+    longitude: String
+    region: String
+}
+
+type ASOrganization {
+    country: String
+    id: ID!
+    name: String
+}
+
+type AttributeEntry {
+    key: String!
+    value: String!
+}
+
+type CudaDevice {
+    description: String!
+    id: ID!
+    name: String!
+}
+
+type Dataset {
+    attributesList: [AttributeEntry!]
+    created: String
+    id: ID!
+    metricResults: [DatasetMetricResult!]
+    metrics: [Metric!]
+    name: String!
+}
+
+type DatasetMetricResult {
+    metric: Metric
+    value: String
+}
+
+type Edge {
+    attributesList: [AttributeEntry!]
+    dataset: Dataset!
+    id: ID!
+    locations: [EdgeLocation]
+    metricResults: [EdgeMetricResult]
+    name: String!
+    nodeSource: Node!
+    nodeTarget: Node!
+}
+
+type EdgeLocation {
+    edge: Edge
+    location: ASLocation
+    source: String
+}
+
+type EdgeMetricResult {
+    edge: Edge!
+    metric: Metric!
+    value: Float!
+}
+
+type ExportModule {
+    description: String!
+    id: ID!
+    name: String!
+    parameters: [ExportModuleParameter!]!
+}
+
+type ExportModuleParameter {
+    id: ID!
+    name: String!
+    options: [String!]!
+}
+
+type ImportModule {
+    description: String!
+    id: ID!
+    name: String!
+}
+
+type ListMetadata {
+    count: Int!
+}
+
+type Metric {
+    datasetMetricResults: [DatasetMetricResult]
+    edgeMetricResults: [EdgeMetricResult]
+    finished: String
+    id: ID!
+    message: String
+    metricAlgorithmImplementation: MetricAlgorithmImplementation!
+    nodeLayoutPositions: [NodeLayoutPosition]
+    nodeMetricResults: [NodeMetricResult]
+    shortestPathLengths: [ShortestPathLength]
+    started: String!
+    status: MetricStatus!
+}
+
+type MetricAlgorithm {
+    description: String!
+    id: ID!
+    metricAlgorithmVariants: [MetricAlgorithmVariant!]!
+    name: String!
+    type: MetricAlgorithmType!
+}
+
+type MetricAlgorithmImplementation {
+    available: Boolean!
+    description: String!
+    id: ID!
+    metricAlgorithmVariant: MetricAlgorithmVariant!
+    name: String!
+    provider: String!
+    speedIndex: Int!
+    technology: String!
+    unavailableReason: String
+}
+
+type MetricAlgorithmVariant {
+    dependencies: [MetricAlgorithmVariant!]
+    description: String!
+    id: ID!
+    implementations: [MetricAlgorithmImplementation!]!
+    metricAlgorithm: MetricAlgorithm!
+    name: String!
+    parameters: [MetricAlgorithmVariantParameter!]
+}
+
+type MetricAlgorithmVariantParameter {
+    defaultValue: String!
+    description: String!
+    id: ID!
+    index: Int!
+    isRequired: Boolean!
+    type: MetricAlgorithmVariantParameterType!
+}
+
+type Mutation {
+    createASLocation(files: [Upload!], importModule: String!): ASLocation
+    createASOrganization(files: [Upload!], importModule: String!): ASOrganization
+    createDataset(files: [Upload!], importModule: String!, name: String!): Dataset
+    createMetric(datasetId: String!, metricAlgorithm: String!, metricAlgorithmImplementation: String!, metricAlgorithmVariant: String!, parameters: [MetricAlgorithmVariantParameterInput!]): Metric
+    deleteDataset(id: ID!): Dataset
+    deleteEdge(id: ID!): Edge
+    deleteMetric(id: ID!): Metric
+    deleteNode(id: ID!): Node
+    updateDataset(id: ID!, name: String!): Dataset
+    updateEdge(id: ID!, name: String!): Edge
+    updateNode(id: ID!, name: String!): Node
+}
+
+type Node {
+    attributesList: [AttributeEntry!]
+    id: ID!
+    layoutPositions: [NodeLayoutPosition]
+    metricResults: [NodeMetricResult]
+    name: String!
+    organizations: [NodeOrganization]
+}
+
+type NodeLayoutPosition {
+    metric: Metric!
+    node: Node!
+    x: Float
+    y: Float
+}
+
+type NodeMetricResult {
+    metric: Metric!
+    node: Node!
+    value: Float!
+}
+
+type NodeOrganization {
+    changeDate: String
+    node: Node
+    organization: ASOrganization
+}
+
+type Query {
+    ASLocation(id: ID!): ASLocation
+    ASOrganization(id: ID!): ASOrganization
+    CudaDevice(id: ID!): CudaDevice
+    Dataset(id: ID!): Dataset
+    Edge(id: ID!): Edge
+    ExportModule(id: ID!): ExportModule
+    ImportModule(id: ID!): ImportModule
+    Metric(id: ID!): Metric
+    MetricAlgorithm(id: ID!): MetricAlgorithm
+    MetricAlgorithmImplementation(id: ID!): MetricAlgorithmImplementation
+    Node(id: ID!): Node
+    ShortestPathLength(id: ID!): ShortestPathLength
+    _allASLocationsMeta(filter: ASLocationFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): ListMetadata
+    _allASOrganizationsMeta(filter: ASOrganizationFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): ListMetadata
+    _allCudaDevicesMeta(filter: ModuleFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): ListMetadata
+    _allDatasetsMeta(filter: DatasetFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): ListMetadata
+    _allEdgesMeta(filter: EdgeFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): ListMetadata
+    _allExportModulesMeta(filter: ModuleFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): ListMetadata
+    _allImportModulesMeta(filter: ImportModuleFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): ListMetadata
+    _allMetricAlgorithmImplementationsMeta(filter: ModuleFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): ListMetadata
+    _allMetricAlgorithmsMeta(filter: MetricAlgorithmFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): ListMetadata
+    _allMetricsMeta(filter: MetricFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): ListMetadata
+    _allNodesMeta(filter: NodeFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): ListMetadata
+    _allShortestPathLengthsMeta(filter: ShortestPathLengthFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): ListMetadata
+    allASLocations(filter: ASLocationFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): [ASLocation]
+    allASOrganizations(filter: ASOrganizationFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): [ASOrganization]
+    allCudaDevices(filter: ModuleFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): [CudaDevice]
+    allDatasets(filter: DatasetFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): [Dataset]
+    allEdges(filter: EdgeFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): [Edge]
+    allExportModules(filter: ModuleFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): [ExportModule]
+    allImportModules(filter: ImportModuleFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): [ImportModule]
+    allMetricAlgorithmImplementations(filter: ModuleFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): [MetricAlgorithmImplementation]
+    allMetricAlgorithms(filter: MetricAlgorithmFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): [MetricAlgorithm]
+    allMetrics(filter: MetricFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): [Metric]
+    allNodes(filter: NodeFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): [Node]
+    allShortestPathLengths(filter: ShortestPathLengthFilter, page: Int, perPage: Int, sortField: String, sortOrder: String): [ShortestPathLength]
+}
+
+type ShortestPathLength {
+    distance: Int!
+    id: ID!
+    metric: Metric!
+    nodeSourceName: String!
+    nodeTargetName: String!
+}
+
+enum MetricAlgorithmType {
+    Dataset
+    Edge
+    LayoutPosition
+    Node
+    ShortestPathLength
+    Unknown
+}
+
+enum MetricAlgorithmVariantParameterType {
+    FLOAT
+    INT
+    STRING
+}
+
+enum MetricStatus {
+    FAILED
+    FINISHED
+    RUNNING
+    SCHEDULED
+}
+
+input ASLocationFilter {
+    ids: [ID]
+    q: String
+}
+
+input ASOrganizationFilter {
+    ids: [ID]
+    q: String
+}
+
+input DatasetFilter {
+    ids: [ID]
+    q: String
+}
+
+input EdgeFilter {
+    datasetId: ID!
+    name: String
+}
+
+input ImportModuleFilter {
+    ids: [String]
+    importResource: String
+    q: String
+}
+
+input MetricAlgorithmFilter {
+    id: String
+    type: MetricAlgorithmType
+}
+
+input MetricAlgorithmVariantParameterInput {
+    key: String!
+    value: String!
+}
+
+input MetricFilter {
+    datasetId: ID!
+}
+
+input ModuleFilter {
+    ids: [String]
+    q: String
+}
+
+input NodeFilter {
+    datasetId: ID!
+    name: String
+}
+
+input ShortestPathLengthFilter {
+    datasetId: ID
+    metricAlgorithmImplementationId: ID
+}
+
+
+scalar Upload

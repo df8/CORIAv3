@@ -1,0 +1,69 @@
+extend type Query {
+    MetricAlgorithm(id: ID!): MetricAlgorithm
+    allMetricAlgorithms(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: MetricAlgorithmFilter): [MetricAlgorithm]
+    _allMetricAlgorithmsMeta(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: MetricAlgorithmFilter): ListMetadata
+
+    MetricAlgorithmImplementation(id: ID!): MetricAlgorithmImplementation
+    allMetricAlgorithmImplementations(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: ModuleFilter): [MetricAlgorithmImplementation]
+    _allMetricAlgorithmImplementationsMeta(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: ModuleFilter): ListMetadata
+}
+
+
+type MetricAlgorithm {
+    id: ID!
+    name: String!
+    description: String!
+    type: MetricAlgorithmType!
+    metricAlgorithmVariants: [MetricAlgorithmVariant!]!
+}
+
+type MetricAlgorithmVariant {
+    id: ID!
+    name: String!
+    description: String!
+    metricAlgorithm: MetricAlgorithm!
+    implementations: [MetricAlgorithmImplementation!]!
+    dependencies: [MetricAlgorithmVariant!]
+    parameters: [MetricAlgorithmVariantParameter!]
+}
+
+type MetricAlgorithmImplementation {
+    id: ID!
+    name: String!
+    technology: String!
+    provider: String!
+    description: String!
+    speedIndex: Int!
+    metricAlgorithmVariant: MetricAlgorithmVariant!
+    available: Boolean!
+    unavailableReason: String
+}
+
+type MetricAlgorithmVariantParameter {
+    id: ID!
+    index: Int!
+    description: String!
+    defaultValue: String!
+    isRequired: Boolean!
+    type: MetricAlgorithmVariantParameterType!
+}
+
+input MetricAlgorithmFilter {
+    id: String
+    type: MetricAlgorithmType
+}
+
+enum MetricAlgorithmType {
+    Unknown
+    Dataset
+    Node
+    Edge
+    LayoutPosition
+    ShortestPathLength
+}
+
+enum MetricAlgorithmVariantParameterType {
+    FLOAT
+    INT
+    STRING
+}

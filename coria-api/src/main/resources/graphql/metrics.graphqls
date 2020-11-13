@@ -1,0 +1,47 @@
+extend type Query {
+    Metric(id: ID!): Metric
+    allMetrics(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: MetricFilter): [Metric]
+    _allMetricsMeta(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: MetricFilter): ListMetadata
+}
+
+extend type Mutation {
+    createMetric(
+        datasetId: String!
+        metricAlgorithm: String!
+        metricAlgorithmVariant: String!
+        metricAlgorithmImplementation: String!
+        parameters: [MetricAlgorithmVariantParameterInput!]
+    ): Metric
+    deleteMetric(id: ID!): Metric
+}
+
+
+type Metric {
+    id: ID!
+    metricAlgorithmImplementation: MetricAlgorithmImplementation!
+    status: MetricStatus!
+    started: String!
+    finished: String
+    message: String
+    nodeMetricResults: [NodeMetricResult]
+    edgeMetricResults: [EdgeMetricResult]
+    datasetMetricResults: [DatasetMetricResult]
+    shortestPathLengths: [ShortestPathLength]
+    nodeLayoutPositions: [NodeLayoutPosition]
+}
+
+input MetricFilter {
+    datasetId: ID!
+}
+
+enum MetricStatus {
+    SCHEDULED
+    RUNNING
+    FINISHED
+    FAILED
+}
+
+input MetricAlgorithmVariantParameterInput {
+    key: String!
+    value: String!
+}

@@ -1,0 +1,29 @@
+query allShortestPathLengths($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: ShortestPathLengthFilter) {
+    items: allShortestPathLengths(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+        id
+        metric {
+            id
+            metricAlgorithmImplementation {
+                id
+                metricAlgorithmVariant {
+                    id
+                    metricAlgorithm {
+                        id
+                        __typename
+                    }
+                    __typename
+                }
+                __typename
+            }
+            __typename
+        }
+        nodeSourceName
+        nodeTargetName
+        distance
+        __typename
+    }
+    total: _allShortestPathLengthsMeta(page: $page, perPage: $perPage, filter: $filter) {
+        count
+        __typename
+    }
+}

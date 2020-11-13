@@ -1,0 +1,4 @@
+nodeSource,nodeTarget,distance
+A,B,1
+A,C,2
+B,C,1

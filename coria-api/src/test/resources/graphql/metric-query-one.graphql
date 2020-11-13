@@ -1,0 +1,61 @@
+query Metric($id: ID!) {
+    data: Metric(id: $id) {
+        id
+        status
+        started
+        finished
+        message
+        metricAlgorithmImplementation {
+            id
+            metricAlgorithmVariant {
+                id
+                metricAlgorithm {
+                    id
+                    type
+                    __typename
+                }
+                __typename
+            }
+            __typename
+        }
+        nodeMetricResults {
+            node {
+                id
+                name
+                __typename
+            }
+            value
+            __typename
+        }
+        edgeMetricResults {
+            edge {
+                id
+                name
+                __typename
+            }
+            value
+            __typename
+        }
+        datasetMetricResults {
+            value
+            __typename
+        }
+        shortestPathLengths {
+            nodeSourceName
+            nodeTargetName
+            distance
+            __typename
+        }
+        nodeLayoutPositions {
+            node {
+                id
+                name
+                __typename
+            }
+            x
+            y
+            __typename
+        }
+        __typename
+    }
+}

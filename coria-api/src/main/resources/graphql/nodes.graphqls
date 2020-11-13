@@ -1,0 +1,46 @@
+extend type Query {
+    Node(id: ID!): Node
+    allNodes(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: NodeFilter): [Node]
+    _allNodesMeta(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: NodeFilter): ListMetadata
+}
+
+extend type Mutation {
+    updateNode(
+        id: ID!
+        name: String!
+    ): Node
+    deleteNode(id: ID!): Node
+}
+
+type Node {
+    id: ID!
+    name: String!
+    metricResults: [NodeMetricResult]
+    attributesList: [AttributeEntry!]
+    organizations: [NodeOrganization]
+    layoutPositions: [NodeLayoutPosition]
+}
+
+type NodeMetricResult {
+    node: Node!
+    metric: Metric!
+    value: Float!
+}
+
+type NodeLayoutPosition {
+    node: Node!
+    metric: Metric!
+    x: Float
+    y: Float
+}
+
+type NodeOrganization {
+    organization: ASOrganization
+    node: Node
+    changeDate: String
+}
+
+input NodeFilter {
+    datasetId: ID!
+    name: String
+}

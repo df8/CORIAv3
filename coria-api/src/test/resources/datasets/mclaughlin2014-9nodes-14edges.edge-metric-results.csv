@@ -1,0 +1,2 @@
+metric,A <-> B,A <-> C,A <-> D,B <-> C,C <-> D,D <-> E,D <-> F,E <-> F,E <-> G,E <-> H,F <-> G,F <-> H,G <-> H,G <-> I
+edge-betweenness-centrality--default,4,1,9,4,9,10,10,1,6,3,6,3,2,8

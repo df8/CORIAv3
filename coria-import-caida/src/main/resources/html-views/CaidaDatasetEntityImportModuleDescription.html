@@ -1,0 +1,181 @@
+<p>The CAIDA import module supports the following four types of files. You can drag and drop these files in any order. CORIA accepts multiple files for all four types and merges
+    all provided information into a single
+    dataset. </p>
+<h3>1. Autonomous System Links (AS Link) Dataset</h3>
+<div><i>At least one file of this type is required.</i>
+    <p> The AS Link files are being generated regularly by CAIDA's active network measurement infrastructure called Archipelago (Ark).<sup>[1]</sup> Three teams of network
+        monitoring devices generate these datasets.
+        An AS-Link file contains four different types of lines. However, we only process text lines beginning either with <code>D</code> or with <code>I</code>. Lines starting with
+        an <code>M</code> for monitors, with
+        a <code>T</code> for timestamps, and with a <code>#</code> for comments are being ignored. The parameters are separated by <code>TAB</code> characters.
+    </p>
+    <p><b>Format definition for direct links: </b> <sup>[2]</sup></p>
+    <pre>D    from_AS    to_AS   monitor_key1   monitor_key2   ...</pre>
+    Example:
+    <pre>D     1909       1227        0              3</pre>
+    <p><b>Interpretation:</b> From the above line, we learn that the monitoring devices #0 and #3 each traced a direct route between <code>from_AS</code> and <code>to_AS</code>.
+    </p>
+
+    <p><b>Format definition for indirect links: </b> <sup>[2]</sup></p>
+    <pre>I   from_AS   to_AS   gap_length   monitor_key1   monitor_key2   ...</pre>
+    Example:
+    <pre>I     1909     1227        2            0              3</pre>
+    <p><b>Interpretation:</b> From the above line, we learn that the monitoring devices #0 and #3 each indirectly traced a route between <code>from_AS</code> and <code>to_AS</code>.
+        "An indirect AS link exists if two ASes in an AS path are separated by a gap caused by either an unresponsive hop or an inability to map an IP address to an AS number.
+        [...]
+        If two different monitors see gaps of differing lengths between the same pair of ASes, then there will be two separate indirect link lines." <sup>[2]</sup>
+    </p>
+
+    <p><b>Download:</b> Compatible AS link files can be obtained from data.caida.org - for example for Team 1, Year 2020:&nbsp;
+        <a href="http://data.caida.org/datasets/topology/ark/ipv4/as-links/team-1/2020/"
+           target="blank">http://data.caida.org/datasets/topology/ark/ipv4/as-links/team-1/2020/</a></p>
+    <p><b>Merge feature:</b> If you upload multiple AS link files, all edges will be merged into a single dataset. Two lines are considered duplicates if: it is a direct link with
+        the same values
+        for <code>from_AS</code> and <code>to_AS</code> or if is an indirect link with the same values for <code>from_AS</code>, <code>to_AS</code> and <code>gap_length</code>.</p>
+    <p>Please extract the text file from the caida.org-provided .gz archive before uploading.</p>
+</div>
+
+<h3>2. Autonomous Systems to Organizations Mapping (AS-to-Org) Dataset</h3>
+<div><i>This file type is optional.</i>
+    <p><b>Prerequisites:</b> Before importing AS-to-Org mapping files, please make sure that the <code>AS Organization</code> table has been populated with a list of all known
+        organizations.</p>
+    <p>In their effort to infer which organizations operate which Autonomous System(s), since 2009 CAIDA quarterly scans WHOIS database dumps and extracts the organization listed
+        for each AS.<sup>[5][6]</sup> Understanding how various parts of the Internet infrastructure are distributed among the operating organizations allows to unravel "the
+        topological and
+        economic structure of the
+        Internet"<sup>[6]</sup>. An example of a WHOIS entry can be found under [3]. </p>
+
+    <p>An AS-to-Org file contains two types of entry lines: a list of organizations (with organization names and identifiers) and a list of association mappings from Autonomous
+        Systems to organizations. The CAIDA import module only parses the association mappings.</p>
+    <p><b>Format definition for AS-to-organization mappings: </b> <sup>[4]</sup></p>
+    <pre>AS number|date changed|AS name|organization ID|opaque id|entry source (database)</pre>
+    Example:
+    <pre>11|20190812|HARVARD|HARVAR-ARIN|88e9e1a9f78221c5b97e72d580642205_ARIN|ARIN</pre>
+    <p><b>Interpretation:</b> From the above line, we learn that according to WHOIS information gathered from the <code>ARIN</code> database the <code>AS00011</code> is operated by
+        the <code>HARVAR-ARI</code> organization
+        which is the <code>Harvard University</code>, <code>US</code>. </p>
+    <p><b>Download:</b> Compatible AS-org2info files can be obtained from data.caida.org:&nbsp;
+        <a href="http://data.caida.org/datasets/as-organizations/"
+           target="blank">http://data.caida.org/datasets/as-organizations/</a></p>
+    <p><b>Merge feature:</b> If you upload multiple AS-to-Org files, the import module will ignore duplicates. Two lines are considered duplicates with the same values for <code>AS
+        number</code>, <code>organization ID</code> and <code>date changed</code>. An AS can be assigned to multiple organizations, each assignment being tracked by the change
+        date.</p>
+    <p>Please extract the text file from the caida.org-provided .gz archive before uploading.</p>
+</div>
+
+<h3>3. Autonomous Systems Type Classification (AS-to-Type) Dataset</h3>
+<div><i>This file type is optional.</i>
+    <p>In order to analyse the business type/field of application for each Autonomous System, the CAIDA project collected a set of self-reported information about each AS from the
+        external database <i>PeeringDB</i> and
+        labelled a range of AS with the three classes <code>Transit / Access</code>, <code>Content</code> or <code>Enterprise</code>.<sup>[7]</sup> Based on the collected input
+        features and output labels, CAIDA built
+        a machine learning classifier to assign each AS one of these classes. Importing this classification into CORIA allows researchers to apply an additional filter and thus the
+        Internet resilience and connectivity
+        risk analysis research can limit its focus on one of these three business sectors. </p>
+    <table>
+        <tbody>
+        <tr class="headerRow">
+            <th>Source</th>
+            <th> description</th>
+        </tr>
+        <tr>
+            <th>CAIDA_class</th>
+            <td>Classification was an inference from the machine-learning classifier</td>
+        </tr>
+        <tr>
+            <th>peerDB_class</th>
+            <td>AS classification was obtained directly from the PeeringDB database</td>
+        </tr>
+        <tr class="headerRow">
+            <th>Class</th>
+            <th> description</th>
+        </tr>
+        <tr>
+            <th>Transit / Access</th>
+            <td> ASes which was inferred to be either a transit and/or access provider.</td>
+        </tr>
+        <tr>
+            <th>Content</th>
+            <td>ASes which provide content hosting and distribution systems.</td>
+        </tr>
+        <tr>
+            <th>Enterprise</th>
+            <td>Various organizations, universities and companies at the network edge that are mostly users, rather than providers of Internet access, transit or content.</td>
+        </tr>
+        </tbody>
+    </table>
+    <i>Table 1: Possible values for column <code>Source</code> and column <code>Class</code> in the AS-to-type CAIDA dataset. Source: [7]</i>
+    <p><b>Format definition for AS-to-type mappings: </b> <sup>[4]</sup></p>
+    <pre>AS number|Source|Class</pre>
+    Examples:
+    <pre>2|CAIDA_class|Content<br/>30|CAIDA_class|Enterprise<br/>209|peerDB_class|Transit/Access</pre>
+    <p><b>Interpretation:</b> From the first line, we learn that according to the machine learning model (marked with <code>CAIDA_class</code>) the <code>AS00002</code> is operated
+        with the purpose of <code>content hosting and distribution</code>. </p>
+    <p><b>Download:</b> Compatible AS-to-types files can be obtained from data.caida.org:&nbsp;
+        <a href="http://data.caida.org/datasets/as-classification/" target="blank">http://data.caida.org/datasets/as-classification/</a></p>
+    <p><b>Merge feature:</b> If you upload multiple AS-to-Org files, the import module will ignore duplicates. Two lines are considered duplicates with the same values for all
+        three columns. A conflict is detected when
+        an AS is being assigned to two <i>different</i> classes. In this case we use the association with the more current date found in the uploaded file name. We consider an
+        Autonomous System to always be assigned to a single class.</p>
+    <p>Please extract the text file from the caida.org-provided .gz archive before uploading.</p>
+</div>
+
+<h3>4. Autonomous Systems Links to Geolocation Mapping (AS-Link-to-Geo) Dataset</h3>
+<div><i>This file type is optional.</i>
+    <p><b>Prerequisites:</b> Before importing AS-Link-to-Geo mapping files, please make sure that the <code>AS Location</code> table has been populated with a list of all known
+        geolocations.</p>
+    <p>In order to understand technical and economic implications for the Internet stability, CAIDA combines and processes information from four data sources and publishes an
+        association mapping between pairs of AS (AS
+        links) and their estimated geographic locations.<sup>[8]</sup> "Understanding the geographic nature of these relationships can facilitate activities such as: realistic
+        simulation of AS path prediction;
+        application performance estimation; predicting the likelihood that two ASes will interconnect; and visualizing the geographic distribution of networks."<sup>[8]</sup></p>
+    <p><b>Format definition for AS-Link-to-Geo mappings: </b> <sup>[9]</sup></p>
+    <pre>AS0|AS1|loc0,source0.0,source0.1,loc1|loc1,source1.0...</pre>
+    Example:
+    <pre>24|6939|Huntsville-AL-US,edge|Palo Alto-CA-US,lg</pre>
+    <p><b>Interpretation:</b> From the above line, we learn that the <code>Edge AS link (edge)</code> method was used to infer a link between <code>AS00024</code> and
+        <code>AS06939</code> in <code>Huntsville-AL-US</code>.
+        Additionally the <code>Looking Glass Servers (lg)</code> method returned an estimated geographic location of the link between these two networks in <code>Palo
+            Alto-CA-US</code>. Thus, in total we have two
+        physical
+        locations for the link between <code>AS00024</code> and <code>AS06939</code>.
+    </p>
+    <p><b>Download:</b> Compatible AS-Link-to-Geo files can be obtained from data.caida.org:&nbsp;
+        e.g. <code>201603.as-rel-geo.txt.gz</code> Link: <a href="http://data.caida.org/datasets/as-relationships-geo/" target="blank">http://data.caida.org/datasets/as-relationships-geo/</a>
+    </p>
+    <p>Please extract the text file from the caida.org-provided .gz archive before uploading.</p>
+</div>
+
+<h3>References</h3>
+<ul>
+    <li>[1] The Center for Applied Internet Data Analysis UCSD. (2020) Archipelago (Ark) Measurement Infrastructure.
+        Retrieved from <a href="https://www.caida.org/projects/ark/">https://www.caida.org/projects/ark/</a> on June 29th, 2020.
+    </li>
+    <li>[2] The Center for Applied Internet Data Analysis UCSD. (2020) Cycle AS Links file "cycle-aslinks.l7.t1.c008445.20200517.txt".
+        Retrieved and extracted from <a href="http://data.caida.org/datasets/topology/ark/ipv4/as-links/team-1/2020/cycle-aslinks.l7.t1.c008445.20200517.txt.gz">
+            http://data.caida.org/datasets/topology/ark/ipv4/as-links/team-1/2020/cycle-aslinks.l7.t1.c008445.20200517.txt.gz</a> on June 29th, 2020.
+    </li>
+    <li>[3] IPinfo.io. WHOIS details for AS11 - operated by Harvard University, Cambridge, MA, US.
+        Retrieved from <a href="https://ipinfo.io/AS11">https://ipinfo.io/AS11</a> on June 29th, 2020.
+    </li>
+    <li>[4] The Center for Applied Internet Data Analysis UCSD. (2018) Dataset: Autonomous Systems (AS) to Organizations (Org) mapping. File "README.txt".
+        Retrieved from <a href="http://data.caida.org/datasets/as-organizations/README.txt">
+            http://data.caida.org/datasets/as-organizations/README.txt</a> on June 29th, 2020.
+    </li>
+    <li>[5] The Center for Applied Internet Data Analysis UCSD. (2019) Inferred AS to Organization Mapping Dataset.
+        Retrieved from <a href="https://www.caida.org/data/as-organizations/">https://www.caida.org/data/as-organizations/</a> on June 29th, 2020.
+    </li>
+    <li>[6] The Center for Applied Internet Data Analysis UCSD. (2019) Mapping Autonomous Systems to Organizations: CAIDA's Inference Methodology.
+        Retrieved from <a href="https://www.caida.org/research/topology/as2org/">https://www.caida.org/research/topology/as2org/</a> on June 29th, 2020.
+    </li>
+    <li>[7] The Center for Applied Internet Data Analysis UCSD. (2019) AS Classification.
+        Retrieved from <a href="https://www.caida.org/data/as-classification/">https://www.caida.org/data/as-classification/</a> on June 29th, 2020.
+    </li>
+    <li>[8] The Center for Applied Internet Data Analysis UCSD. (2019) AS Relationships -- with geographic annotations.
+        Retrieved from <a href="https://www.caida.org/data/as-relationships-geo/">https://www.caida.org/data/as-relationships-geo/</a> on June 29th, 2020.
+    </li>
+    <li>[9] The Center for Applied Internet Data Analysis UCSD. (2017) Dataset: Autonomous System Links to Geographic Relationships mapping. File "README.txt".
+        Retrieved from <a href="http://data.caida.org/datasets/as-relationships-geo/README.txt">
+            http://data.caida.org/datasets/as-relationships-geo/README.txt</a> on June 29th, 2020.
+    </li>
+</ul>

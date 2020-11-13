@@ -1,0 +1,6 @@
+mutation deleteDataset($id: ID!) {
+    data: deleteDataset(id: $id) {
+        id
+        __typename
+    }
+}

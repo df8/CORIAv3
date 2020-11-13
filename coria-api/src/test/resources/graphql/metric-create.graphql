@@ -1,0 +1,14 @@
+mutation createMetric($datasetId: String!, $metricAlgorithm: String!, $metricAlgorithmVariant: String!, $metricAlgorithmImplementation: String!, $parameters: [MetricAlgorithmVariantParameterInput!]) {
+    data: createMetric(datasetId: $datasetId, metricAlgorithm: $metricAlgorithm, metricAlgorithmVariant: $metricAlgorithmVariant, metricAlgorithmImplementation: $metricAlgorithmImplementation, parameters: $parameters) {
+        id
+        metricAlgorithmImplementation {
+            id
+            __typename
+        }
+        status
+        started
+        finished
+        message
+        __typename
+    }
+}

@@ -1,0 +1,5 @@
+metric,value
+average-node-degree--default,3.111111111
+average-clustering-coefficient--default,0.61111111111
+graph-density--default,0.388888888
+graph-diameter--default,5

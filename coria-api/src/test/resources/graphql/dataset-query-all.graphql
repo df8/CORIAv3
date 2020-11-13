@@ -1,0 +1,29 @@
+query allDatasets($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: DatasetFilter) {
+    items: allDatasets(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+        id
+        name
+        created
+        metrics {
+            id
+            __typename
+        }
+        attributesList {
+            key
+            value
+            __typename
+        }
+        metricResults {
+            metric {
+                id
+                __typename
+            }
+            value
+            __typename
+        }
+        __typename
+    }
+    total: _allDatasetsMeta(page: $page, perPage: $perPage, filter: $filter) {
+        count
+        __typename
+    }
+}

@@ -1,0 +1,15 @@
+schema {
+    query: Query
+}
+
+type ListMetadata {
+    count: Int!
+}
+
+type AttributeEntry {
+    key: String!
+    value: String!
+}
+
+scalar Upload
+scalar JSON

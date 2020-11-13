@@ -1,0 +1,2 @@
+metric,A <-> B,B <-> C
+edge-betweenness-centrality--default,2,2

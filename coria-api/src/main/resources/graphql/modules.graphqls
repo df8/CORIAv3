@@ -1,0 +1,48 @@
+extend type Query {
+    ImportModule(id: ID!): ImportModule
+    allImportModules(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: ImportModuleFilter): [ImportModule]
+    _allImportModulesMeta(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: ImportModuleFilter): ListMetadata
+
+    ExportModule(id: ID!): ExportModule
+    allExportModules(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: ModuleFilter): [ExportModule]
+    _allExportModulesMeta(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: ModuleFilter): ListMetadata
+
+    CudaDevice(id: ID!): CudaDevice
+    allCudaDevices(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: ModuleFilter): [CudaDevice]
+    _allCudaDevicesMeta(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: ModuleFilter): ListMetadata
+}
+
+input ModuleFilter {
+    q: String
+    ids: [String]
+}
+
+input ImportModuleFilter {
+    q: String
+    ids: [String]
+    importResource: String
+}
+type ImportModule {
+    id: ID!
+    name: String!
+    description: String!
+}
+
+type ExportModule {
+    id: ID!
+    name: String!
+    description: String!
+    parameters: [ExportModuleParameter!]!
+}
+
+type ExportModuleParameter {
+    id: ID!
+    name: String!
+    options: [String!]!
+}
+
+type CudaDevice {
+    id: ID!
+    name: String!
+    description: String!
+}

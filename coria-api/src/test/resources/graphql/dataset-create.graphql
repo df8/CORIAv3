@@ -1,0 +1,25 @@
+mutation createDataset($importModule: String!, $name: String!, $files: [Upload!]) {
+    data: createDataset(importModule: $importModule, name: $name, files: $files) {
+        id
+        name
+        created
+        metrics {
+            id
+            __typename
+        }
+        attributesList {
+            key
+            value
+            __typename
+        }
+        metricResults {
+            metric {
+                id
+                __typename
+            }
+            value
+            __typename
+        }
+        __typename
+    }
+}

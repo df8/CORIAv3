@@ -1,0 +1,12 @@
+query allCudaDevices($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: ModuleFilter) {
+    items: allCudaDevices(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+        id
+        name
+        description
+        __typename
+    }
+    total: _allCudaDevicesMeta(page: $page, perPage: $perPage, filter: $filter) {
+        count
+        __typename
+    }
+}

@@ -1,0 +1,37 @@
+type Query {
+    Dataset(id: ID!): Dataset
+    allDatasets(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: DatasetFilter): [Dataset]
+    _allDatasetsMeta(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: DatasetFilter): ListMetadata
+}
+
+type Mutation {
+    createDataset(
+        importModule: String!
+        name: String!
+        files: [Upload!]
+    ): Dataset
+    updateDataset(
+        id: ID!
+        name: String!
+    ): Dataset
+    deleteDataset(id: ID!): Dataset
+}
+
+type Dataset {
+    id: ID!
+    name: String!
+    created: String
+    metrics: [Metric!]
+    attributesList: [AttributeEntry!]
+    metricResults: [DatasetMetricResult!]
+}
+
+input DatasetFilter {
+    q: String
+    ids: [ID]
+}
+
+type DatasetMetricResult {
+    metric: Metric
+    value: String
+}

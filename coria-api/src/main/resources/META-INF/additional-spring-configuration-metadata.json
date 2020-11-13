@@ -1,0 +1,34 @@
+{
+  "properties": [
+    {
+      "name": "spring.http.multipart.max-file-size",
+      "type": "java.lang.String",
+      "description": "Description for spring.http.multipart.max-file-size."
+    },
+    {
+      "name": "spring.http.multipart.max-request-size",
+      "type": "java.lang.String",
+      "description": "Description for spring.http.multipart.max-request-size."
+    },
+    {
+      "name": "server.context-path",
+      "type": "java.lang.String",
+      "description": "Description for server.context-path."
+    },
+    {
+      "name": "coria.metrics.conda.path",
+      "type": "java.lang.String",
+      "description": "Description for coria.metrics.conda.path."
+    },
+    {
+      "name": "coria.metrics.conda.environment",
+      "type": "java.lang.String",
+      "description": "Description for coria.metrics.conda.environment."
+    },
+    {
+      "name": "coria.working-directory",
+      "type": "java.lang.String",
+      "description": "Description for coria.working-directory."
+    }
+  ]
+}

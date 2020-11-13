@@ -1,0 +1,24 @@
+extend type Query {
+    ASOrganization(id: ID!): ASOrganization
+    allASOrganizations(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: ASOrganizationFilter): [ASOrganization]
+    _allASOrganizationsMeta(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: ASOrganizationFilter): ListMetadata
+}
+
+extend type Mutation {
+    createASOrganization(
+        importModule: String!
+        files: [Upload!]
+    ): ASOrganization
+}
+
+type ASOrganization {
+    id: ID!
+    name: String
+    country: String
+}
+
+
+input ASOrganizationFilter {
+    q: String
+    ids: [ID]
+}

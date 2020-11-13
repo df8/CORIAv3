@@ -1,0 +1,29 @@
+extend type Query {
+    ASLocation(id: ID!): ASLocation
+    allASLocations(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: ASLocationFilter): [ASLocation]
+    _allASLocationsMeta(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: ASLocationFilter): ListMetadata
+}
+
+extend type Mutation {
+    createASLocation(
+        importModule: String!
+        files: [Upload!]
+    ): ASLocation
+}
+
+type ASLocation {
+    id: ID!
+    continent: String
+    country: String
+    region: String
+    city: String
+    latitude: String
+    longitude: String
+    edgeLocations: [EdgeLocation]
+}
+
+
+input ASLocationFilter {
+    q: String
+    ids: [ID]
+}

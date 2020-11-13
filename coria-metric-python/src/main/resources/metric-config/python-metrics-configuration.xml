@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<metric-modules>
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Average Neighbour Degree</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Iterated Average Neighbour Degree</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Average Neighbour Degree</algorithm>
+        <algorithm-variant>Corrected</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Average Neighbour Degree</algorithm>
+        <algorithm-variant>Corrected and Normalised</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Iterated Average Neighbour Degree</algorithm>
+        <algorithm-variant>Corrected</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Iterated Average Neighbour Degree</algorithm>
+        <algorithm-variant>Corrected and Normalised</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Node Degree</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Node Degree</algorithm>
+        <algorithm-variant>Normalised</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Average Node Degree</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Graph Diameter</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Shortest Path Lengths</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Average Shortest Path Length</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+    </metric-module>
+
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Average Shortest Path Length</algorithm>
+        <algorithm-variant>Normalised</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Eccentricity</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Eccentricity</algorithm>
+        <algorithm-variant>Normalised</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Betweenness Centrality</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Betweenness Centrality</algorithm>
+        <algorithm-variant>Normalised</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Edge Betweenness Centrality</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Local Clustering Coefficients</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Local Clustering Coefficients</algorithm>
+        <algorithm-variant>Corrected</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Local Clustering Coefficients</algorithm>
+        <algorithm-variant>Corrected and Normalised</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Unified Risk Score</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Connectivity Risk Classification</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Layout Position Circular</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Layout Position Spectral</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Layout Position Spring</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Layout Position Random</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>NetworkX</provider>
+        <algorithm>Layout Position Shell</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Average Neighbour Degree</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Iterated Average Neighbour Degree</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Average Neighbour Degree</algorithm>
+        <algorithm-variant>Corrected</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Average Neighbour Degree</algorithm>
+        <algorithm-variant>Corrected and Normalised</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Iterated Average Neighbour Degree</algorithm>
+        <algorithm-variant>Corrected</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Iterated Average Neighbour Degree</algorithm>
+        <algorithm-variant>Corrected and Normalised</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Betweenness Centrality</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Betweenness Centrality</algorithm>
+        <algorithm-variant>Normalised</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Edge Betweenness Centrality</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Shortest Path Lengths</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Local Clustering Coefficients</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Local Clustering Coefficients</algorithm>
+        <algorithm-variant>Corrected</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Local Clustering Coefficients</algorithm>
+        <algorithm-variant>Corrected and Normalised</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Average Node Degree</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Node Degree</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+        <edge-list-input-file-required>true</edge-list-input-file-required>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Node Degree</algorithm>
+        <algorithm-variant>Normalised</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Average Shortest Path Length</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Average Shortest Path Length</algorithm>
+        <algorithm-variant>Normalised</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Eccentricity</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Eccentricity</algorithm>
+        <algorithm-variant>Normalised</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Unified Risk Score</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+    </metric-module>
+
+    <metric-module>
+        <provider>RAPIDS cuGraph</provider>
+        <algorithm>Connectivity Risk Classification</algorithm>
+        <algorithm-variant>Default</algorithm-variant>
+    </metric-module>
+</metric-modules>

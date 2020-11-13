@@ -22,7 +22,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.bigbasti.coria" level="DEBUG" additivity="false">
+    <logger name="com.coria.v3" level="DEBUG" additivity="false">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </logger>
