@@ -74,7 +74,7 @@ def shortest_path_length(input_dataframe_dict, metric_variant_id, spl_table_requ
 
     if USE_CUDA:
         # Combination of SPL, ECC, ASPL, IAND/Default and IAND/Corrected with storing the shortest paths being optional.
-        # TODO /1 Test all metrics with a disconnected node too        
+        # TODO /3 Test all metrics with a disconnected node too
         # Storing all shortest paths requires lots of GPU memory { O( 3 * |N| * (|N|-1) / 2) } therefore we will avoid it unless
         # explicitly requested by the corresponding command line parameter "-o [...]___shortestpathlength[...]"
         from coria_lib.coria_config import cugraph

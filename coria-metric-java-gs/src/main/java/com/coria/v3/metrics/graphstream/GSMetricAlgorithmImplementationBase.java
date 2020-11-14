@@ -19,9 +19,15 @@ public abstract class GSMetricAlgorithmImplementationBase extends MetricAlgorith
     protected final static Logger logger = LoggerFactory.getLogger(GSMetricAlgorithmImplementationBase.class);
 
     public GSMetricAlgorithmImplementationBase(MetricAlgorithmVariant metricAlgorithmVariant) throws Exception {
-        //TODO description about GraphStream
         super("Java", "S. Gross / D. Fradin / GraphStream",
-                "",
+                "<h4>GraphStream</h4>" +
+                        "<p>GraphStream is a Java-based network graph computation library. " +
+                        "The aim of the library is to provide a way to represent, analyse and visualise graphs.</p>" +
+                        "<h3>References</h3>" +
+                        "<ul>" +
+                        "<li>[1] GraphStream Project.\n" +
+                        "Retrieved from <a href=\"https://graphstream-project.org/\">https://graphstream-project.org/</a> on November 11th, 2020.\n" +
+                        "</li></ul>",
                 10,
                 metricAlgorithmVariant, true, null);
     }

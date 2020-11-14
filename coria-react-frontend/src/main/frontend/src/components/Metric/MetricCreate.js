@@ -3,7 +3,7 @@
  */
 
 import {Create, FormDataConsumer, Loading, RadioButtonGroupInput, SaveButton, SimpleForm, Toolbar, TextInput, useNotify, useQuery} from "react-admin";
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {Grid, Table, TableBody, TableRow, TableCell, TableHead, Radio, Tooltip} from "@material-ui/core";
 import {makeStyles} from "@material-ui/styles";
 import {keyBy} from "lodash";
@@ -96,24 +96,31 @@ const MetricCreateFormContent = (props) => {
     }, [metricAlgorithmsByKey, props.formData.metricAlgorithm, props.formData.metricAlgorithmVariant]);
 
 
-    useEffect(() => {
+    const selectFirstAvailable = useCallback((selectedMetricAlgorithmId, selectedMetricAlgorithmVariantId, selectedMetricAlgorithmImplementation) => {
         //Automatically select the first *available* child when a selection was made.
-        if (total > 0 && !props.formData.metricAlgorithm) {
+
+        if (total > 0 && !selectedMetricAlgorithmId) {
             const firstIndex = metricAlgorithms.findIndex((ma) => ma['metricAlgorithmVariants'].some(mav => mav['implementations'].some(mai => mai['available'])));
             form.change("metricAlgorithm", metricAlgorithms[firstIndex].id);
         }
-        if (total > 0 && metricAlgorithmsByKey[props.formData.metricAlgorithm]) {
-            const firstIndex = metricAlgorithmsByKey[props.formData.metricAlgorithm]['metricAlgorithmVariants'].findIndex(mav => mav['implementations'].some(mai => mai['available']));
-            form.change("metricAlgorithmVariant", metricAlgorithmsByKey[props.formData.metricAlgorithm]['metricAlgorithmVariants'][firstIndex].id);
+        if (total > 0 && metricAlgorithmsByKey[selectedMetricAlgorithmId] && !selectedMetricAlgorithmVariantId) {
+            const firstIndex = metricAlgorithmsByKey[selectedMetricAlgorithmId]['metricAlgorithmVariants'].findIndex(mav => mav['implementations'].some(mai => mai['available']));
+            selectedMetricAlgorithmVariantId = metricAlgorithmsByKey[selectedMetricAlgorithmId]['metricAlgorithmVariants'][firstIndex].id;
+            form.change("metricAlgorithmVariant", metricAlgorithmsByKey[selectedMetricAlgorithmId]['metricAlgorithmVariants'][firstIndex].id);
         }
-        if (total > 0 && metricAlgorithmsByKey[props.formData.metricAlgorithm] &&
-            metricAlgorithmVariantsByKey[props.formData.metricAlgorithmVariant] &&
-            metricAlgorithmVariantsByKey[props.formData.metricAlgorithmVariant]['implementations'].length
+        if (total > 0 && metricAlgorithmsByKey[selectedMetricAlgorithmId] &&
+            metricAlgorithmVariantsByKey[selectedMetricAlgorithmVariantId] &&
+            metricAlgorithmVariantsByKey[selectedMetricAlgorithmVariantId]['implementations'].length &&
+            !selectedMetricAlgorithmImplementation
         ) {
-            const firstIndex = metricAlgorithmVariantsByKey[props.formData.metricAlgorithmVariant]['implementations'].findIndex(mai => mai['available']);
-            form.change("metricAlgorithmImplementation", metricAlgorithmVariantsByKey[props.formData.metricAlgorithmVariant]['implementations'][firstIndex].id);
+            const firstIndex = metricAlgorithmVariantsByKey[selectedMetricAlgorithmVariantId]['implementations'].findIndex(mai => mai['available']);
+            form.change("metricAlgorithmImplementation", metricAlgorithmVariantsByKey[selectedMetricAlgorithmVariantId]['implementations'][firstIndex].id);
         }
-    }, [metricAlgorithmsByKey, metricAlgorithmVariantsByKey, form, metricAlgorithms, props.formData.metricAlgorithm, props.formData.metricAlgorithmVariant, props.formData.metricAlgorithmImplementation, total]);
+    }, [form, metricAlgorithmVariantsByKey, metricAlgorithms, metricAlgorithmsByKey, total]);
+
+    useEffect(() => {
+        selectFirstAvailable(props.formData.metricAlgorithm, props.formData.metricAlgorithmVariant, props.formData.metricAlgorithmImplementation);
+    }, [selectFirstAvailable, props]);
 
     const onMetricAlgorithmImplementationRadioChange = (event) => {
         form.change("metricAlgorithmImplementation", event.target.value);
@@ -143,11 +150,9 @@ const MetricCreateFormContent = (props) => {
                                     //User changes the choice of metricAlgorithm, hence we automatically update the choice of metricAlgorithmVariant and metricAlgorithmImplementation
                                     if (event.target.value &&
                                         metricAlgorithmsByKey[event.target.value] &&
-                                        metricAlgorithmsByKey[event.target.value]['metricAlgorithmVariants'] &&
-                                        metricAlgorithmsByKey[event.target.value]['metricAlgorithmVariants'][0]
+                                        metricAlgorithmsByKey[event.target.value]['metricAlgorithmVariants']
                                     ) {
-                                        form.change("metricAlgorithmVariant", metricAlgorithmsByKey[event.target.value]['metricAlgorithmVariants'][0].id);
-                                        form.change("metricAlgorithmImplementation", metricAlgorithmsByKey[event.target.value]['metricAlgorithmVariants'][0]['implementations'][0].id);
+                                        selectFirstAvailable(event.target.value, null, null);
                                     }
                                 }}
                             />
@@ -168,7 +173,7 @@ const MetricCreateFormContent = (props) => {
                                     if (event.target.value &&
                                         metricAlgorithmVariantsByKey[event.target.value]
                                     )
-                                        form.change("metricAlgorithmImplementation", metricAlgorithmVariantsByKey[event.target.value]['implementations'][0].id);
+                                        selectFirstAvailable(props.formData.metricAlgorithm, event.target.value, null);
                                 }}
                             />
                         </Grid>}

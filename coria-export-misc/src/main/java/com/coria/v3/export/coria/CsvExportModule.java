@@ -21,11 +21,10 @@ import java.util.Map;
 public class CsvExportModule extends ExportModule {
     private final Logger logger = LoggerFactory.getLogger(CsvExportModule.class);
 
-    //TODO /1 proofread the descriptions of all export modules
     public CsvExportModule() {
         super("raw-csv-export-module",
                 "Raw CSV Export Module",
-                "<p>The <strong>CSV Export Module</strong> exports all either all edges or all nodes from a dataset into a Comma-Separated Values (<code>CSV</code>) text file.</p>" +
+                "<p>The <strong>CSV Export Module</strong> exports either all edges or all nodes from the database into a Comma-Separated Values (<code>CSV</code>) text file.</p>" +
                         "<p>You can specify which separator character to use and which entity to export (nodes or edges).</p>" +
                         "<p>Alongside with the name of the entity, the module also exports all attributes and all computed metric results assigned to the entity.</p>",
                 new ExportModuleParameter[]{

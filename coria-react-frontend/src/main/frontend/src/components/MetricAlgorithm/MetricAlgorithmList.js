@@ -96,7 +96,7 @@ const MetricAlgorithmExpand = ({record}) => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {mav.parameters.map(mai => <TableRow>
+                                        {mav.parameters.map(mai => <TableRow key={mai['id']}>
                                             <TableCell>{mai['id']}</TableCell>
                                             <TableCell>{mai['description']}</TableCell>
                                             <TableCell>{mai['type']}</TableCell>
@@ -119,7 +119,7 @@ const MetricAlgorithmExpand = ({record}) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {mav.implementations.map(mai => <TableRow>
+                                    {mav.implementations.map(mai => <TableRow key={mai['id']}>
                                         <TableCell>{mai['id']}</TableCell>
                                         <TableCell>{mai['technology']}</TableCell>
                                         <TableCell>{mai['provider']}</TableCell>

@@ -4,7 +4,7 @@
 
 import {makeStyles} from "@material-ui/styles";
 import {ArrayField, Button, ChipField, Datagrid, DateField, DeleteButton, EditButton, ReferenceManyField, Show, SimpleShowLayout, Tab, TabbedShowLayout, TextField, TopToolbar, useRefresh} from "react-admin";
-import NodeDataGrid from "../CommonComponents/NodeDataGrid";
+import NodeDataGridMui from "../CommonComponents/NodeDataGridMui";
 import React, {useState} from "react";
 import BlurOnIcon from "@material-ui/icons/BlurOn";
 import * as moment from "moment";
@@ -82,24 +82,27 @@ const DatasetShow = props => {
                     <DatasetCreateMetricDialog open={dialogState.open} onClose={DatasetCreateMetricDialog_handleClose}/>
                 </Tab>
                 <Tab label="Nodes" path="nodes">
-                    <NodeDataGrid resource={"Node"} entityName={"Node"}
-                                  subArrayProps={['attributesList', 'metricResults']}>
-                        <ChipField key="name" source="name" label="Node name"/>
-                    </NodeDataGrid>
+                    <NodeDataGridMui
+                        resource={"Node"} entityName={"Node"}
+                        subArrayProps={['attributesList', 'metricResults']}
+                        chipFields={[{source: "name", label: "Node name"}]}/>
                 </Tab>
                 <Tab label="Edges" path="edges">
-                    <NodeDataGrid resource={"Edge"} entityName={"Edge"}
-                                  subArrayProps={['attributesList', 'metricResults']}>
-                        <ChipField key="name" source="name" label="Edge name"/>
-                    </NodeDataGrid>
+                    <NodeDataGridMui
+                        resource={"Edge"} entityName={"Edge"}
+                        subArrayProps={['attributesList', 'metricResults']}
+                        chipFields={[{source: "name", label: "Edge name"}]}
+                    />
                 </Tab>
                 <Tab label="Shortest Path Lengths" path="shortest-path-lengths">
-                    <NodeDataGrid resource={"ShortestPathLength"} entityName={"ShortestPathLength"}>
-                        <ChipField key="metric.metricAlgorithmImplementation.id" source="metric.metricAlgorithmImplementation.id" label="Implementation"/>
-                        <ChipField key="nodeSourceName" source="nodeSourceName" label="Source Node"/>
-                        <ChipField key="nodeTargetName" source="nodeTargetName" label="Target Node"/>
-                        <TextField key="distance" source="distance" label="Distance (number of edges)"/>
-                    </NodeDataGrid>
+                    <NodeDataGridMui
+                        resource={"ShortestPathLength"} entityName={"ShortestPathLength"} chipFields={[
+                        {source: "metric.metricAlgorithmImplementation.id", label: "Implementation"},
+                        {source: "nodeSourceName", label: "Source Node"},
+                        {source: "nodeTargetName", label: "Target Node"},
+                    ]} textFields={[
+                        {source: "distance", label: "Distance (number of edges)"}
+                    ]}/>
                 </Tab>
                 <Tab label="Graph Visualization">
                     <DatasetGraphVisualization/>

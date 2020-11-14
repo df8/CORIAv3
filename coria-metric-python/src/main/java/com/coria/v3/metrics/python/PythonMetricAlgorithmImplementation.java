@@ -40,12 +40,29 @@ public class PythonMetricAlgorithmImplementation extends MetricAlgorithmImplemen
             @JsonProperty("algorithm-variant") String metricAlgorithmVariantName,
             @JsonProperty(value = "edge-list-input-file-required", defaultValue = "false") Boolean edgeListInputFileRequired
     ) throws Exception {
-        //TODO /1 write description about cuGraph and NetworkX
         super(provider.equals("RAPIDS cuGraph") ? "Python3 / C++ / CUDA" : "Python3",
                 provider,
                 provider.equals("RAPIDS cuGraph") ?
-                        "Description about RAPIDS cuGraph" :
-                        "Description about NetworkX",
+                        //Description RAPIDS
+                        "Description about RAPIDS cuGraph" +
+                                "<h4>cuGraph</h4>" +
+                                "<p>cuGraph is a GPU-accelerated network graph analytics library, with functionality like NetworkX, built for a fast analysis of large graphs.<br/>" +
+                                "In CORIA we use cuGraph to compute Betweenness Centrality as well as the Shortest Path Lengths.</p>" +
+                                "<h4>cuDF</h4>" +
+                                "<p>cuDF is a Python GPU-accelerated DataFrame library of the RAPIDS project designed for joining, aggregating, filtering, and analysing data using matrix-like objects called DataFrames. <br/>" +
+                                "In the context of CORIA we use cuDF to process column-wise operations, such as min-max scaling.</p>" +
+                                "<p>[1] For more information, see <a href=\"https://docs.rapids.ai/api\">RAPIDS Docs</a></p>" :
+
+                        //Description NETWORKX:
+                        "This metric is implemented using the NetworkX and Pandas libraries." +
+                                "<h4>NetworkX</h4>" +
+                                "<p>NetworkX is a Python package that allows software developers and researchers to read network graphs from various sources and to study the structure and dynamics of each graph." +
+                                "In CORIA we use NetworkX to compute a number of algorithms such as the Shortest Path Lengths.</p>" +
+                                "<h4>Pandas</h4>" +
+                                "<p>Pandas is an open-source Python library for joining, aggregating, filtering, and analysing data using matrix-like objects called DataFrames.\n" +
+                                "built on top of the Python programming language.</p>" +
+                                "<p>[1] For more information on NetworkX, see <a href=\"https://networkx.org/documentation/stable/\">NetworkX documentation</a></p>" +
+                                "<p>[1] For more information on Pandas, see <a href=\"https://pandas.pydata.org/docs/user_guide/index.html#user-guide\">Pandas User Guide</a></p>" ,
                 provider.equals("RAPIDS cuGraph") ? 40 : 20,
                 AppContext.getInstance().getMetricAlgorithmByName(metricAlgorithmName).getMetricAlgorithmVariantByName(metricAlgorithmVariantName),
                 !provider.equals("RAPIDS cuGraph") || (AppContext.getInstance().getCudaDevices() != null && AppContext.getInstance().getCudaDevices().size() > 0),
@@ -152,7 +169,7 @@ public class PythonMetricAlgorithmImplementation extends MetricAlgorithmImplemen
                     var currentParameterValue = parameters.stream().filter(map -> map.get("key").equals(p.getId())).findFirst();
                     if (currentParameterValue.isPresent()) {
                         // TODO /3 implement other parameter types: - INT, STRING
-                        // TODO /3 Vulnerability for malicious code execution: If `value` is of type STRING, it may contain unwanted shell code. For now we only accept valid floats, as there are no metrics requiring strings.
+                        // TODO /3 Vulnerability for malicious code execution: If `value` is of type STRING, it may contain unwanted shell code which needs to be sanitised and properly escaped. For now we only accept valid floats, as there are no metrics requiring strings.
                         if (p.getType() == MetricAlgorithmVariantParameter.MetricAlgorithmVariantParameterType.FLOAT) {
                             String value = currentParameterValue.get().get("value");
                             if (value.matches("[-+]?[0-9]*\\.?[0-9]+")) {

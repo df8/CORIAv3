@@ -261,7 +261,7 @@ const coriaBuildQuery = introspection => (fetchType, resource, params) => {
                     }
                 }`,
         };
-    } else if (resource === 'ShortestPathLength' && fetchType === GET_LIST) {
+    } else if (resource === 'ShortestPathLength' && (fetchType === GET_MANY_REFERENCE || fetchType === GET_LIST)) {
         return {
             ...builtQuery,// Use the default query variables and parseResponse
             // Override the query

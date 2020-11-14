@@ -28,8 +28,7 @@ This list is sorted in ascending order by the observed performance with the firs
  
 
 ## Changelog from v3.0 to v3.1
-- Added CUDA-based implementations of metrics running computationally intensive calculations on a GPU.
-    - [NEW] Added an approximated implementation of Betweenness Centrality with parameter `k`
+- Added CUDA-based implementations of all metric algorithms listed above, allowing to perform computationally intensive calculations on a GPU.
 - Improved performance of metrics execution:
     - We reduced memory footprint during metric calculations by eliminating the handling of entire datasets in memory. After calculating a metric, we read and process the results file only one line at a time and immediately write that data chunk into the database.
     - We also reduced the memory footprint by keeping node and edge objects in memory only for the duration of a (transactional) operation.
@@ -49,29 +48,29 @@ Metric implementations in SQL are however implemented using native SQL queries (
 ## Build from Source
 To build CORIA from sources please follow these steps. 
 
-Note: We tested this instruction on Ubuntu 18.04 LTS, Windows 10 Build 2004 and Mac OS X 10.15 Catalina. `RAPIDS` currently supports only Linux, hence for the full set of features we recommend Ubuntu 18.04.
+Note: We tested this instruction on Ubuntu 18.04 LTS, Windows 10 Build 2004 and Mac OS X 10.15 Catalina. `RAPIDS` currently only supports Linux, hence for the full set of features we recommend Ubuntu 18.04.
 
-1. Download and install the Java JDK 11 or newer
-2. Download and install Maven
-3. Install the proprietary NVIDIA display drivers and the newest NVIDIA CUDA Toolkit [We tested on NVIDIA display driver v450.51 and cuda-toolkit 11.0.3]
-3. Download and unpack the sources
-4. Open terminal in the root directory of the sources
-5. Run `mvn clean install`
-6. Now open the directory `<unzipped directory>/coria-api/target/` and find the archive `coria.war`
-6. Deploy this file to the server of your choice (see below) [We tested this project on Apache Tomcat v9.0.37]
+1. Download and install the Java JDK 11 or newer.
+2. Download and install Maven.
+3. Install the proprietary NVIDIA display drivers and the newest NVIDIA CUDA Toolkit. [We tested on NVIDIA display driver v450.51 and cuda-toolkit 11.0.3]
+3. Download and unpack the sources.
+4. Open terminal in the root directory of the sources.
+5. Run `mvn clean install`.
+6. Open the directory `<unzipped directory>/coria-api/target/` and find the archive `coria.war`.
+6. Deploy this file to the server of your choice (see below). [We tested this project on Apache Tomcat v9.0.37]
 
 ## Deploy the Application
 
 Note: We tested this instruction on Ubuntu 18.04 LTS, Windows 10 Build 2004 and Mac OS X 10.15 Catalina. `RAPIDS` currently supports only Linux, hence for the full set of features we recommend Ubuntu 18.04.
 
-1. Install Ubuntu OS. [We tested on Ubuntu 18.04 (Bionic Beaver)].
+1. Install Ubuntu OS. [We tested on Ubuntu 18.04 (Bionic Beaver)]
 2. Install Anaconda or Miniconda [We tested on Conda v4.8.2 and Python 3.7.6]
 2. Install MariaDB database server v10.5 or higher and create a DB e.g. named 'coria'. [We tested on mariadb-server-10.5]
-3. Install a Java `*.war` application server of your choice [We tested this project on Apache Tomcat v9.0.37]
-4. Install the proprietary NVIDIA display drivers for Ubuntu and the NVIDIA CUDA Toolkit [We tested on NVIDIA display driver v450.51 and cuda-toolkit 11.0.3]
+3. Install a Java `*.war` application server of your choice. [We tested this project on Apache Tomcat v9.0.37]
+4. Install the proprietary NVIDIA display drivers for Ubuntu and the NVIDIA CUDA Toolkit. [We tested on NVIDIA display driver v450.51 and cuda-toolkit 11.0.3]
 5. Build the `coria.war` file according to instructions in the section _Build from Source_.
 6. Deploy the `coria.war` file into the server. In Tomcat 9, you can use the Tomcat admin page to upload the `coria.war` file. 
-We recommend to install CORIA as the root level application such that you can use it at `http://localhost:8080` instead of `http://localhost:8080/coria`.
+We recommend installing CORIA as the root level application on yout webserver such that you can use it at `http://localhost:8080` instead of `http://localhost:8080/coria`.
 6. Your webserver will extract `coria.war` into the application directory. Find the `application.properties` file in the unpacked application directory i.e. `WEB-INF\classes\`
 7. Configure the `application.properties` lines according to your setup, especially credentials to DB and the path to a local writable directory
 8. Run server and navigate to `http://localhost:8080`

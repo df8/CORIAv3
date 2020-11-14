@@ -16,7 +16,7 @@ const CudaDeviceFilter = props => (
 
 const CudaDeviceList = props => {
     return (
-        <List {...props} filters={<CudaDeviceFilter/>} title={props.options ? props.options.label : props.resource} perPage={25}>
+        <List {...props} filters={<CudaDeviceFilter/>} title={props.options ? props.options.label : props.resource.replace(/([A-Z])/g, ' $1').trim()} perPage={25}>
             <Datagrid isRowSelectable={() => false} expand={<CudaDeviceExpand/>}>
                 <TextField source="id"/>
                 <TextField source="name"/>

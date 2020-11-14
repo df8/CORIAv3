@@ -16,7 +16,7 @@ const ASOrganizationList = props => {
     console.log(props);
     //TODO /3: display a map on expand, or display a link button that opens maps
     return (
-        <List {...props} filters={<ASOrganizationFilter/>} title={props.options ? props.options.label : props.resource}>
+        <List {...props} filters={<ASOrganizationFilter/>} title={props.options ? props.options.label : props.resource.replace(/([A-Z])/g, ' $1').trim()}>
             <Datagrid isRowSelectable={() => false}>
                 <TextField source="id"/>
                 <TextField source="name"/>

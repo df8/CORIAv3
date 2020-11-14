@@ -42,8 +42,15 @@ public class MetricAlgorithmVariant {
     }
 
     public String getDescription() {
-        if (name.equals("Default") && description.length() == 0)
+        if (description == null || description.length() == 0) {
+            if (name.equals("Default")) {
             return "Computes " + metricAlgorithm.getName() + " without applying any further post-processing.";
+            } else if (name.equals("Normalised")) {
+                return "Applies Min-Max scaling to the results of " + metricAlgorithm.getName() + " / Default.";
+            } else if (name.equals("Corrected and Normalised")) {
+                return "Applies Min-Max scaling to the results of " + metricAlgorithm.getName() + " / Corrected.";
+            }
+        }
         return description;
     }
 

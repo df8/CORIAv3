@@ -36,7 +36,7 @@ const App = () => {
         return <div>Error: {dataProviderState.errorMessage}</div>;
     else
         return <Admin
-            title="My Custom Admin"
+            title="CORIA v3.1"
             dashboard={Dashboard}
             dataProvider={dataProvider}>
             <Resource name="Dataset" {...Dataset}/>
